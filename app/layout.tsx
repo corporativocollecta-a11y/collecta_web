@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Geo } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geo = Geo({
+const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400"],
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geo.variable} h-full antialiased scroll-smooth`}
+      className={`${inter.variable} h-full antialiased scroll-smooth`}
     >
       <body
         className="min-h-full flex flex-col font-sans text-primary"
