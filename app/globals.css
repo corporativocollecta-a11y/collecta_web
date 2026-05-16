@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), 'Geo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-sans), 'Geo', -apple-system, sans-serif;
+  --font-mono: 'Source Code Pro', Menlo, monospace;
+
+  --color-primary-dark: #2A2A2A;
+  --color-primary: #4A4A4A;
+  --color-primary-light: #6A6A6A;
+
+  --color-secondary-dark: #6B5D52;
+  --color-secondary: #8B7D6B;
+  --color-secondary-light: #A89E8D;
+
+  --color-accent-dark: #F59E0B;
+  --color-accent: #F59E0B;
+  --color-accent-default: #F59E0B;
+  --color-accent-light: #F59E0B;
+
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-light: #F5F2ED;
+  --color-neutral-lighter: #FAF8F5;
+  --color-neutral-dark: #1A1A1A;
+  --color-neutral-black: #000000;
+
+  --color-success: #2D9B5C;
+  --color-warning: #E8A844;
+  --color-error: #D84242;
+
+  --color-border-light: #E0DDD6;
+  --color-border-default: #C8C3BA;
+  --color-border-dark: #8B7D6B;
+}
+
+@layer base {
+  :root {
+    --primary-dark: #2A2A2A;
+    --primary: #4A4A4A;
+    --primary-light: #6A6A6A;
+
+    --secondary-dark: #6B5D52;
+    --secondary: #8B7D6B;
+    --secondary-light: #A89E8D;
+
+    --accent-dark: #F59E0B;
+    --accent: #F59E0B;
+    --accent-light: #F59E0B;
+
+    --neutral-white: #FFFFFF;
+    --neutral-light: #F5F2ED;
+    --neutral-lighter: #FAF8F5;
+    --neutral-dark: #1A1A1A;
+    --neutral-black: #000000;
+  }
+
+  * {
+    @apply antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #0f1612;
+    color: var(--primary-dark);
+    font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans), -apple-system, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  /* Force Geo font on all elements - override any residual font-serif */
+  .font-serif,
+  [class*="font-serif"] {
+    font-family: var(--font-sans), -apple-system, sans-serif !important;
+  }
+
+  /* Also ensure font-sans uses Geo */
+  .font-sans,
+  [class*="font-sans"] {
+    font-family: var(--font-sans), -apple-system, sans-serif !important;
+  }
+
+  h1 {
+    font-size: 3.75rem;
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: 2.25rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  a {
+    transition-property: color;
+    transition-duration: 300ms;
+  }
+}
+
+@layer components {
+  .gradient-dark {
+    background: linear-gradient(to bottom right, var(--neutral-dark), var(--primary-dark), var(--secondary-dark));
+  }
+
+  .gradient-light {
+    background: linear-gradient(to bottom right, var(--neutral-light), var(--neutral-lighter));
+  }
+}
+
+/* 3D Canvas styles */
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Global dark canvas ─────────────────────────────────────────────────
+   The whole page sits on a deep-green near-black (#0f1612). Every direct
+   <section> / <div> child of <main> is forced to that colour so the page
+   reads as one continuous dark canvas — except the hero, which paints its
+   own cinematic background photo. We override the shorthand AND the image
+   so Tailwind utilities like `bg-white` or `bg-gradient-to-b` can't sneak
+   their colour back in. */
+main > section:not(.hero-inmersivo):not([data-keep-bg]),
+main > div:not(.hero-inmersivo):not([data-keep-bg]) {
+  background-color: #0f1612 !important;
+  background-image: none !important;
+}
+
+/* Network del mockup V2 — flotación vertical suave */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
