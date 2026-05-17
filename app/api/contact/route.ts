@@ -119,8 +119,18 @@ async function sendEmailViaResend(
   submittedAt: string
 ): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const toAddress = process.env.CONTACT_EMAIL_TO || 'contacto@collectagroup.com';
-  const fromAddress = process.env.CONTACT_EMAIL_FROM || 'noreply@collectagroup.com';
+
+  // Route emails based on form type:
+  //   - cliente (B2B buyer)   → sales@collectaproduce.com
+  //   - productor (agricultor) → contacto@collectaproduce.com
+  // Override via env vars for testing/staging.
+  const toAddress =
+    data.type === 'cliente'
+      ? process.env.CONTACT_EMAIL_CLIENTE || 'sales@collectaproduce.com'
+      : process.env.CONTACT_EMAIL_PRODUCTOR || 'contacto@collectaproduce.com';
+
+  const fromAddress =
+    process.env.CONTACT_EMAIL_FROM || 'noreply@collectaproduce.com';
 
   if (!apiKey) {
     // Resend not configured - skip silently (still logs above)
@@ -129,6 +139,15 @@ async function sendEmailViaResend(
 
   const subject = getSubject(data);
   const text = formatPlainText(data, submittedAt);
+
+  // Reply-To: when the recipient (sales/contacto) hits "Reply", the response
+  // goes directly to the lead's email instead of the noreply address.
+  const replyTo =
+    data.type === 'cliente'
+      ? data.email
+      : data.email && data.email.length > 0
+        ? data.email
+        : undefined;
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -141,6 +160,7 @@ async function sendEmailViaResend(
       to: toAddress,
       subject,
       text,
+      ...(replyTo ? { reply_to: replyTo } : {}),
     }),
   });
 
