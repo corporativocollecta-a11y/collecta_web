@@ -686,9 +686,21 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           color:#eaf5ee;-webkit-font-smoothing:antialiased;
         }
         .bg{
-          position:absolute;inset:0;background-size:cover;background-position:center 55%;
+          position:absolute;inset:0;
+          background-size:cover, cover, cover;
+          background-position:center, center, center 55%;
+          background-repeat:no-repeat;background-color:#06120e;
           transition:transform .3s cubic-bezier(.2,.7,.3,1);will-change:transform;
           filter:saturate(1.12) contrast(1.10) brightness(1.0);
+        }
+        /* Desktop wide: prevent the image from being over-cropped by cover.
+           Show the full image width and let height auto-fit. The dark gradient
+           overlay covers any thin transparent strips that may appear. */
+        @media (min-width: 1280px){
+          .bg{
+            background-size:cover, cover, 100% auto;
+            background-position:center, center, center center;
+          }
         }
         .tint{
           position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;
