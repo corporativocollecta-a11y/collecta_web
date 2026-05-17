@@ -480,7 +480,7 @@ export function Impacto() {
 
         {/* Impact Areas */}
         <div className="mb-20">
-          <div style={{ transform: 'translateY(70px)' }}>
+          <div className="lg:translate-y-[70px]">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -509,7 +509,7 @@ export function Impacto() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="-mt-4 max-w-6xl mx-auto"
+            className="lg:-mt-4 max-w-6xl mx-auto"
           >
             <ActionsWheel />
           </motion.div>

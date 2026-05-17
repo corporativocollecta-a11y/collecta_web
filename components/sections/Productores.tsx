@@ -268,11 +268,36 @@ export function Productores() {
                   delay: 0.15 * i,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="group h-[480px]"
+                className="group md:h-[480px]"
                 style={{ perspective: '1200px' }}
               >
+                {/* Mobile view — simple navy card with full info (no flip) */}
                 <div
-                  className="relative h-full w-full transition-transform duration-700 ease-out group-hover:[transform:rotateY(180deg)] focus-within:[transform:rotateY(180deg)]"
+                  className="md:hidden rounded-2xl p-7 flex flex-col"
+                  style={{
+                    background: '#142657',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    boxShadow:
+                      '0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,255,128,0.10), 0 0 30px rgba(0,255,128,0.10)',
+                  }}
+                >
+                  <p
+                    className="text-3xl font-bold leading-none mb-4"
+                    style={{ color: '#00FF80' }}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </p>
+                  <h5 className="text-xl font-bold text-white mb-3 leading-tight">
+                    {benefit.title}
+                  </h5>
+                  <p className="text-white/85 leading-relaxed text-sm">
+                    {benefit.description}
+                  </p>
+                </div>
+
+                {/* Desktop view — 3D flip card */}
+                <div
+                  className="hidden md:block relative h-full w-full transition-transform duration-700 ease-out group-hover:[transform:rotateY(180deg)] focus-within:[transform:rotateY(180deg)]"
                   style={{ transformStyle: 'preserve-3d' }}
                   tabIndex={0}
                 >
