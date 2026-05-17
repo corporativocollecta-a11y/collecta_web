@@ -286,7 +286,6 @@ export function FormProductor() {
         style={{
           backgroundColor: '#00FF80',
           color: '#0a1a0d',
-          focusRingColor: '#00FF80',
         }}
       >
         {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}

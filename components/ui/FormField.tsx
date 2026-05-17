@@ -55,7 +55,6 @@ export function InputField({
         style={{
           borderColor: error ? '#D84242' : '#E0DDD6',
           color: '#2A2A2A',
-          focusRingColor: '#00FF80',
         }}
       />
       {hint && !error && (
