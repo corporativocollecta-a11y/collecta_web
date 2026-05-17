@@ -67,7 +67,7 @@ function ActionsWheel() {
             width: radius * 2,
             height: radius * 2,
             transform: 'translate(-50%, -50%)',
-            border: '1px dashed rgba(74, 222, 128, 0.22)',
+            border: '1px dashed rgba(0, 255, 128, 0.22)',
           }}
         />
 
@@ -92,7 +92,7 @@ function ActionsWheel() {
               cy="50"
               r="49"
               fill="none"
-              stroke="rgba(74, 222, 128, 0.30)"
+              stroke="rgba(0, 255, 128, 0.30)"
               strokeWidth="0.25"
               strokeDasharray="2 3"
             />
@@ -107,7 +107,7 @@ function ActionsWheel() {
                   cx={cx}
                   cy={cy}
                   r="0.9"
-                  fill="#4ADE80"
+                  fill="#00FF80"
                   opacity="0.85"
                 />
               );
@@ -136,7 +136,7 @@ function ActionsWheel() {
               cy="50"
               r="49"
               fill="none"
-              stroke="rgba(74, 222, 128, 0.22)"
+              stroke="rgba(0, 255, 128, 0.22)"
               strokeWidth="0.2"
               strokeDasharray="1 2"
             />
@@ -151,7 +151,7 @@ function ActionsWheel() {
                   cx={cx}
                   cy={cy}
                   r="0.7"
-                  fill="#4ADE80"
+                  fill="#00FF80"
                   opacity="0.65"
                 />
               );
@@ -184,7 +184,7 @@ function ActionsWheel() {
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke="rgba(74, 222, 128, 0.22)"
+                stroke="rgba(0, 255, 128, 0.22)"
                 strokeWidth="1"
                 strokeDasharray="3 4"
               />
@@ -213,13 +213,13 @@ function ActionsWheel() {
           className="w-full h-full flex flex-col items-center justify-center text-center rounded-full"
           style={{
             background:
-              'radial-gradient(circle at center, rgba(74, 222, 128, 0.20) 0%, rgba(74, 222, 128, 0.05) 60%, transparent 100%)',
-            boxShadow: 'inset 0 0 0 1.5px rgba(74, 222, 128, 0.45)',
+              'radial-gradient(circle at center, rgba(0, 255, 128, 0.20) 0%, rgba(0, 255, 128, 0.05) 60%, transparent 100%)',
+            boxShadow: 'inset 0 0 0 1.5px rgba(0, 255, 128, 0.45)',
           }}
         >
           <p
             className="text-sm uppercase tracking-[0.28em] font-semibold mb-2"
-            style={{ color: '#4ADE80' }}
+            style={{ color: '#00FF80' }}
           >
             Nuestro modelo
           </p>
@@ -268,14 +268,14 @@ function ActionsWheel() {
                   className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg mb-4 cursor-pointer"
                   style={{
                     backgroundColor: 'rgba(3, 13, 7, 0.85)',
-                    color: '#4ADE80',
+                    color: '#00FF80',
                     boxShadow:
-                      'inset 0 0 0 1.5px rgba(74, 222, 128, 0.55), 0 0 18px rgba(74, 222, 128, 0.25)',
+                      'inset 0 0 0 1.5px rgba(0, 255, 128, 0.55), 0 0 18px rgba(0, 255, 128, 0.25)',
                   }}
                   whileHover={{
                     scale: 1.15,
                     boxShadow:
-                      'inset 0 0 0 2px rgba(74, 222, 128, 0.95), 0 0 38px rgba(74, 222, 128, 0.65), 0 0 16px rgba(74, 222, 128, 0.45)',
+                      'inset 0 0 0 2px rgba(0, 255, 128, 0.95), 0 0 38px rgba(0, 255, 128, 0.65), 0 0 16px rgba(0, 255, 128, 0.45)',
                   }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
@@ -313,9 +313,9 @@ function ActionsWheel() {
             <div
               className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
               style={{
-                backgroundColor: 'rgba(74, 222, 128, 0.12)',
-                color: '#4ADE80',
-                boxShadow: 'inset 0 0 0 1.5px rgba(74, 222, 128, 0.4)',
+                backgroundColor: 'rgba(0, 255, 128, 0.12)',
+                color: '#00FF80',
+                boxShadow: 'inset 0 0 0 1.5px rgba(0, 255, 128, 0.4)',
               }}
             >
               {i + 1}
@@ -360,7 +360,7 @@ export function Impacto() {
         >
           <p
             className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
-            style={{ color: '#4ADE80' }}
+            style={{ color: '#00FF80' }}
           >
             Impacto Medible y Escalable
           </p>
@@ -434,13 +434,13 @@ export function Impacto() {
           <div className="relative z-10 max-w-3xl mx-auto text-center">
             <p
               className="text-sm font-medium tracking-widest uppercase mb-4"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Por qué ahora
             </p>
             <h3
               className="text-2xl sm:text-3xl font-bold mb-8"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               México necesita transformación
             </h3>
@@ -464,7 +464,7 @@ export function Impacto() {
                 >
                   <div
                     className="flex-shrink-0 w-2 h-2 rounded-full mt-2"
-                    style={{ backgroundColor: '#4ADE80' }}
+                    style={{ backgroundColor: '#00FF80' }}
                   />
                   <p
                     className="leading-relaxed"
@@ -490,7 +490,7 @@ export function Impacto() {
             >
               <p
                 className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
-                style={{ color: '#4ADE80' }}
+                style={{ color: '#00FF80' }}
               >
                 Áreas de Impacto
               </p>
@@ -524,13 +524,13 @@ export function Impacto() {
           className="rounded-2xl p-12 border"
           style={{
             background: 'rgba(255, 255, 255, 0.02)',
-            borderColor: 'rgba(74, 222, 128, 0.25)',
+            borderColor: 'rgba(0, 255, 128, 0.25)',
           }}
         >
           <div className="text-center mb-10">
             <p
               className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Alineación Global
             </p>

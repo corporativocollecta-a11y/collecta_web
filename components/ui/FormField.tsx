@@ -51,10 +51,11 @@ export function InputField({
         placeholder={placeholder}
         min={min}
         max={max}
-        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all"
+        className="w-full h-11 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent transition-all"
         style={{
           borderColor: error ? '#D84242' : '#E0DDD6',
           color: '#2A2A2A',
+          focusRingColor: '#00FF80',
         }}
       />
       {hint && !error && (
@@ -104,10 +105,14 @@ export function SelectField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all bg-white"
+        className="w-full h-11 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent transition-all bg-white cursor-pointer appearance-none"
         style={{
           borderColor: error ? '#D84242' : '#E0DDD6',
           color: '#2A2A2A',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232A2A2A' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 1rem center',
+          paddingRight: '2.5rem',
         }}
       >
         {placeholder && (
@@ -170,7 +175,7 @@ export function TextareaField({
         required={required}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all resize-none"
+        className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none"
         style={{
           borderColor: error ? '#D84242' : '#E0DDD6',
           color: '#2A2A2A',

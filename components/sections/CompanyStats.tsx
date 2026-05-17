@@ -56,7 +56,7 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-center text-sm font-medium tracking-widest uppercase mb-4"
-          style={{ color: '#4ADE80' }}
+          style={{ color: '#00FF80' }}
         >
           {title}
         </motion.h3>
@@ -84,14 +84,14 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
             style={{
               borderRight:
                 i < stats.length - 1
-                  ? '1px solid rgba(74, 222, 128, 0.08)'
+                  ? '1px solid rgba(0, 255, 128, 0.08)'
                   : undefined,
             }}
           >
             <div
               className="leading-none mb-3"
               style={{
-                color: '#4ADE80',
+                color: '#00FF80',
                 fontFamily: 'Georgia, serif',
                 fontSize: 'clamp(28px, 3.5vw, 44px)',
                 fontWeight: 400,

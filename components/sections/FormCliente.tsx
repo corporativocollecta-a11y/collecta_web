@@ -248,8 +248,8 @@ export function FormCliente() {
       <div
         className="p-4 rounded-lg border"
         style={{
-          backgroundColor: 'rgba(74, 222, 128, 0.08)',
-          borderColor: 'rgba(74, 222, 128, 0.32)',
+          backgroundColor: 'rgba(0, 255, 128, 0.08)',
+          borderColor: 'rgba(0, 255, 128, 0.32)',
         }}
       >
         <CheckboxField
@@ -270,10 +270,11 @@ export function FormCliente() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full px-6 py-4 font-semibold rounded-lg transition-colors duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full h-12 px-6 font-semibold rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95"
         style={{
-          backgroundColor: '#4ADE80',
+          backgroundColor: '#00FF80',
           color: '#0a1a0d',
+          focusRingColor: '#00FF80',
         }}
       >
         {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
@@ -287,7 +288,7 @@ export function FormCliente() {
         <a
           href="/privacidad"
           className="underline hover:opacity-70"
-          style={{ color: '#4ADE80' }}
+          style={{ color: '#00FF80' }}
         >
           aviso de privacidad
         </a>

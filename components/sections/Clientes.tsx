@@ -16,7 +16,7 @@ const features = [
     description: 'Acceso inmediato a datos, reportes y estado de pedidos.',
   },
   {
-    color: '#4ADE80', // verde eléctrico
+    color: '#00FF80', // verde eléctrico
     title: 'Control de riesgos',
     description: 'Documentación completa, certificaciones y trazabilidad auditable.',
   },
@@ -173,7 +173,7 @@ export function Clientes() {
           <div className="relative z-10">
             <h3
               className="text-2xl sm:text-3xl font-bold mb-4"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Accede a tu Dashboard
             </h3>
@@ -190,7 +190,7 @@ export function Clientes() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-8 py-4 font-semibold rounded-lg transition-colors duration-300"
-                style={{ backgroundColor: '#4ADE80', color: '#0a1a0d' }}
+                style={{ backgroundColor: '#00FF80', color: '#0a1a0d' }}
               >
                 Ingresar a la plataforma →
               </a>

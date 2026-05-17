@@ -829,13 +829,13 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           opacity:0;animation:fadeUp 1s .35s ease-out forwards;
         }
         .title :global(.accent){
-          color:#4ADE80;
+          color:#00FF80;
           text-shadow:
             0 2px 4px rgba(0,0,0,.75),
             0 4px 16px rgba(0,0,0,.7),
             0 0 28px rgba(0,0,0,.6),
-            0 0 24px rgba(74,222,128,.45),
-            0 0 60px rgba(74,222,128,.28);
+            0 0 24px rgba(0,255,128,.45),
+            0 0 60px rgba(0,255,128,.28);
         }
         .subtitle{
           pointer-events:auto;max-width:1000px;margin:36px auto 0;
@@ -854,7 +854,7 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           position:relative;overflow:hidden;appearance:none;border:0;cursor:pointer;
           padding:16px 37px;border-radius:999px;
           font:700 17px/1 "Geo","Geo Fallback",-apple-system,sans-serif;letter-spacing:.08em;color:#fff;
-          background:#4ADE80;
+          background:#00FF80;
           text-shadow:
             0 1px 3px rgba(0,0,0,.8),
             0 2px 8px rgba(0,0,0,.6),
@@ -863,7 +863,7 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
             0 1px 0 rgba(255,255,255,.25) inset,
             0 -1px 0 rgba(0,0,0,.25) inset,
             0 8px 24px rgba(0,0,0,.35),
-            0 0 0 1px rgba(140,230,192,.25);
+            0 0 0 1px rgba(0,255,128,.25);
           transition:transform .2s ease, box-shadow .25s ease, filter .2s ease;
           text-decoration:none;
         }

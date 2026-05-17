@@ -50,13 +50,13 @@ export function Contacto() {
           >
             <p
               className="text-sm font-medium tracking-widest uppercase mb-4"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Hablemos
             </p>
             <h2
               className="text-4xl sm:text-5xl font-bold mb-6"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Únete al Ecosistema
             </h2>
@@ -73,8 +73,8 @@ export function Contacto() {
                 <div
                   className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl"
                   style={{
-                    backgroundColor: 'rgba(74, 222, 128, 0.12)',
-                    color: '#4ADE80',
+                    backgroundColor: 'rgba(0, 255, 128, 0.12)',
+                    color: '#00FF80',
                   }}
                 >
                   ✉
@@ -100,8 +100,8 @@ export function Contacto() {
                 <div
                   className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl"
                   style={{
-                    backgroundColor: 'rgba(74, 222, 128, 0.12)',
-                    color: '#4ADE80',
+                    backgroundColor: 'rgba(0, 255, 128, 0.12)',
+                    color: '#00FF80',
                   }}
                 >
                   ◉
@@ -162,15 +162,15 @@ export function Contacto() {
           >
             {/* Tabs Selector */}
             <div
-              className="flex justify-center gap-3 p-2 pt-8 sm:pt-10 border-b"
+              className="flex justify-center gap-4 p-4 pt-8 sm:pt-10 border-b"
               style={{ borderColor: 'rgba(0, 0, 0, 0.06)' }}
             >
               <button
                 onClick={() => setActiveForm('cliente')}
-                className="w-[40%] py-2 rounded-md font-semibold text-xs sm:text-sm transition-all duration-300 relative"
+                className="flex-1 max-w-xs py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 relative"
                 style={{
                   backgroundColor:
-                    activeForm === 'cliente' ? '#4ADE80' : 'transparent',
+                    activeForm === 'cliente' ? '#00FF80' : 'transparent',
                   color: activeForm === 'cliente' ? '#0a1a0d' : '#4A4A4A',
                 }}
               >
@@ -189,10 +189,10 @@ export function Contacto() {
               </button>
               <button
                 onClick={() => setActiveForm('productor')}
-                className="w-[40%] py-2 rounded-md font-semibold text-xs sm:text-sm transition-all duration-300 relative"
+                className="flex-1 max-w-xs py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 relative"
                 style={{
                   backgroundColor:
-                    activeForm === 'productor' ? '#4ADE80' : 'transparent',
+                    activeForm === 'productor' ? '#00FF80' : 'transparent',
                   color: activeForm === 'productor' ? '#0a1a0d' : '#4A4A4A',
                 }}
               >

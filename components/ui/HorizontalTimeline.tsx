@@ -55,7 +55,7 @@ interface HorizontalTimelineProps
  */
 export function HorizontalTimeline({
   steps,
-  accent = '#4ADE80',
+  accent = '#00FF80',
   trackColor = '#1E3A5F',
   haloColor = '#FAF8F5',
   className,
@@ -106,7 +106,7 @@ export function HorizontalTimeline({
             left: `${TRACK_INSET}%`,
             width: reduceMotion ? `${TRACK_SPAN}%` : progressWidth,
             // Progress track is now solid electric green — no amber, no glow.
-            background: '#4ADE80',
+            background: '#00FF80',
           }}
         />
 

@@ -384,19 +384,19 @@ export function Ecosistema() {
           className="relative rounded-2xl mx-auto max-w-6xl px-6 py-10 sm:px-10 sm:py-12"
           style={{
             background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(74, 222, 128, 0.25)',
+            border: '1px solid rgba(0, 255, 128, 0.25)',
           }}
         >
           {/* Panel header */}
           <p
             className="font-mono text-xs sm:text-sm tracking-[0.32em] uppercase mb-10 text-center"
-            style={{ color: 'rgba(74, 222, 128, 0.85)' }}
+            style={{ color: 'rgba(0, 255, 128, 0.85)' }}
           >
             Flujo operativo completo — COS monitorea cada etapa
           </p>
 
-          {/* 7-node row */}
-          <div className="flex flex-wrap items-start justify-between gap-y-8">
+          {/* 7-node grid — responsive layout */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6 lg:gap-2 w-full">
             {[
               // Each node has a tiny inline SVG icon picked to match the stage.
               {
@@ -492,69 +492,68 @@ export function Ecosistema() {
                   </svg>
                 ),
               },
-            ].map((node, i, arr) => (
-              <React.Fragment key={node.label}>
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className="flex flex-col items-center text-center"
+            ].map((node, i) => (
+              <motion.div
+                key={node.label}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="flex flex-col items-center text-center relative"
+              >
+                {/* Circle node — soft green glass with icon. Hover: scale + glow */}
+                <motion.span
+                  aria-hidden="true"
+                  className="inline-flex items-center justify-center rounded-full mb-3 cursor-pointer"
+                  style={{
+                    width: 64,
+                    height: 64,
+                    background:
+                      'radial-gradient(circle at 35% 30%, rgba(0,255,128,0.18) 0%, rgba(0,255,128,0.04) 70%)',
+                    border: '1.5px solid rgba(0, 255, 128, 0.55)',
+                    boxShadow:
+                      '0 0 20px rgba(0,255,128,0.15), inset 0 0 12px rgba(0,255,128,0.10)',
+                    color: '#00FF80',
+                  }}
+                  whileHover={{
+                    scale: 1.12,
+                    borderColor: 'rgba(0, 255, 128, 0.95)',
+                    boxShadow:
+                      '0 0 40px rgba(0,255,128,0.55), 0 0 18px rgba(0,255,128,0.4), inset 0 0 18px rgba(0,255,128,0.22)',
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
                 >
-                  {/* Circle node — soft green glass with icon. Hover: scale + glow */}
-                  <motion.span
-                    aria-hidden="true"
-                    className="inline-flex items-center justify-center rounded-full mb-3 cursor-pointer"
-                    style={{
-                      width: 72,
-                      height: 72,
-                      background:
-                        'radial-gradient(circle at 35% 30%, rgba(74,222,128,0.18) 0%, rgba(74,222,128,0.04) 70%)',
-                      border: '1.5px solid rgba(74, 222, 128, 0.55)',
-                      boxShadow:
-                        '0 0 20px rgba(74,222,128,0.15), inset 0 0 12px rgba(74,222,128,0.10)',
-                      color: '#4ADE80',
-                    }}
-                    whileHover={{
-                      scale: 1.12,
-                      borderColor: 'rgba(74, 222, 128, 0.95)',
-                      boxShadow:
-                        '0 0 40px rgba(74,222,128,0.55), 0 0 18px rgba(74,222,128,0.4), inset 0 0 18px rgba(74,222,128,0.22)',
-                    }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                  >
-                    <span style={{ width: 28, height: 28, display: 'block' }}>{node.icon}</span>
-                  </motion.span>
-                  <p
-                    className="font-mono text-[11px] sm:text-xs font-bold tracking-[0.18em] mb-1"
-                    style={{ color: '#FFFFFF' }}
-                  >
-                    {node.label}
-                  </p>
-                  <p
-                    className="text-[10px] sm:text-xs"
-                    style={{ color: 'rgba(255,255,255,0.55)' }}
-                  >
-                    {node.sub}
-                  </p>
-                </motion.div>
+                  <span style={{ width: 24, height: 24, display: 'block' }}>{node.icon}</span>
+                </motion.span>
+                <p
+                  className="font-mono text-[10px] sm:text-xs font-bold tracking-[0.18em] mb-1"
+                  style={{ color: '#FFFFFF' }}
+                >
+                  {node.label}
+                </p>
+                <p
+                  className="text-[9px] sm:text-xs"
+                  style={{ color: 'rgba(255,255,255,0.55)' }}
+                >
+                  {node.sub}
+                </p>
 
-                {/* Connector ">" between nodes (hidden after last) */}
-                {i < arr.length - 1 && (
+                {/* Connector ">" between nodes (desktop only, hidden on last) */}
+                {i < 6 && (
                   <span
                     aria-hidden="true"
-                    className="hidden md:block self-start pt-7"
+                    className="hidden lg:block absolute -right-1 top-1/2 -translate-y-1/2"
                     style={{
-                      color: 'rgba(74, 222, 128, 0.45)',
+                      color: 'rgba(0, 255, 128, 0.45)',
                       fontFamily: 'monospace',
-                      fontSize: 18,
+                      fontSize: 14,
                       lineHeight: 1,
                     }}
                   >
                     &gt;
                   </span>
                 )}
-              </React.Fragment>
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -572,7 +571,7 @@ export function Ecosistema() {
             {/* Small green eyebrow — matches "Nuestra razón de ser" in size & colour */}
             <p
               className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
-              style={{ color: '#4ADE80' }}
+              style={{ color: '#00FF80' }}
             >
               Clientes
             </p>
@@ -642,7 +641,7 @@ export function Ecosistema() {
                 },
               ].map((item: { title: string; description: string; image: string; metric?: string; metricLabel?: string; frontTitle?: string }, i) => {
                 // Each row gets its own dot colour so the stack reads as a series.
-                const dotColors = ['#4ADE80', '#3B82F6', '#F59E0B', '#14B8A6'];
+                const dotColors = ['#00FF80', '#3B82F6', '#F59E0B', '#14B8A6'];
                 const dot = dotColors[i % dotColors.length];
                 return (
                   <motion.div
@@ -654,7 +653,7 @@ export function Ecosistema() {
                     className="flex items-start gap-5 rounded-xl p-5 sm:p-6 transition-shadow duration-300 hover:shadow-xl"
                     style={{
                       background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(74, 222, 128, 0.25)',
+                      border: '1px solid rgba(0, 255, 128, 0.25)',
                     }}
                   >
                     {/* Coloured anchor — small ring with a glowing dot at center */}
@@ -747,7 +746,7 @@ export function Ecosistema() {
                       className="relative rounded-2xl px-5 py-5 flex flex-col items-center justify-center gap-3 transition-transform duration-300 hover:-translate-y-1"
                       style={{
                         background: 'rgba(255, 255, 255, 0.02)',
-                        border: '1px solid rgba(74, 222, 128, 0.25)',
+                        border: '1px solid rgba(0, 255, 128, 0.25)',
                       }}
                     >
                       <div className="w-12 h-12 text-white">{step.icon}</div>
@@ -770,7 +769,7 @@ export function Ecosistema() {
                         style={{
                           left: `calc(${((i + 1) * 100) / SUPPLY_STEPS.length}% - 12px)`,
                           top: '50%',
-                          color: '#4ADE80',
+                          color: '#00FF80',
                         }}
                         animate={{
                           x: ['-60%', '-40%', '-60%'],

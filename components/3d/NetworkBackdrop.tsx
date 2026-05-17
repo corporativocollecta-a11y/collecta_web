@@ -41,7 +41,7 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         <defs>
           {/* Patrón de cuadrícula sutil de fondo */}
           <pattern id="cgr" width="18" height="18" patternUnits="userSpaceOnUse">
-            <path d="M18 0L0 0 0 18" fill="none" stroke="rgba(74,222,128,.045)" strokeWidth=".5" />
+            <path d="M18 0L0 0 0 18" fill="none" stroke="rgba(0,255,128,.045)" strokeWidth=".5" />
           </pattern>
         </defs>
 
@@ -49,14 +49,14 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         <rect width="300" height="390" fill="url(#cgr)" />
 
         {/* Círculos concéntricos guía alrededor del núcleo Collecta */}
-        <circle cx="150" cy="200" r="95" fill="none" stroke="rgba(74,222,128,.05)" strokeWidth=".5" />
-        <circle cx="150" cy="200" r="68" fill="none" stroke="rgba(74,222,128,.07)" strokeWidth=".5" />
+        <circle cx="150" cy="200" r="95" fill="none" stroke="rgba(0,255,128,.05)" strokeWidth=".5" />
+        <circle cx="150" cy="200" r="68" fill="none" stroke="rgba(0,255,128,.07)" strokeWidth=".5" />
 
         {/* Rutas curvas — núcleo de la visualización */}
         <path
           id="p1"
           d="M150 320 Q144 258 150 200"
-          stroke="#4ADE80"
+          stroke="#00FF80"
           strokeWidth="1.5"
           fill="none"
           strokeDasharray="5 3"
@@ -67,7 +67,7 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         <path
           id="p2"
           d="M150 200 Q90 152 72 104"
-          stroke="#4ADE80"
+          stroke="#00FF80"
           strokeWidth="1.1"
           fill="none"
           strokeDasharray="5 3"
@@ -78,7 +78,7 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         <path
           id="p3"
           d="M150 200 Q210 152 228 104"
-          stroke="#4ADE80"
+          stroke="#00FF80"
           strokeWidth="1.1"
           fill="none"
           strokeDasharray="5 3"
@@ -88,35 +88,35 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         </path>
 
         {/* Puntos luminosos que viajan por las rutas */}
-        <circle r="3.5" fill="#4ADE80" opacity=".9">
+        <circle r="3.5" fill="#00FF80" opacity=".9">
           <animateMotion dur="1.9s" repeatCount="indefinite">
             <mpath href="#p1" />
           </animateMotion>
         </circle>
-        <circle r="2" fill="#4ADE80" opacity=".5">
+        <circle r="2" fill="#00FF80" opacity=".5">
           <animateMotion dur="1.9s" repeatCount="indefinite" begin="0.95s">
             <mpath href="#p1" />
           </animateMotion>
         </circle>
-        <circle r="2.5" fill="#4ADE80" opacity=".8">
+        <circle r="2.5" fill="#00FF80" opacity=".8">
           <animateMotion dur="2.4s" repeatCount="indefinite" begin=".4s">
             <mpath href="#p2" />
           </animateMotion>
         </circle>
-        <circle r="2.5" fill="#4ADE80" opacity=".8">
+        <circle r="2.5" fill="#00FF80" opacity=".8">
           <animateMotion dur="2.9s" repeatCount="indefinite" begin=".9s">
             <mpath href="#p3" />
           </animateMotion>
         </circle>
 
         {/* MÉXICO — origen estratégico */}
-        <circle cx="150" cy="320" r="42" fill="rgba(74,222,128,.05)" stroke="rgba(74,222,128,.12)" strokeWidth=".5" />
-        <circle cx="150" cy="320" r="27" fill="rgba(74,222,128,.09)" stroke="rgba(74,222,128,.24)" strokeWidth=".8">
+        <circle cx="150" cy="320" r="42" fill="rgba(0,255,128,.05)" stroke="rgba(0,255,128,.12)" strokeWidth=".5" />
+        <circle cx="150" cy="320" r="27" fill="rgba(0,255,128,.09)" stroke="rgba(0,255,128,.24)" strokeWidth=".8">
           <animate attributeName="r" values="27;29;27" dur="2.4s" repeatCount="indefinite" />
         </circle>
-        <circle cx="150" cy="320" r="10" fill="rgba(74,222,128,.4)" stroke="#4ADE80" strokeWidth="1.5" />
-        <circle cx="150" cy="320" r="4.5" fill="#4ADE80" />
-        <text x="150" y="360" textAnchor="middle" fill="#4ADE80" fontSize="10" letterSpacing="2" fontWeight="600">
+        <circle cx="150" cy="320" r="10" fill="rgba(0,255,128,.4)" stroke="#00FF80" strokeWidth="1.5" />
+        <circle cx="150" cy="320" r="4.5" fill="#00FF80" />
+        <text x="150" y="360" textAnchor="middle" fill="#00FF80" fontSize="10" letterSpacing="2" fontWeight="600">
           MÉXICO
         </text>
         <text x="150" y="374" textAnchor="middle" fill="rgba(236,248,237,.55)" fontSize="10" letterSpacing="1">
@@ -158,17 +158,17 @@ export default function NetworkBackdrop({ className, style }: NetworkBackdropPro
         </text>
 
         {/* EE.UU. — mercado */}
-        <circle cx="72" cy="104" r="32" fill="rgba(74,222,128,.05)" stroke="rgba(74,222,128,.18)" strokeWidth=".5" />
-        <circle cx="72" cy="104" r="20" fill="rgba(74,222,128,.09)" stroke="rgba(74,222,128,.3)" strokeWidth=".8" />
-        <circle cx="72" cy="104" r="5.5" fill="#4ADE80" opacity=".85" />
+        <circle cx="72" cy="104" r="32" fill="rgba(0,255,128,.05)" stroke="rgba(0,255,128,.18)" strokeWidth=".5" />
+        <circle cx="72" cy="104" r="20" fill="rgba(0,255,128,.09)" stroke="rgba(0,255,128,.3)" strokeWidth=".8" />
+        <circle cx="72" cy="104" r="5.5" fill="#00FF80" opacity=".85" />
         <text x="72" y="138" textAnchor="middle" fill="rgba(236,248,237,.85)" fontSize="9.5" letterSpacing="1.5" fontWeight="500">
           EE.UU.
         </text>
 
         {/* Canadá — mercado (verde, como México y EE.UU.) */}
-        <circle cx="228" cy="104" r="30" fill="rgba(74,222,128,.05)" stroke="rgba(74,222,128,.18)" strokeWidth=".5" />
-        <circle cx="228" cy="104" r="18" fill="rgba(74,222,128,.09)" stroke="rgba(74,222,128,.3)" strokeWidth=".8" />
-        <circle cx="228" cy="104" r="5" fill="#4ADE80" opacity=".85" />
+        <circle cx="228" cy="104" r="30" fill="rgba(0,255,128,.05)" stroke="rgba(0,255,128,.18)" strokeWidth=".5" />
+        <circle cx="228" cy="104" r="18" fill="rgba(0,255,128,.09)" stroke="rgba(0,255,128,.3)" strokeWidth=".8" />
+        <circle cx="228" cy="104" r="5" fill="#00FF80" opacity=".85" />
         <text x="228" y="136" textAnchor="middle" fill="rgba(236,248,237,.85)" fontSize="9.5" letterSpacing="1.5" fontWeight="500">
           CANADÁ
         </text>

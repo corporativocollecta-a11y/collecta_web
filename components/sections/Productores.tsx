@@ -170,7 +170,7 @@ const partnerBenefits = [
     title: 'Insumos sin deuda',
     description:
       'Acceso continuo a insumos agrícolas sin cargos financieros ni endeudamiento.',
-    accent: '#4ADE80', // electric green
+    accent: '#00FF80', // electric green
   },
   {
     title: 'Crecimiento sostenido',
@@ -223,7 +223,7 @@ export function Productores() {
         >
           <p
             className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
-            style={{ color: '#4ADE80' }}
+            style={{ color: '#00FF80' }}
           >
             Para Pequeños y Medianos Productores
           </p>
@@ -417,12 +417,12 @@ export function Productores() {
                       background: '#142657',
                       border: '1px solid rgba(255,255,255,0.18)',
                       boxShadow:
-                        '0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(74,222,128,0.10), 0 0 30px rgba(74,222,128,0.10)',
+                        '0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,255,128,0.10), 0 0 30px rgba(0,255,128,0.10)',
                     }}
                   >
                     <p
                       className="text-3xl sm:text-4xl font-bold leading-none mb-5"
-                      style={{ color: '#4ADE80' }}
+                      style={{ color: '#00FF80' }}
                     >
                       {String(i + 1).padStart(2, '0')}
                     </p>
@@ -487,7 +487,7 @@ export function Productores() {
                 <span
                   aria-hidden="true"
                   className="block font-mono text-sm tracking-[0.32em] font-semibold mb-5"
-                  style={{ color: '#4ADE80' }}
+                  style={{ color: '#00FF80' }}
                 >
                   {String(i + 1).padStart(2, '0')}
                 </span>

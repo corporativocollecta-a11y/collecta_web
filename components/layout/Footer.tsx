@@ -25,50 +25,37 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer
-      className="py-16 px-4 sm:px-6 lg:px-8 border-t"
-      style={{
-        background: '#FFFFFF',
-        borderColor: 'rgba(0, 0, 0, 0.08)',
-        color: '#2A2A2A',
-      }}
-    >
+    <footer className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-t border-light-border bg-white text-dark-text">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 mb-12 items-start">
-          {/* Brand - takes more space, aligned to far left */}
-          <div className="col-span-2 md:col-span-3 md:-ml-10">
-            <div className="relative h-14 sm:h-16 w-52 sm:w-64 mb-4">
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 mb-12 lg:mb-16 items-start">
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-3">
+            <div className="relative h-12 sm:h-14 w-48 sm:w-56 mb-4">
               <Image
                 src="/assets/logo.png"
                 alt="Collecta"
                 fill
-                sizes="(max-width: 640px) 208px, 256px"
+                sizes="(max-width: 640px) 192px, 224px"
                 className="object-contain object-left"
               />
             </div>
-            <p
-              className="text-sm leading-relaxed text-center w-52 sm:w-64"
-              style={{ color: '#4A4A4A' }}
-            >
+            <p className="text-sm leading-relaxed text-dark-text-secondary">
               Para toda la humanidad
             </p>
           </div>
 
           {/* Ecosistema */}
-          <div className="md:col-span-2">
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: '#4ADE80' }}
-            >
+          <div className="sm:col-span-1 lg:col-span-2">
+            <h4 className="font-semibold mb-4 text-brand-green uppercase text-xs tracking-wider">
               Ecosistema
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {footerLinks.ecosistema.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm transition-colors hover:opacity-70"
-                    style={{ color: '#4A4A4A' }}
+                    className="text-sm text-dark-text-secondary hover:text-brand-green transition-colors duration-300"
                   >
                     {link.label}
                   </a>
@@ -77,21 +64,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Audiencias */}
-          <div className="md:col-span-2">
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: '#4ADE80' }}
-            >
+          {/* Para ti */}
+          <div className="sm:col-span-1 lg:col-span-2">
+            <h4 className="font-semibold mb-4 text-brand-green uppercase text-xs tracking-wider">
               Para ti
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {footerLinks.audiencias.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm transition-colors hover:opacity-70"
-                    style={{ color: '#4A4A4A' }}
+                    className="text-sm text-dark-text-secondary hover:text-brand-green transition-colors duration-300"
                   >
                     {link.label}
                   </a>
@@ -101,20 +84,16 @@ export function Footer() {
           </div>
 
           {/* Empresa */}
-          <div className="md:col-span-2">
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: '#4ADE80' }}
-            >
+          <div className="sm:col-span-1 lg:col-span-2">
+            <h4 className="font-semibold mb-4 text-brand-green uppercase text-xs tracking-wider">
               Empresa
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {footerLinks.empresa.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm transition-colors hover:opacity-70"
-                    style={{ color: '#4A4A4A' }}
+                    className="text-sm text-dark-text-secondary hover:text-brand-green transition-colors duration-300"
                   >
                     {link.label}
                   </a>
@@ -124,20 +103,16 @@ export function Footer() {
           </div>
 
           {/* Legales */}
-          <div className="md:col-span-2">
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: '#4ADE80' }}
-            >
+          <div className="sm:col-span-1 lg:col-span-2">
+            <h4 className="font-semibold mb-4 text-brand-green uppercase text-xs tracking-wider">
               Legales
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {footerLinks.legales.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm transition-colors hover:opacity-70"
-                    style={{ color: '#4A4A4A' }}
+                    className="text-sm text-dark-text-secondary hover:text-brand-green transition-colors duration-300 underline"
                   >
                     {link.label}
                   </a>
@@ -146,8 +121,8 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Hecho en México - aligned right of Legales */}
-          <div className="col-span-2 md:col-span-1 flex md:justify-end items-start">
+          {/* Hecho en México */}
+          <div className="sm:col-span-2 lg:col-span-1 flex sm:justify-center lg:justify-end items-start">
             <a
               href="https://hechoenmexico.economia.gob.mx/"
               target="_blank"
@@ -164,11 +139,8 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Impulsado por WORTEV */}
-        <div
-          className="pt-8 mt-8 flex justify-center items-center border-t"
-          style={{ borderColor: 'rgba(0, 0, 0, 0.06)' }}
-        >
+        {/* Bottom - WORTEV */}
+        <div className="pt-8 sm:pt-10 lg:pt-12 mt-8 sm:mt-10 lg:mt-12 flex justify-center items-center border-t border-light-border">
           <a
             href="https://wortev.com/"
             target="_blank"
@@ -177,16 +149,10 @@ export function Footer() {
             title="Impulsado por WORTEV"
           >
             <div className="flex flex-col items-end leading-tight">
-              <span
-                className="italic text-xs"
-                style={{ color: '#8B7D6B' }}
-              >
+              <span className="italic text-xs text-dark-text-muted">
                 Impulsado
               </span>
-              <span
-                className="italic text-xs"
-                style={{ color: '#8B7D6B' }}
-              >
+              <span className="italic text-xs text-dark-text-muted">
                 por
               </span>
             </div>
@@ -194,9 +160,6 @@ export function Footer() {
               src="/assets/wortev-logo.svg"
               alt="WORTEV"
               className="h-7 sm:h-8 w-auto transition-transform duration-300 group-hover:scale-105"
-              // The SVG ships as white (for dark backgrounds). The footer now
-              // sits on solid white, so invert the logo to near-black so it's
-              // visible against the page.
               style={{ filter: 'brightness(0) opacity(0.78)' }}
             />
           </a>

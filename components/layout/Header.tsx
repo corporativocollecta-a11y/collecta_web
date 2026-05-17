@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import { linkClasses, buttonClasses } from '@/lib/component-utils';
 
 const navLinks = [
   { href: '#ecosistema', label: 'Ecosistema' },
@@ -30,19 +31,19 @@ export function Header() {
     <header
       className={clsx(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white',
-        scrolled ? 'shadow-sm' : ''
+        scrolled ? 'shadow-md' : ''
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 sm:h-24">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center group">
-            <div className="relative h-14 sm:h-16 w-52 sm:w-64 transition-transform duration-300 group-hover:scale-105">
+            <div className="relative h-12 sm:h-14 w-48 sm:w-56 transition-transform duration-300 group-hover:scale-105">
               <Image
                 src="/assets/logo.png"
                 alt="Collecta"
                 fill
-                sizes="(max-width: 640px) 208px, 256px"
+                sizes="(max-width: 640px) 192px, 224px"
                 className="object-contain object-left"
                 priority
               />
@@ -55,14 +56,10 @@ export function Header() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm tracking-wide transition-colors duration-300 relative group"
-                style={{ color: '#323232', fontWeight: 550 }}
+                className={clsx(linkClasses.nav, 'text-dark-text')}
               >
                 {link.label}
-                <span
-                  className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300"
-                  style={{ backgroundColor: '#4ADE80' }}
-                />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-green group-hover:w-full transition-all duration-300" />
               </a>
             ))}
 
@@ -70,33 +67,15 @@ export function Header() {
               href="https://app.collectagroup.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300"
-              style={{
-                background: 'transparent',
-                border: '1.5px solid #1E3D87',
-                color: '#1E3D87',
-              }}
+              className="px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
             >
               Plataforma
             </a>
 
-            {/* ES / EN language toggle (placeholder — no idioma activo aún) */}
             <button
               type="button"
               aria-label="Cambiar idioma"
-              className="px-4 py-2 rounded-md text-sm tracking-wide transition-all duration-300 hover:text-[#4ADE80]"
-              style={{
-                background: 'transparent',
-                color: '#323232',
-                fontWeight: 550,
-                border: '1px solid rgba(0, 0, 0, 0.18)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(74, 222, 128, 0.55)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.18)';
-              }}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 border border-light-border text-dark-text hover:border-brand-green hover:text-brand-green"
             >
               ES / EN
             </button>
@@ -105,8 +84,7 @@ export function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg transition-colors"
-            style={{ color: '#2A2A2A' }}
+            className="md:hidden p-2 rounded-lg transition-colors text-dark-text hover:text-brand-green"
             aria-label="Toggle menu"
           >
             <svg
@@ -133,7 +111,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden bg-white border-t border-border-light overflow-hidden"
+            className="md:hidden bg-white border-t border-light-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
@@ -141,7 +119,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-primary-dark hover:bg-neutral-light rounded-lg font-medium transition-colors"
+                  className="block px-4 py-3 text-dark-text hover:text-brand-green hover:bg-gray-50 rounded-lg font-medium transition-colors"
                 >
                   {link.label}
                 </a>
@@ -150,12 +128,7 @@ export function Header() {
                 href="https://app.collectagroup.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block mt-4 px-4 py-3 rounded-lg font-semibold text-center"
-                style={{
-                  background: 'transparent',
-                  border: '1.5px solid #1E3D87',
-                  color: '#1E3D87',
-                }}
+                className="block mt-4 px-4 py-3 rounded-lg font-semibold text-center border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
               >
                 Acceder a la Plataforma
               </a>

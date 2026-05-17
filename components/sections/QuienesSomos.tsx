@@ -11,39 +11,26 @@ export default function QuienesSomos() {
   return (
     <section
       id="quienes-somos"
+      className="py-16 sm:py-20 lg:py-24 pb-24 sm:pb-28 lg:pb-32 px-5 sm:px-8 lg:px-20"
       style={{
         background: "#0f1612",
         color: "#eaf5ee",
-        padding: "80px 80px 120px",
       }}
     >
-      <div
-        style={{
-          maxWidth: 1440,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 80,
-          alignItems: "center",
-        }}
-      >
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center">
         {/* ── Columna izquierda: copy ─────────────────────────────── */}
-        <div>
+        <div className="order-2 lg:order-1">
           <div
-            className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase"
-            style={{
-              color: "#4ADE80",
-              marginBottom: 16,
-            }}
+            className="text-xs sm:text-sm lg:text-base font-semibold tracking-[0.22em] uppercase mb-4"
+            style={{ color: "#00FF80" }}
           >
             Quiénes somos
           </div>
 
           <h2
-            className="text-4xl sm:text-5xl font-bold"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-8"
             style={{
               lineHeight: 1.1,
-              margin: "0 0 32px",
               color: "#ffffff",
               textWrap: "balance",
             }}
@@ -52,9 +39,8 @@ export default function QuienesSomos() {
           </h2>
 
           <p
-            className="text-base sm:text-lg leading-relaxed"
+            className="text-base sm:text-lg leading-relaxed mb-5"
             style={{
-              margin: "0 0 20px",
               color: "rgba(207,230,227,0.75)",
               maxWidth: 560,
             }}
@@ -69,7 +55,6 @@ export default function QuienesSomos() {
           <p
             className="text-base sm:text-lg leading-relaxed"
             style={{
-              margin: 0,
               color: "rgba(207,230,227,0.75)",
               maxWidth: 560,
             }}
@@ -81,11 +66,10 @@ export default function QuienesSomos() {
         </div>
 
         {/* ── Columna derecha: globo 3D ───────────────────────────── */}
-        <div>
+        <div className="order-1 lg:order-2">
           <div
+            className="relative w-full mx-auto max-w-md lg:max-w-none"
             style={{
-              position: "relative",
-              width: "100%",
               aspectRatio: "1 / 1",
               borderRadius: 8,
               overflow: "hidden",
