@@ -41,7 +41,8 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Geo',
+          'var(--font-sans)',
+          'Geist',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
@@ -49,7 +50,8 @@ export default {
           'sans-serif',
         ],
         serif: [
-          'Geo',
+          'var(--font-sans)',
+          'Geist',
           '-apple-system',
           'sans-serif',
         ],

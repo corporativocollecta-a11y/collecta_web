@@ -2,7 +2,7 @@ export const typography = {
   // Font families
   fonts: {
     sans: [
-      'Inter',
+      'Geist',
       '-apple-system',
       'BlinkMacSystemFont',
       '"Segoe UI"',
