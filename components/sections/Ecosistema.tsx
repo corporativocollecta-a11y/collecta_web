@@ -696,18 +696,22 @@ export function Ecosistema() {
               })}
               </div>
 
-              {/* Right column — Network del mockup V2.
-                  Desktop (lg+): a tamaño nativo con campo de partículas Three.js de fondo.
-                  Mobile/tablet: solo NetworkBackdrop centrado debajo de las cards
-                  (sin partículas WebGL para preservar performance en móvil). */}
-              <div className="lg:col-span-7 relative lg:min-h-[480px] mt-8 lg:mt-0 flex items-center justify-center overflow-hidden">
-                {/* Particle field — solo desktop */}
+              {/* Right column — Network del mockup V2 con campo de partículas detrás.
+                  Mobile/tablet: stack vertical bajo las cards, con partículas reducidas (40)
+                  para mantener performance en dispositivos sin GPU dedicada.
+                  Desktop (lg+): layout original con partículas nativas (80). */}
+              <div className="lg:col-span-7 relative min-h-[460px] lg:min-h-[480px] mt-8 lg:mt-0 flex items-center justify-center overflow-hidden">
+                {/* Particle field — versión mobile con menos partículas */}
+                <div className="lg:hidden absolute inset-0">
+                  <HeroParticleField transparent count={40} color={0x00ff80} />
+                </div>
+                {/* Particle field — versión desktop con conteo nativo */}
                 <div className="hidden lg:block absolute inset-0">
-                  <HeroParticleField transparent />
+                  <HeroParticleField transparent color={0x00ff80} />
                 </div>
                 {/* NetworkBackdrop — siempre visible, escalado en mobile */}
                 <div
-                  className="relative lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:pr-16 xl:pr-28 lg:pointer-events-none w-full max-w-[330px] lg:max-w-none lg:translate-y-[-28px]"
+                  className="relative z-10 lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:pr-16 xl:pr-28 lg:pointer-events-none w-full max-w-[330px] lg:max-w-none lg:translate-y-[-28px]"
                 >
                   <NetworkBackdrop className="mx-auto lg:mx-0 w-full lg:w-auto" />
                 </div>
