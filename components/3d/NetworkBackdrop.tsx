@@ -30,12 +30,12 @@ interface NetworkBackdropProps {
 export default function NetworkBackdrop({ className, style }: NetworkBackdropProps) {
   return (
     <div className={className} style={style}>
-      {/* Versión ampliada (~22%) del mockup: 330×429, viewBox 300×390. Floating animation. */}
+      {/* Versión ampliada (~22%) del mockup: viewBox 300×390. Floating animation.
+          Responsive: w-full hasta max-w-[330px], aspect ratio preservado por el viewBox. */}
       <svg
         viewBox="0 0 300 390"
-        width="330"
-        height="429"
-        style={{ display: 'block', animation: 'floatY 5s ease-in-out infinite' }}
+        className="block w-full max-w-[330px] h-auto mx-auto"
+        style={{ animation: 'floatY 5s ease-in-out infinite' }}
         aria-hidden
       >
         <defs>

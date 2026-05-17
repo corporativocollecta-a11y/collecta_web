@@ -696,16 +696,20 @@ export function Ecosistema() {
               })}
               </div>
 
-              {/* Right column — Network del mockup V2 a tamaño nativo (270×352)
-                  con el campo de partículas Three.js de fondo (los "vectores").
-                  Solo se muestra en desktop (lg+). */}
-              <div className="hidden lg:block lg:col-span-7 relative min-h-[480px]">
-                <HeroParticleField transparent />
+              {/* Right column — Network del mockup V2.
+                  Desktop (lg+): a tamaño nativo con campo de partículas Three.js de fondo.
+                  Mobile/tablet: solo NetworkBackdrop centrado debajo de las cards
+                  (sin partículas WebGL para preservar performance en móvil). */}
+              <div className="lg:col-span-7 relative lg:min-h-[480px] mt-8 lg:mt-0 flex items-center justify-center overflow-hidden">
+                {/* Particle field — solo desktop */}
+                <div className="hidden lg:block absolute inset-0">
+                  <HeroParticleField transparent />
+                </div>
+                {/* NetworkBackdrop — siempre visible, escalado en mobile */}
                 <div
-                  className="absolute inset-0 flex items-center justify-end pr-16 xl:pr-28 pointer-events-none"
-                  style={{ transform: 'translateY(-28px)' }}
+                  className="relative lg:absolute lg:inset-0 lg:flex lg:items-center lg:justify-end lg:pr-16 xl:pr-28 lg:pointer-events-none w-full max-w-[330px] lg:max-w-none lg:translate-y-[-28px]"
                 >
-                  <NetworkBackdrop />
+                  <NetworkBackdrop className="mx-auto lg:mx-0 w-full lg:w-auto" />
                 </div>
               </div>
             </div>
