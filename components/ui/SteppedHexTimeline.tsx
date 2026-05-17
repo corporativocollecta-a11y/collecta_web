@@ -206,7 +206,7 @@ export function SteppedHexTimeline({
                     style={{
                       textAlign: 'center',
                       fontFamily:
-                        '"Geist", ui-sans-serif, system-ui, -apple-system, sans-serif',
+                        '"Geo", ui-sans-serif, system-ui, -apple-system, sans-serif',
                       color: '#2A2A2A',
                     }}
                   >
@@ -381,7 +381,7 @@ function Pedestal({
         y={220}
         textAnchor="middle"
         dominantBaseline="middle"
-        fontFamily='"Geist", ui-sans-serif, system-ui, sans-serif'
+        fontFamily='"Geo", ui-sans-serif, system-ui, sans-serif'
         fontWeight={700}
         fontSize={24}
         fill="#FFFFFF"

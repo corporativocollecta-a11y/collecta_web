@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geo } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
+const geo = Geo({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geist.variable} h-full antialiased scroll-smooth`}
+      className={`${geo.variable} h-full antialiased scroll-smooth`}
     >
       <body
         className="min-h-full flex flex-col font-sans text-primary"
