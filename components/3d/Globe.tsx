@@ -206,15 +206,14 @@ export default function Globe({
         st.vx = dx; st.vy = dy; st.lastX = e.clientX; st.lastY = e.clientY;
       };
       const onUp = () => { st.dragging = false; dom.style.cursor = "grab"; };
-      const onWheel = (e: WheelEvent) => {
-        e.preventDefault();
-        camera.position.z = Math.max(2.6, Math.min(8, camera.position.z + e.deltaY * 0.003));
-      };
+      // Zoom intentionally disabled: the globe sits at a fixed `distance`.
+      // Wheel events bubble up so the page scrolls naturally when the user
+      // scrolls over the globe, and pinch gestures on touch devices have no
+      // effect on the globe size.
       dom.addEventListener("pointerdown", onDown);
       dom.addEventListener("pointermove", onMove);
       dom.addEventListener("pointerup", onUp);
       dom.addEventListener("pointercancel", onUp);
-      dom.addEventListener("wheel", onWheel, { passive: false });
 
       // ── Animate ──
       let raf = 0;
@@ -262,7 +261,6 @@ export default function Globe({
           dom.removeEventListener("pointermove", onMove);
           dom.removeEventListener("pointerup", onUp);
           dom.removeEventListener("pointercancel", onUp);
-          dom.removeEventListener("wheel", onWheel);
           renderer.dispose();
           if (dom.parentNode === container) container.removeChild(dom);
         },
