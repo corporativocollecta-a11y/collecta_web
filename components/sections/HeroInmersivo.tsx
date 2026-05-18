@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useT } from "@/lib/i18n/LocaleProvider";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HeroInmersivo — full-bleed cinematic hero with:
@@ -101,7 +102,17 @@ const DEFAULTS = {
 };
 
 export default function HeroInmersivo(props: HeroInmersivoProps) {
-  const cfg = { showHudCards: true, ...DEFAULTS, ...props };
+  const t = useT();
+  // i18n fallback: when a text prop wasn't provided, use the translated
+  // string for the active locale. Explicit props (including "") win.
+  const i18nDefaults = {
+    titleLine1: t('hero.title.line1'),
+    titleLine2: t('hero.title.line2'),
+    subtitle: t('hero.subtitle'),
+    chipTL: t('hero.status'),
+    chipTR: t('hero.location'),
+  };
+  const cfg = { showHudCards: true, ...DEFAULTS, ...i18nDefaults, ...props };
   const heroRef = useRef<HTMLElement | null>(null);
   const fxCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const dustCanvasRef = useRef<HTMLCanvasElement | null>(null);

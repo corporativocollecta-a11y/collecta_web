@@ -5,18 +5,20 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { linkClasses, buttonClasses } from '@/lib/component-utils';
+import { useLocale } from '@/lib/i18n/LocaleProvider';
 
 const navLinks = [
-  { href: '#ecosistema', label: 'Ecosistema' },
-  { href: '#clientes', label: 'Clientes' },
-  { href: '#productores', label: 'Productores' },
-  { href: '#impacto', label: 'Impacto' },
-  { href: '#contacto', label: 'Contacto' },
-];
+  { href: '#ecosistema', key: 'nav.ecosistema' },
+  { href: '#clientes', key: 'nav.clientes' },
+  { href: '#productores', key: 'nav.productores' },
+  { href: '#impacto', key: 'nav.impacto' },
+  { href: '#contacto', key: 'nav.contacto' },
+] as const;
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t, locale, toggle } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +60,7 @@ export function Header() {
                 href={link.href}
                 className={clsx(linkClasses.nav, 'text-dark-text')}
               >
-                {link.label}
+                {t(link.key)}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-green group-hover:w-full transition-all duration-300" />
               </a>
             ))}
@@ -67,15 +69,28 @@ export function Header() {
               href="/plataforma"
               className="px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
             >
-              Plataforma
+              {t('nav.platform')}
             </a>
 
             <button
               type="button"
-              aria-label="Cambiar idioma"
+              onClick={toggle}
+              aria-label={t('nav.language.aria')}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 border border-light-border text-dark-text hover:border-brand-green hover:text-brand-green"
             >
-              ES / EN
+              {locale === 'es' ? (
+                <>
+                  <span className="font-semibold text-brand-green">ES</span>
+                  <span className="opacity-50 mx-1">/</span>
+                  <span>EN</span>
+                </>
+              ) : (
+                <>
+                  <span>ES</span>
+                  <span className="opacity-50 mx-1">/</span>
+                  <span className="font-semibold text-brand-green">EN</span>
+                </>
+              )}
             </button>
           </nav>
 
@@ -83,7 +98,7 @@ export function Header() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg transition-colors text-dark-text hover:text-brand-green"
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? t('nav.menu.closeAria') : t('nav.menu.openAria')}
           >
             <svg
               className="w-6 h-6"
@@ -119,15 +134,38 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-4 py-3 text-dark-text hover:text-brand-green hover:bg-gray-50 rounded-lg font-medium transition-colors"
                 >
-                  {link.label}
+                  {t(link.key)}
                 </a>
               ))}
               <a
                 href="/plataforma"
                 className="block mt-4 px-4 py-3 rounded-lg font-semibold text-center border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
               >
-                Acceder a la Plataforma
+                {t('nav.platform.mobile')}
               </a>
+              <button
+                type="button"
+                onClick={() => {
+                  toggle();
+                  setMobileMenuOpen(false);
+                }}
+                aria-label={t('nav.language.aria')}
+                className="block w-full mt-2 px-4 py-3 rounded-lg text-sm font-medium text-center border border-light-border text-dark-text hover:border-brand-green hover:text-brand-green"
+              >
+                {locale === 'es' ? (
+                  <>
+                    <span className="font-semibold text-brand-green">ES</span>
+                    <span className="opacity-50 mx-1">/</span>
+                    <span>EN</span>
+                  </>
+                ) : (
+                  <>
+                    <span>ES</span>
+                    <span className="opacity-50 mx-1">/</span>
+                    <span className="font-semibold text-brand-green">EN</span>
+                  </>
+                )}
+              </button>
             </div>
           </motion.nav>
         )}

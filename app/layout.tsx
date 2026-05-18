@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geo } from "next/font/google";
+import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import "./globals.css";
 
 const geo = Geo({
@@ -35,7 +36,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col font-sans text-primary"
         style={{ backgroundColor: '#0f1612' }}
       >
-        {children}
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   );
