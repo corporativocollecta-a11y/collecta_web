@@ -187,6 +187,109 @@ export const messages: Record<Locale, Dict> = {
       'Como cliente Collecta, tienes acceso a la plataforma con visibilidad completa de tus pedidos, trazabilidad en vivo y comunicación directa con el equipo operativo.',
     'clientes.cta.primary': 'Ingresar a la plataforma →',
     'clientes.cta.secondary': 'Hablemos de tu cadena',
+
+    // ─── Impacto ────────────────────────────────────────────────────────────
+    'impacto.kicker': 'Impacto Medible y Escalable',
+    'impacto.title': 'Transformación con propósito',
+    'impacto.subtitle':
+      'No medimos solo producción. Medimos el cambio sistémico que generamos en la cadena agroalimentaria, la economía rural y la sostenibilidad del campo mexicano.',
+    'impacto.por_que.kicker': 'Por qué ahora',
+    'impacto.por_que.title': 'México necesita transformación',
+    'impacto.por_que.r1': 'Envejecimiento de agricultores responsables del campo',
+    'impacto.por_que.r2': 'Baja tasa de acceso a crédito y seguro agrícola',
+    'impacto.por_que.r3': 'Adopción tecnológica limitada en el sector',
+    'impacto.por_que.r4': 'Desperdicio alimentario y estrés hídrico crecientes',
+    'impacto.por_que.r5': 'Soberanía alimentaria como prioridad nacional',
+    'impacto.por_que.r6': 'Inversión creciente en transformación agroindustrial',
+    'impacto.areas.kicker': 'Áreas de Impacto',
+    'impacto.areas.title': 'Donde generamos cambio real',
+    'impacto.wheel.modelo': 'Nuestro modelo',
+    'impacto.wheel.acciones': '5 acciones',
+    'impacto.action.1.title': 'Invertimos en el desarrollo productivo del campo',
+    'impacto.action.1.description':
+      'Esto fortalece a productores con alto potencial que aún operan con recursos insuficientes para escalar su producción y mejorar sus condiciones de vida.',
+    'impacto.action.2.title': 'Llevamos tecnología de precisión con propósito',
+    'impacto.action.2.description':
+      'Cerramos la brecha tecnológica que limita la capacidad del productor para trabajar con mejores herramientas, tomar mejores decisiones y fortalecer su producción.',
+    'impacto.action.3.title': 'Reducimos la huella ambiental',
+    'impacto.action.3.description':
+      'Reducimos el desperdicio de alimentos, promovemos un uso más preciso del agua y una reducción del uso innecesario de agroquímicos.',
+    'impacto.action.4.title': 'Acercamos al productor a prácticas más sostenibles',
+    'impacto.action.4.description':
+      'Ayudamos a reducir el impacto ambiental de la producción y a construir una base agrícola más sostenible a largo plazo.',
+    'impacto.action.5.title': 'Ordenamos una cadena históricamente fragmentada',
+    'impacto.action.5.description':
+      'Permitimos una cadena trazable y articulada, con mayor valor para la producción y mejores condiciones para llevar alimentos de alta calidad al mercado.',
+    'impacto.ods.kicker': 'Alineación Global',
+    'impacto.ods.title': 'Objetivos de Desarrollo Sostenible',
+    'impacto.ods.subtitle':
+      'Nuestro modelo contribuye directamente a 6 de los 17 ODS de Naciones Unidas.',
+
+    // ─── Contacto ───────────────────────────────────────────────────────────
+    'contacto.kicker': 'Únete al ecosistema',
+    'contacto.title': 'Hablemos de tu cadena',
+    'contacto.subtitle':
+      'Si quieres formar parte del ecosistema Collecta, ya sea como cliente, productor o aliado, escríbenos.',
+    'contacto.info.email': 'Email',
+    'contacto.info.location': 'Ubicación',
+    'contacto.info.location.value': 'Puebla, México',
+    'contacto.info.platform': 'Plataforma',
+    'contacto.tab.cliente': 'Soy Cliente',
+    'contacto.tab.cliente.sub': 'Comprador corporativo',
+    'contacto.tab.productor': 'Soy Productor',
+    'contacto.tab.productor.sub': 'Agricultor / Predio',
+
+    // ─── Forms (FormCliente / FormProductor) ────────────────────────────────
+    'form.name.label': 'Nombre',
+    'form.name.placeholder': 'Tu nombre',
+    'form.email.label': 'Correo electrónico',
+    'form.email.placeholder': 'tu@empresa.com',
+    'form.phone.label': 'Teléfono',
+    'form.phone.placeholder': '+52 222 000 0000',
+    'form.empresa.label': 'Empresa',
+    'form.empresa.placeholder': 'Nombre de tu empresa',
+    'form.estado.label': 'Estado / región',
+    'form.estado.placeholder': 'Puebla',
+    'form.cultivo.label': 'Cultivo principal',
+    'form.cultivo.placeholder': 'Selecciona un cultivo',
+    'form.cultivo.brocoli': 'Brócoli',
+    'form.cultivo.coliflor': 'Coliflor',
+    'form.cultivo.lechuga': 'Lechuga',
+    'form.cultivo.col': 'Col',
+    'form.cultivo.otro': 'Otro',
+    'form.superficie.label': 'Superficie (ha)',
+    'form.superficie.placeholder': '10',
+    'form.volumen.label': 'Volumen estimado (cajas/semana)',
+    'form.volumen.placeholder': '500',
+    'form.mensaje.label': 'Mensaje',
+    'form.mensaje.placeholder': 'Cuéntanos sobre tu operación…',
+    'form.submit': 'Enviar solicitud',
+    'form.submitting': 'Enviando…',
+    'form.success': '¡Mensaje enviado! Te contactaremos pronto.',
+    'form.error':
+      'No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectaproduce.com',
+    'form.consent':
+      'Al enviar este formulario, aceptas nuestro aviso de privacidad y que te contactemos para dar seguimiento a tu solicitud.',
+
+    // ─── Plataforma (login landing) ─────────────────────────────────────────
+    'plataforma.title.line1': 'Trazabilidad',
+    'plataforma.title.line2': 'desde el campo',
+    'plataforma.title.line3': 'hasta tu mesa',
+    'plataforma.subtitle':
+      'Gestiona agricultores, proyectos, empaque y logística con tecnología avanzada.',
+    'plataforma.stats.agricultores': 'Agricultores',
+    'plataforma.stats.cajas': 'Cajas trazadas',
+    'plataforma.stats.paises': 'Países destino',
+    'plataforma.mobile.tagline': 'Sistema Operativo Agroalimentario',
+    'plataforma.heading': 'Inicia sesión',
+    'plataforma.sub': 'Accede a tu plataforma de trazabilidad',
+    'plataforma.field.email': 'Correo electrónico',
+    'plataforma.field.email.placeholder': 'nombre@collecta.mx',
+    'plataforma.field.password': 'Contraseña',
+    'plataforma.submit': 'Iniciar sesión',
+    'plataforma.show.password': 'Mostrar contraseña',
+    'plataforma.hide.password': 'Ocultar contraseña',
+    'plataforma.footer.location': 'Puebla, México',
   },
 
   en: {
@@ -357,5 +460,108 @@ export const messages: Record<Locale, Dict> = {
       'As a Collecta client, you have access to the platform with full visibility of your orders, live traceability and direct communication with the operations team.',
     'clientes.cta.primary': 'Enter the platform →',
     'clientes.cta.secondary': 'Let’s talk about your supply chain',
+
+    // ─── Impacto ────────────────────────────────────────────────────────────
+    'impacto.kicker': 'Measurable and Scalable Impact',
+    'impacto.title': 'Transformation with purpose',
+    'impacto.subtitle':
+      'We don’t measure production alone. We measure the systemic change we generate in the agri-food chain, the rural economy, and the sustainability of the Mexican countryside.',
+    'impacto.por_que.kicker': 'Why now',
+    'impacto.por_que.title': 'Mexico needs transformation',
+    'impacto.por_que.r1': 'Aging population of farmers running the fields',
+    'impacto.por_que.r2': 'Low access to agricultural credit and insurance',
+    'impacto.por_que.r3': 'Limited tech adoption across the sector',
+    'impacto.por_que.r4': 'Rising food waste and water stress',
+    'impacto.por_que.r5': 'Food sovereignty as a national priority',
+    'impacto.por_que.r6': 'Growing investment in agribusiness transformation',
+    'impacto.areas.kicker': 'Impact Areas',
+    'impacto.areas.title': 'Where we generate real change',
+    'impacto.wheel.modelo': 'Our model',
+    'impacto.wheel.acciones': '5 actions',
+    'impacto.action.1.title': 'We invest in productive development in the field',
+    'impacto.action.1.description':
+      'This strengthens high-potential producers who still operate with insufficient resources to scale production and improve their living conditions.',
+    'impacto.action.2.title': 'We bring purpose-driven precision technology',
+    'impacto.action.2.description':
+      'We close the technological gap that limits the producer’s capacity to work with better tools, make better decisions and strengthen their production.',
+    'impacto.action.3.title': 'We reduce environmental footprint',
+    'impacto.action.3.description':
+      'We reduce food waste, promote more precise water use and a reduction of unnecessary agrochemical use.',
+    'impacto.action.4.title': 'We bring producers closer to more sustainable practices',
+    'impacto.action.4.description':
+      'We help reduce the environmental impact of production and build a more sustainable agricultural base for the long term.',
+    'impacto.action.5.title': 'We order a historically fragmented chain',
+    'impacto.action.5.description':
+      'We enable a traceable and articulated chain, with greater value for production and better conditions to bring high-quality food to market.',
+    'impacto.ods.kicker': 'Global Alignment',
+    'impacto.ods.title': 'Sustainable Development Goals',
+    'impacto.ods.subtitle':
+      'Our model directly contributes to 6 of the United Nations’ 17 SDGs.',
+
+    // ─── Contacto ───────────────────────────────────────────────────────────
+    'contacto.kicker': 'Join the ecosystem',
+    'contacto.title': 'Let’s talk about your supply chain',
+    'contacto.subtitle':
+      'If you want to be part of the Collecta ecosystem, whether as a client, producer or partner, write to us.',
+    'contacto.info.email': 'Email',
+    'contacto.info.location': 'Location',
+    'contacto.info.location.value': 'Puebla, Mexico',
+    'contacto.info.platform': 'Platform',
+    'contacto.tab.cliente': 'I’m a Client',
+    'contacto.tab.cliente.sub': 'Corporate buyer',
+    'contacto.tab.productor': 'I’m a Producer',
+    'contacto.tab.productor.sub': 'Farmer / Field',
+
+    // ─── Forms (FormCliente / FormProductor) ────────────────────────────────
+    'form.name.label': 'Name',
+    'form.name.placeholder': 'Your name',
+    'form.email.label': 'Email',
+    'form.email.placeholder': 'you@company.com',
+    'form.phone.label': 'Phone',
+    'form.phone.placeholder': '+52 222 000 0000',
+    'form.empresa.label': 'Company',
+    'form.empresa.placeholder': 'Your company name',
+    'form.estado.label': 'State / region',
+    'form.estado.placeholder': 'Puebla',
+    'form.cultivo.label': 'Main crop',
+    'form.cultivo.placeholder': 'Select a crop',
+    'form.cultivo.brocoli': 'Broccoli',
+    'form.cultivo.coliflor': 'Cauliflower',
+    'form.cultivo.lechuga': 'Lettuce',
+    'form.cultivo.col': 'Cabbage',
+    'form.cultivo.otro': 'Other',
+    'form.superficie.label': 'Acreage (ha)',
+    'form.superficie.placeholder': '10',
+    'form.volumen.label': 'Estimated volume (boxes/week)',
+    'form.volumen.placeholder': '500',
+    'form.mensaje.label': 'Message',
+    'form.mensaje.placeholder': 'Tell us about your operation…',
+    'form.submit': 'Submit request',
+    'form.submitting': 'Sending…',
+    'form.success': 'Message sent! We’ll be in touch soon.',
+    'form.error':
+      'Could not send the message. Please try again or write to contacto@collectaproduce.com',
+    'form.consent':
+      'By submitting this form, you accept our privacy notice and that we contact you to follow up on your request.',
+
+    // ─── Plataforma (login landing) ─────────────────────────────────────────
+    'plataforma.title.line1': 'Traceability',
+    'plataforma.title.line2': 'from the field',
+    'plataforma.title.line3': 'to your table',
+    'plataforma.subtitle':
+      'Manage farmers, projects, packing and logistics with advanced technology.',
+    'plataforma.stats.agricultores': 'Farmers',
+    'plataforma.stats.cajas': 'Tracked boxes',
+    'plataforma.stats.paises': 'Destination countries',
+    'plataforma.mobile.tagline': 'Agri-food Operating System',
+    'plataforma.heading': 'Sign in',
+    'plataforma.sub': 'Access your traceability platform',
+    'plataforma.field.email': 'Email',
+    'plataforma.field.email.placeholder': 'name@collecta.mx',
+    'plataforma.field.password': 'Password',
+    'plataforma.submit': 'Sign in',
+    'plataforma.show.password': 'Show password',
+    'plataforma.hide.password': 'Hide password',
+    'plataforma.footer.location': 'Puebla, Mexico',
   },
 };

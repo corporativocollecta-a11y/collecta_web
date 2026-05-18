@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FormCliente } from '@/components/sections/FormCliente';
 import { FormProductor } from '@/components/sections/FormProductor';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 type FormType = 'cliente' | 'productor';
 
 export function Contacto() {
+  const t = useT();
   const [activeForm, setActiveForm] = useState<FormType>('cliente');
 
   return (
@@ -52,20 +54,19 @@ export function Contacto() {
               className="text-sm font-medium tracking-widest uppercase mb-4"
               style={{ color: '#00FF80' }}
             >
-              Hablemos
+              {t('contacto.kicker')}
             </p>
             <h2
               className="text-4xl sm:text-5xl font-bold mb-6"
               style={{ color: '#00FF80' }}
             >
-              Únete al Ecosistema
+              {t('contacto.title')}
             </h2>
             <p
               className="text-lg sm:text-xl mb-10 leading-relaxed"
               style={{ color: 'rgba(255,255,255,0.78)' }}
             >
-              Si compartes nuestra visión de transformar la cadena agroalimentaria,
-              cuéntanos quién eres y exploraremos cómo podemos colaborar.
+              {t('contacto.subtitle')}
             </p>
 
             <div className="space-y-6">
@@ -84,7 +85,7 @@ export function Contacto() {
                     className="font-semibold mb-1"
                     style={{ color: '#FFFFFF' }}
                   >
-                    Email
+                    {t('contacto.info.email')}
                   </h4>
                   <a
                     href="mailto:contacto@collectaproduce.com"
@@ -111,9 +112,9 @@ export function Contacto() {
                     className="font-semibold mb-1"
                     style={{ color: '#FFFFFF' }}
                   >
-                    Ubicación
+                    {t('contacto.info.location')}
                   </h4>
-                  <p style={{ color: 'rgba(255,255,255,0.78)' }}>México</p>
+                  <p style={{ color: 'rgba(255,255,255,0.78)' }}>{t('contacto.info.location.value')}</p>
                 </div>
               </div>
 
@@ -132,7 +133,7 @@ export function Contacto() {
                     className="font-semibold mb-1"
                     style={{ color: '#FFFFFF' }}
                   >
-                    Plataforma
+                    {t('contacto.info.platform')}
                   </h4>
                   <a
                     href="/plataforma"
@@ -172,7 +173,7 @@ export function Contacto() {
                   color: activeForm === 'cliente' ? '#0a1a0d' : '#4A4A4A',
                 }}
               >
-                Soy Cliente
+                {t('contacto.tab.cliente')}
                 <span
                   className="block text-[9px] font-normal mt-0.5 opacity-90"
                   style={{
@@ -182,7 +183,7 @@ export function Contacto() {
                         : '#8B7D6B',
                   }}
                 >
-                  Comprador corporativo
+                  {t('contacto.tab.cliente.sub')}
                 </span>
               </button>
               <button
@@ -194,7 +195,7 @@ export function Contacto() {
                   color: activeForm === 'productor' ? '#0a1a0d' : '#4A4A4A',
                 }}
               >
-                Soy Productor
+                {t('contacto.tab.productor')}
                 <span
                   className="block text-[9px] font-normal mt-0.5 opacity-90"
                   style={{
@@ -204,7 +205,7 @@ export function Contacto() {
                         : '#8B7D6B',
                   }}
                 >
-                  Agricultor / Predio
+                  {t('contacto.tab.productor.sub')}
                 </span>
               </button>
             </div>

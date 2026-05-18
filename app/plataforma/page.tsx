@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 /**
  * /plataforma — landing visual del login de la plataforma de trazabilidad
@@ -53,6 +54,7 @@ function useAnimatedCounter({
 }
 
 export default function PlataformaPage() {
+  const t = useT();
   const [showPassword, setShowPassword] = useState(false);
 
   const agricultoresCount = useAnimatedCounter({
@@ -102,14 +104,14 @@ export default function PlataformaPage() {
 
               <div className="space-y-4">
                 <h1 className="text-5xl xl:text-6xl font-bold text-white tracking-tight leading-tight drop-shadow-lg">
-                  Trazabilidad
+                  {t('plataforma.title.line1')}
                   <br />
-                  <span className="text-cyan-300">desde el campo</span>
+                  <span className="text-cyan-300">{t('plataforma.title.line2')}</span>
                   <br />
-                  hasta tu mesa
+                  {t('plataforma.title.line3')}
                 </h1>
                 <p className="text-gray-100 text-lg leading-relaxed max-w-md drop-shadow-md">
-                  Gestiona agricultores, proyectos, empaque y logística con tecnología avanzada.
+                  {t('plataforma.subtitle')}
                 </p>
               </div>
             </div>
@@ -117,9 +119,9 @@ export default function PlataformaPage() {
             {/* Contadores */}
             <div className="grid grid-cols-3 gap-4 mt-12">
               {[
-                { label: 'Agricultores', value: agricultoresCount },
-                { label: 'Cajas trazadas', value: cajasCount },
-                { label: 'Países destino', value: paisesCount },
+                { label: t('plataforma.stats.agricultores'), value: agricultoresCount },
+                { label: t('plataforma.stats.cajas'),        value: cajasCount },
+                { label: t('plataforma.stats.paises'),       value: paisesCount },
               ].map((s, idx) => (
                 <div
                   key={s.label}
@@ -179,14 +181,14 @@ export default function PlataformaPage() {
                 alt="Collecta"
                 className="h-10 w-auto mx-auto mb-4 brightness-0 invert"
               />
-              <p className="text-sm text-gray-200 font-medium">Sistema Operativo Agroalimentario</p>
+              <p className="text-sm text-gray-200 font-medium">{t('plataforma.mobile.tagline')}</p>
             </div>
 
             <div className="w-full max-w-sm relative z-10">
               {/* Encabezado */}
               <div className="mb-12 text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                <h2 className="text-3xl font-bold text-white mb-2">Inicia sesión</h2>
-                <p className="text-gray-200 text-sm">Accede a tu plataforma de trazabilidad</p>
+                <h2 className="text-3xl font-bold text-white mb-2">{t('plataforma.heading')}</h2>
+                <p className="text-gray-200 text-sm">{t('plataforma.sub')}</p>
               </div>
 
               {/* Formulario — submit redirige al subdominio real (sin enviar
@@ -202,14 +204,14 @@ export default function PlataformaPage() {
                 {/* Correo */}
                 <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
                   <label htmlFor="correo" className="block text-sm font-medium text-gray-200 mb-2">
-                    Correo electrónico
+                    {t('plataforma.field.email')}
                   </label>
                   <input
                     id="correo"
                     name="correo"
                     type="email"
                     autoComplete="email"
-                    placeholder="nombre@collecta.mx"
+                    placeholder={t('plataforma.field.email.placeholder')}
                     className="w-full px-4 py-3 rounded-lg border transition-all duration-200 bg-black/40 backdrop-blur-md text-white placeholder-gray-400 border-gray-600 focus:border-collecta-400 focus:ring-2 focus:ring-collecta-400/20 focus:outline-none"
                   />
                 </div>
@@ -217,7 +219,7 @@ export default function PlataformaPage() {
                 {/* Contraseña */}
                 <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
-                    Contraseña
+                    {t('plataforma.field.password')}
                   </label>
                   <div className="relative">
                     <input
@@ -233,7 +235,7 @@ export default function PlataformaPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
                       tabIndex={-1}
-                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      aria-label={showPassword ? t('plataforma.hide.password') : t('plataforma.show.password')}
                     >
                       {showPassword ? (
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -255,13 +257,13 @@ export default function PlataformaPage() {
                   className="w-full py-3 mt-8 text-sm font-semibold rounded-lg bg-collecta-600 text-white hover:bg-collecta-700 transition-all duration-200 shadow-lg hover:shadow-collecta-600/50 transform hover:scale-[1.02] active:scale-95 animate-fade-in"
                   style={{ animationDelay: '0.4s' }}
                 >
-                  Iniciar sesión
+                  {t('plataforma.submit')}
                 </button>
               </form>
 
               {/* Footer */}
               <p className="text-center text-xs text-gray-300 mt-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-                © {new Date().getFullYear()} Collecta · Puebla, México
+                © {new Date().getFullYear()} Collecta · {t('plataforma.footer.location')}
               </p>
             </div>
           </div>

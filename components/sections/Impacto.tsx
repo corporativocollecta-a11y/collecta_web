@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ODSCard } from '@/components/ui/ODSCard';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 const odsAlignment = [
   { number: '2', name: 'Hambre cero' },
@@ -13,36 +14,21 @@ const odsAlignment = [
   { number: '17', name: 'Alianzas' },
 ];
 
-// 5 acciones que se distribuyen en una rueda radial (desktop) o pila vertical (móvil).
-const actions = [
-  {
-    title: 'Invertimos en el desarrollo productivo del campo',
-    description:
-      'Esto fortalece a productores con alto potencial que aún operan con recursos insuficientes para escalar su producción y mejorar sus condiciones de vida.',
-  },
-  {
-    title: 'Llevamos tecnología de precisión con propósito',
-    description:
-      'Cerramos la brecha tecnológica que limita la capacidad del productor para trabajar con mejores herramientas, tomar mejores decisiones y fortalecer su producción.',
-  },
-  {
-    title: 'Reducimos la huella ambiental',
-    description:
-      'Reducimos el desperdicio de alimentos, promovemos un uso más preciso del agua y una reducción del uso innecesario de agroquímicos.',
-  },
-  {
-    title: 'Acercamos al productor a prácticas más sostenibles',
-    description:
-      'Ayudamos a reducir el impacto ambiental de la producción y a construir una base agrícola más sostenible a largo plazo.',
-  },
-  {
-    title: 'Ordenamos una cadena históricamente fragmentada',
-    description:
-      'Permitimos una cadena trazable y articulada, con mayor valor para la producción y mejores condiciones para llevar alimentos de alta calidad al mercado.',
-  },
-];
+// 5 actions metadata — translated inside the component via useT().
+const ACTIONS_META = [
+  { titleKey: 'impacto.action.1.title', descKey: 'impacto.action.1.description' },
+  { titleKey: 'impacto.action.2.title', descKey: 'impacto.action.2.description' },
+  { titleKey: 'impacto.action.3.title', descKey: 'impacto.action.3.description' },
+  { titleKey: 'impacto.action.4.title', descKey: 'impacto.action.4.description' },
+  { titleKey: 'impacto.action.5.title', descKey: 'impacto.action.5.description' },
+] as const;
 
 function ActionsWheel() {
+  const t = useT();
+  const actions = ACTIONS_META.map((a) => ({
+    title: t(a.titleKey),
+    description: t(a.descKey),
+  }));
   // Tamaño del contenedor cuadrado.
   const wheelSize = 1100;
   // Radio donde se posicionan los nodos (px) — coincide con el círculo exterior.
@@ -221,10 +207,10 @@ function ActionsWheel() {
             className="text-sm uppercase tracking-[0.28em] font-semibold mb-2"
             style={{ color: '#00FF80' }}
           >
-            Nuestro modelo
+            {t('impacto.wheel.modelo')}
           </p>
           <p className="text-lg font-semibold" style={{ color: 'rgba(255,255,255,0.9)' }}>
-            5 acciones
+            {t('impacto.wheel.acciones')}
           </p>
         </motion.div>
         </div>
@@ -418,10 +404,10 @@ function ActionsWheel() {
                 className="text-[9px] uppercase tracking-[0.22em] font-semibold mb-1"
                 style={{ color: '#00FF80' }}
               >
-                Nuestro modelo
+                {t('impacto.wheel.modelo')}
               </p>
               <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                5 acciones
+                {t('impacto.wheel.acciones')}
               </p>
             </div>
           </div>
@@ -507,6 +493,7 @@ function ActionsWheel() {
 }
 
 export function Impacto() {
+  const t = useT();
   return (
     <section
       id="impacto"
@@ -530,20 +517,19 @@ export function Impacto() {
             className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
             style={{ color: '#00FF80' }}
           >
-            Impacto Medible y Escalable
+            {t('impacto.kicker')}
           </p>
           <h2
             className="text-4xl sm:text-5xl font-bold mb-6"
             style={{ color: '#FFFFFF' }}
           >
-            Transformación con propósito
+            {t('impacto.title')}
           </h2>
           <p
             className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed"
             style={{ color: 'rgba(255,255,255,0.78)' }}
           >
-            No medimos solo producción. Medimos el cambio sistémico que generamos en la cadena agroalimentaria,
-            la economía rural y la sostenibilidad del campo mexicano.
+            {t('impacto.subtitle')}
           </p>
         </motion.div>
 
@@ -604,23 +590,23 @@ export function Impacto() {
               className="text-sm font-medium tracking-widest uppercase mb-4"
               style={{ color: '#00FF80' }}
             >
-              Por qué ahora
+              {t('impacto.por_que.kicker')}
             </p>
             <h3
               className="text-2xl sm:text-3xl font-bold mb-8"
               style={{ color: '#00FF80' }}
             >
-              México necesita transformación
+              {t('impacto.por_que.title')}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
               {[
-                'Envejecimiento de agricultores responsables del campo',
-                'Baja tasa de acceso a crédito y seguro agrícola',
-                'Adopción tecnológica limitada en el sector',
-                'Desperdicio alimentario y estrés hídrico crecientes',
-                'Soberanía alimentaria como prioridad nacional',
-                'Inversión creciente en transformación agroindustrial',
+                t('impacto.por_que.r1'),
+                t('impacto.por_que.r2'),
+                t('impacto.por_que.r3'),
+                t('impacto.por_que.r4'),
+                t('impacto.por_que.r5'),
+                t('impacto.por_que.r6'),
               ].map((reason, i) => (
                 <motion.div
                   key={i}
@@ -660,13 +646,13 @@ export function Impacto() {
                 className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
                 style={{ color: '#00FF80' }}
               >
-                Áreas de Impacto
+                {t('impacto.areas.kicker')}
               </p>
               <h3
                 className="text-2xl sm:text-3xl font-bold"
                 style={{ color: '#FFFFFF' }}
               >
-                Donde generamos cambio real
+                {t('impacto.areas.title')}
               </h3>
             </motion.div>
           </div>
@@ -700,19 +686,19 @@ export function Impacto() {
               className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
               style={{ color: '#00FF80' }}
             >
-              Alineación Global
+              {t('impacto.ods.kicker')}
             </p>
             <h3
               className="text-2xl sm:text-3xl font-bold mb-3"
               style={{ color: '#FFFFFF' }}
             >
-              Objetivos de Desarrollo Sostenible
+              {t('impacto.ods.title')}
             </h3>
             <p
               className="max-w-2xl mx-auto"
               style={{ color: 'rgba(255,255,255,0.78)' }}
             >
-              Nuestro modelo contribuye directamente a 6 de los 17 ODS de Naciones Unidas.
+              {t('impacto.ods.subtitle')}
             </p>
           </div>
 
