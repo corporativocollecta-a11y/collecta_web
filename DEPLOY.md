@@ -25,7 +25,7 @@ cp .env.example .env.local
 | Variable | Required | Para qué |
 |----------|----------|----------|
 | `RESEND_API_KEY` | Opcional | Recibir formularios por email |
-| `CONTACT_EMAIL_TO` | Opcional | Email destino (default: contacto@collectagroup.com) |
+| `CONTACT_EMAIL_TO` | Opcional | Email destino (default: contacto@collectaproduce.com) |
 | `CONTACT_EMAIL_FROM` | Opcional | Email remitente verificado |
 | `CONTACT_WEBHOOK_URL` | Opcional | Notificaciones a Slack/Discord/Zapier |
 

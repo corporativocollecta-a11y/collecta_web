@@ -98,7 +98,7 @@ export function FormCliente() {
         console.error('Submission failed:', err);
         setErrors({
           consentimiento:
-            'No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectagroup.com',
+            'No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectaproduce.com',
         });
         setIsSubmitting(false);
         return;

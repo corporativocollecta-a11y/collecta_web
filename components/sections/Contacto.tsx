@@ -87,11 +87,11 @@ export function Contacto() {
                     Email
                   </h4>
                   <a
-                    href="mailto:contacto@collectagroup.com"
+                    href="mailto:contacto@collectaproduce.com"
                     className="hover:opacity-70 transition-opacity"
                     style={{ color: 'rgba(255,255,255,0.78)' }}
                   >
-                    contacto@collectagroup.com
+                    contacto@collectaproduce.com
                   </a>
                 </div>
               </div>
