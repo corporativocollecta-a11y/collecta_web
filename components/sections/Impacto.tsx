@@ -426,32 +426,42 @@ function ActionsWheel() {
             </div>
           </div>
 
-          {/* 5 nodos numerados a 130px del centro */}
+          {/* 5 nodos numerados a 130px del centro.
+              IMPORTANTE: wrapper externo maneja posicionamiento porque Framer
+              Motion sobrescribe el `transform` cuando anima scale. Sin el
+              wrapper, el translate(-50%,-50%) se pierde y los nodos quedan
+              anclados por la esquina superior-izquierda en vez del centro. */}
           {actions.map((_, i) => {
             const angle = -90 + i * 72;
             const rad = (angle * Math.PI) / 180;
             const x = Math.cos(rad) * 130;
             const y = Math.sin(rad) * 130;
             return (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, scale: 0.7 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
-                className="absolute w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+                className="absolute"
                 style={{
                   left: `calc(50% + ${x}px)`,
                   top: `calc(50% + ${y}px)`,
                   transform: 'translate(-50%, -50%)',
-                  backgroundColor: 'rgba(3, 13, 7, 0.85)',
-                  color: '#00FF80',
-                  boxShadow:
-                    'inset 0 0 0 1.5px rgba(0, 255, 128, 0.55), 0 0 12px rgba(0, 255, 128, 0.25)',
                 }}
               >
-                {i + 1}
-              </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+                  style={{
+                    backgroundColor: 'rgba(3, 13, 7, 0.85)',
+                    color: '#00FF80',
+                    boxShadow:
+                      'inset 0 0 0 1.5px rgba(0, 255, 128, 0.55), 0 0 12px rgba(0, 255, 128, 0.25)',
+                  }}
+                >
+                  {i + 1}
+                </motion.div>
+              </div>
             );
           })}
         </motion.div>
