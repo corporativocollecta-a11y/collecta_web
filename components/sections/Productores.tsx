@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 // Icon: Apoyo para producir — cupped hand offering a growing sprout
 const IconApoyo = (
@@ -139,66 +140,36 @@ const IconMercados = (
   </svg>
 );
 
-const producerBenefits = [
-  {
-    title: 'Apoyo para producir',
-    shortTitle: 'Apoyo para producir',
-    description:
-      'Brindamos recursos al agricultor para fortalecer y aumentar su producción en campo.',
-    image: '/beneficios/socio-bg.jpeg',
-  },
-  {
-    title: 'Acompañamiento e integración de tecnología en campo',
-    shortTitle: 'Tecnología en campo',
-    description:
-      'Respaldamos el trabajo en campo con seguimiento y herramientas para reducir fallas durante la producción.',
-    image: '/beneficios/trazabilidad.jpeg',
-  },
-  {
-    title: 'Venta de la producción en mercados de alto valor',
-    shortTitle: 'Mercados de alto valor',
-    description:
-      'Colocamos la producción en mercados de exportación para cuidar el valor de cada cosecha.',
-    image: '/beneficios/visibilidad.jpeg',
-  },
-];
+// Benefit metadata uses i18n keys; the component resolves them via useT().
+const producerBenefitsMeta = [
+  { titleKey: 'prod.beneficio.apoyo.title',   shortKey: 'prod.beneficio.apoyo.short',   descKey: 'prod.beneficio.apoyo.description',   image: '/beneficios/socio-bg.jpeg' },
+  { titleKey: 'prod.beneficio.tec.title',     shortKey: 'prod.beneficio.tec.short',     descKey: 'prod.beneficio.tec.description',     image: '/beneficios/trazabilidad.jpeg' },
+  { titleKey: 'prod.beneficio.mercado.title', shortKey: 'prod.beneficio.mercado.short', descKey: 'prod.beneficio.mercado.description', image: '/beneficios/visibilidad.jpeg' },
+] as const;
 
-// Each benefit gets its own accent colour for the number + bottom border so
-// the five cards read as a series of distinct milestones.
-const partnerBenefits = [
-  {
-    title: 'Insumos sin deuda',
-    description:
-      'Acceso continuo a insumos agrícolas sin cargos financieros ni endeudamiento.',
-    accent: '#00FF80', // electric green
-  },
-  {
-    title: 'Crecimiento sostenido',
-    description:
-      'Aumento progresivo de superficie de siembra ciclo tras ciclo.',
-    accent: '#14B8A6', // teal (sustituye al ámbar para alinear con la paleta verde)
-  },
-  {
-    title: 'Mercados competitivos',
-    description:
-      'Tu producción accede a canales de alto valor y clientes exigentes.',
-    accent: '#EF4444', // red
-  },
-  {
-    title: 'Pagos transparentes',
-    description:
-      'Liquidaciones claras, oportunas y verificables en cada cosecha.',
-    accent: '#3B82F6', // blue
-  },
-  {
-    title: 'Operación integrada',
-    description:
-      'Procesos productivos y financieros bajo una sola gestión ordenada.',
-    accent: '#14B8A6', // teal
-  },
-];
+// Each partner benefit gets its own accent colour for the number + bottom
+// border so the five cards read as a series of distinct milestones.
+const partnerBenefitsMeta = [
+  { titleKey: 'prod.socio.insumos.title',      descKey: 'prod.socio.insumos.description',      accent: '#00FF80' },
+  { titleKey: 'prod.socio.crecimiento.title',  descKey: 'prod.socio.crecimiento.description',  accent: '#14B8A6' },
+  { titleKey: 'prod.socio.mercados.title',     descKey: 'prod.socio.mercados.description',     accent: '#EF4444' },
+  { titleKey: 'prod.socio.pagos.title',        descKey: 'prod.socio.pagos.description',        accent: '#3B82F6' },
+  { titleKey: 'prod.socio.operacion.title',    descKey: 'prod.socio.operacion.description',    accent: '#14B8A6' },
+] as const;
 
 export function Productores() {
+  const t = useT();
+  const producerBenefits = producerBenefitsMeta.map((b) => ({
+    title: t(b.titleKey),
+    shortTitle: t(b.shortKey),
+    description: t(b.descKey),
+    image: b.image,
+  }));
+  const partnerBenefits = partnerBenefitsMeta.map((b) => ({
+    title: t(b.titleKey),
+    description: t(b.descKey),
+    accent: b.accent,
+  }));
   return (
     <section id="productores" className="relative py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-neutral-light to-white overflow-hidden">
       {/* Background pattern */}
@@ -225,21 +196,19 @@ export function Productores() {
             className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
             style={{ color: '#00FF80' }}
           >
-            Para Pequeños y Medianos Productores
+            {t('prod.kicker')}
           </p>
           <h2
             className="font-sans text-4xl sm:text-5xl font-bold mb-6"
             style={{ color: '#FFFFFF' }}
           >
-            Crecer sin endeudarse
+            {t('prod.title')}
           </h2>
           <p
             className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed"
             style={{ color: 'rgba(255,255,255,0.78)' }}
           >
-            En Collecta buscamos trabajar con agricultores para construir una relación seria,
-            clara y de largo plazo. Nos interesa sumar productores que quieran fortalecer su trabajo
-            en campo y ampliar su capacidad de crecimiento.
+            {t('prod.subtitle')}
           </p>
         </motion.div>
 
@@ -253,7 +222,7 @@ export function Productores() {
             className="font-sans text-2xl sm:text-3xl font-bold text-center mb-14"
             style={{ color: '#FFFFFF' }}
           >
-            Beneficios para el productor
+            {t('prod.beneficios.title')}
           </motion.h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -477,13 +446,13 @@ export function Productores() {
               className="font-sans text-2xl sm:text-3xl font-bold mb-4"
               style={{ color: '#FFFFFF' }}
             >
-              Lo que ganas siendo socio de Collecta
+              {t('prod.socio.title')}
             </h3>
             <p
               className="max-w-2xl mx-auto"
               style={{ color: 'rgba(255,255,255,0.78)' }}
             >
-              Beneficios concretos que transforman la operación y la economía de tu tierra.
+              {t('prod.socio.subtitle')}
             </p>
           </motion.div>
 

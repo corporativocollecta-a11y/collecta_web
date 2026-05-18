@@ -3,31 +3,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
-const features = [
-  {
-    color: '#3B82F6', // azul
-    title: 'Programación de entregas',
-    description: 'Planeación financiera y estratégica con visibilidad total.',
-  },
-  {
-    color: '#14B8A6', // teal (sustituye al ámbar)
-    title: 'Comunicación en tiempo real',
-    description: 'Acceso inmediato a datos, reportes y estado de pedidos.',
-  },
-  {
-    color: '#00FF80', // verde eléctrico
-    title: 'Control de riesgos',
-    description: 'Documentación completa, certificaciones y trazabilidad auditable.',
-  },
-  {
-    color: '#F59E0B', // ámbar (acento humano/campo)
-    title: 'Continuidad de abasto',
-    description: 'Diversificación geográfica y agronómica para minimizar interrupciones.',
-  },
-];
+const featuresMeta = [
+  { color: '#3B82F6', titleKey: 'clientes.feature.programacion.title', descKey: 'clientes.feature.programacion.description' },
+  { color: '#14B8A6', titleKey: 'clientes.feature.comunicacion.title', descKey: 'clientes.feature.comunicacion.description' },
+  { color: '#00FF80', titleKey: 'clientes.feature.riesgos.title',      descKey: 'clientes.feature.riesgos.description' },
+  { color: '#F59E0B', titleKey: 'clientes.feature.continuidad.title',  descKey: 'clientes.feature.continuidad.description' },
+] as const;
 
 export function Clientes() {
+  const t = useT();
+  const features = featuresMeta.map((f) => ({
+    color: f.color,
+    title: t(f.titleKey),
+    description: t(f.descKey),
+  }));
   return (
     <section id="clientes" className="relative pt-4 pb-28 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
       <div className="mx-auto max-w-7xl relative z-10">
@@ -45,14 +36,13 @@ export function Clientes() {
               className="font-sans text-2xl sm:text-3xl font-bold mb-6"
               style={{ color: '#FFFFFF' }}
             >
-              Por qué los clientes nos eligen
+              {t('clientes.heading')}
             </h3>
             <p
               className="text-lg mb-8 leading-relaxed"
               style={{ color: 'rgba(255,255,255,0.78)' }}
             >
-              No somos un broker. No somos un intermediario. Somos un operador integrado que asume
-              la responsabilidad completa de la cadena, desde el primer surco hasta la entrega final.
+              {t('clientes.lead')}
             </p>
             <div className="space-y-4">
               {features.map((feature, i) => (
@@ -173,14 +163,13 @@ export function Clientes() {
               className="text-2xl sm:text-3xl font-bold mb-4"
               style={{ color: '#00FF80' }}
             >
-              Accede a tu Dashboard
+              {t('clientes.cta.title')}
             </h3>
             <p
               className="text-lg mb-8 max-w-2xl mx-auto"
               style={{ color: 'rgba(255,255,255,0.82)' }}
             >
-              Como cliente Collecta, tienes acceso a la plataforma con visibilidad completa de tus pedidos,
-              trazabilidad en vivo y comunicación directa con el equipo operativo.
+              {t('clientes.cta.body')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
@@ -188,14 +177,14 @@ export function Clientes() {
                 className="inline-block px-8 py-4 font-semibold rounded-lg transition-colors duration-300"
                 style={{ backgroundColor: '#00FF80', color: '#0a1a0d' }}
               >
-                Ingresar a la plataforma →
+                {t('clientes.cta.primary')}
               </a>
               <a
                 href="#contacto"
                 className="inline-block px-8 py-4 border-2 font-medium rounded-lg transition-all duration-300"
                 style={{ borderColor: 'rgba(255,255,255,0.45)', color: '#FFFFFF' }}
               >
-                Hablemos de tu cadena
+                {t('clientes.cta.secondary')}
               </a>
             </div>
           </div>
