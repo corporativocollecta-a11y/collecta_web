@@ -9,6 +9,7 @@ import {
   CheckboxField,
 } from '@/components/ui/FormField';
 import { PhoneInput } from '@/components/ui/PhoneInput';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 interface FormClienteData {
   empresa: string;
@@ -24,14 +25,14 @@ interface FormClienteData {
   consentimiento: boolean;
 }
 
-const cargoOptions = [
-  { value: 'Compras', label: 'Compras' },
-  { value: 'Calidad', label: 'Calidad' },
-  { value: 'Supply', label: 'Supply Chain' },
-  { value: 'Otro', label: 'Otro' },
-];
-
 export function FormCliente() {
+  const t = useT();
+  const cargoOptions = [
+    { value: 'Compras', label: t('fc.cargo.compras') },
+    { value: 'Calidad', label: t('fc.cargo.calidad') },
+    { value: 'Supply',  label: t('fc.cargo.supply') },
+    { value: 'Otro',    label: t('fc.cargo.otro') },
+  ];
   const [data, setData] = useState<FormClienteData>({
     empresa: '',
     nombreContacto: '',
@@ -61,20 +62,20 @@ export function FormCliente() {
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof FormClienteData, string>> = {};
 
-    if (!data.empresa.trim()) newErrors.empresa = 'Requerido';
-    if (!data.nombreContacto.trim()) newErrors.nombreContacto = 'Requerido';
-    if (!data.cargo) newErrors.cargo = 'Selecciona un cargo';
-    if (!data.email.trim()) newErrors.email = 'Requerido';
+    if (!data.empresa.trim()) newErrors.empresa = t('fc.error.required');
+    if (!data.nombreContacto.trim()) newErrors.nombreContacto = t('fc.error.required');
+    if (!data.cargo) newErrors.cargo = t('fc.error.cargo');
+    if (!data.email.trim()) newErrors.email = t('fc.error.required');
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-      newErrors.email = 'Email no válido';
-    if (!data.telefono.trim()) newErrors.telefono = 'Requerido';
+      newErrors.email = t('fc.error.email');
+    if (!data.telefono.trim()) newErrors.telefono = t('fc.error.required');
     else if (data.telefono.replace(/\D/g, '').length < 7)
-      newErrors.telefono = 'Teléfono no válido';
-    if (!data.ubicacion.trim()) newErrors.ubicacion = 'Requerido';
-    if (!data.productos.trim()) newErrors.productos = 'Requerido';
-    if (!data.volumen.trim()) newErrors.volumen = 'Requerido';
+      newErrors.telefono = t('fc.error.tel');
+    if (!data.ubicacion.trim()) newErrors.ubicacion = t('fc.error.required');
+    if (!data.productos.trim()) newErrors.productos = t('fc.error.required');
+    if (!data.volumen.trim()) newErrors.volumen = t('fc.error.required');
     if (!data.consentimiento)
-      newErrors.consentimiento = 'Debes aceptar para continuar';
+      newErrors.consentimiento = t('fc.error.consent');
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -97,8 +98,7 @@ export function FormCliente() {
         const err = await response.json().catch(() => ({}));
         console.error('Submission failed:', err);
         setErrors({
-          consentimiento:
-            'No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectaproduce.com',
+          consentimiento: t('form.error'),
         });
         setIsSubmitting(false);
         return;
@@ -108,8 +108,7 @@ export function FormCliente() {
     } catch (err) {
       console.error('Network error:', err);
       setErrors({
-        consentimiento:
-          'Error de conexión. Verifica tu internet e intenta de nuevo.',
+        consentimiento: t('fc.error.network'),
       });
     } finally {
       setIsSubmitting(false);
@@ -134,11 +133,10 @@ export function FormCliente() {
           className="text-2xl font-bold mb-3"
           style={{ color: '#2A2A2A' }}
         >
-          ¡Mensaje recibido!
+          {t('fc.success.title')}
         </h3>
         <p className="text-base max-w-md mx-auto" style={{ color: '#4A4A4A' }}>
-          Gracias por tu interés en Collecta. Nuestro equipo se pondrá en
-          contacto contigo a la brevedad para explorar cómo podemos colaborar.
+          {t('fc.success.body')}
         </p>
       </motion.div>
     );
@@ -149,44 +147,44 @@ export function FormCliente() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <InputField
           name="empresa"
-          label="Nombre de la empresa"
+          label={t('fc.empresa.label')}
           value={data.empresa}
           onChange={(v) => update('empresa', v)}
           required
           error={errors.empresa}
-          placeholder="Ej. Walmart, Chedraui..."
+          placeholder={t('fc.empresa.placeholder')}
         />
         <InputField
           name="nombreContacto"
-          label="Nombre completo del contacto"
+          label={t('fc.contacto.label')}
           value={data.nombreContacto}
           onChange={(v) => update('nombreContacto', v)}
           required
           error={errors.nombreContacto}
-          placeholder="Tu nombre"
+          placeholder={t('fc.contacto.placeholder')}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <SelectField
           name="cargo"
-          label="Cargo"
+          label={t('fc.cargo.label')}
           value={data.cargo}
           onChange={(v) => update('cargo', v)}
           required
           error={errors.cargo}
-          placeholder="Selecciona tu cargo"
+          placeholder={t('fc.cargo.placeholder')}
           options={cargoOptions}
         />
         <InputField
           name="email"
           type="email"
-          label="Email corporativo"
+          label={t('fc.email.label')}
           value={data.email}
           onChange={(v) => update('email', v)}
           required
           error={errors.email}
-          placeholder="tu@empresa.com"
+          placeholder={t('fc.email.placeholder')}
         />
       </div>
 
@@ -198,50 +196,50 @@ export function FormCliente() {
           onPhoneNumberChange={(v) => update('telefono', v)}
           required
           error={errors.telefono}
-          label="Teléfono con WhatsApp"
+          label={t('fc.telefono.label')}
         />
 
         <InputField
           name="ubicacion"
-          label="Ciudad / Estado / País"
+          label={t('fc.ubicacion.label')}
           value={data.ubicacion}
           onChange={(v) => update('ubicacion', v)}
           required
           error={errors.ubicacion}
-          placeholder="Ej. Monterrey, Nuevo León, México"
+          placeholder={t('fc.ubicacion.placeholder')}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <InputField
           name="productos"
-          label="Productos de interés"
+          label={t('fc.productos.label')}
           value={data.productos}
           onChange={(v) => update('productos', v)}
           required
           error={errors.productos}
-          placeholder="Ej. Tomate, pepino, pimiento..."
-          hint="Indica los cultivos que tu empresa busca abastecer"
+          placeholder={t('fc.productos.placeholder')}
+          hint={t('fc.productos.hint')}
         />
 
         <InputField
           name="volumen"
-          label="Volumen máximo deseado"
+          label={t('fc.volumen.label')}
           value={data.volumen}
           onChange={(v) => update('volumen', v)}
           required
           error={errors.volumen}
-          placeholder="Ej. 10 embarques al mes"
-          hint="Embarques estimados por mes"
+          placeholder={t('fc.volumen.placeholder')}
+          hint={t('fc.volumen.hint')}
         />
       </div>
 
       <TextareaField
         name="mensaje"
-        label="Mensaje (opcional)"
+        label={t('fc.mensaje.label')}
         value={data.mensaje}
         onChange={(v) => update('mensaje', v)}
-        placeholder="Cuéntanos cualquier detalle adicional sobre tu necesidad..."
+        placeholder={t('fc.mensaje.placeholder')}
         rows={4}
       />
 
@@ -256,8 +254,8 @@ export function FormCliente() {
           name="consentimiento"
           label={
             <span>
-              Manifiesto mi interés de participar e integrarme al{' '}
-              <strong>Ecosistema Collecta</strong>
+              {t('fc.consent.label.before')}
+              <strong>{t('fc.consent.label.brand')}</strong>
             </span>
           }
           checked={data.consentimiento}
@@ -276,20 +274,20 @@ export function FormCliente() {
           color: '#0a1a0d',
         }}
       >
-        {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
+        {isSubmitting ? t('fc.submitting') : t('fc.submit')}
       </button>
 
       <p
         className="text-xs text-center"
         style={{ color: '#8B7D6B' }}
       >
-        Al enviar este formulario, aceptas nuestro{' '}
+        {t('fc.privacy.before')}
         <a
           href="/privacidad"
           className="underline hover:opacity-70"
           style={{ color: '#00FF80' }}
         >
-          aviso de privacidad
+          {t('fc.privacy.link')}
         </a>
         .
       </p>

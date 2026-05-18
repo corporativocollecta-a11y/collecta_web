@@ -8,6 +8,7 @@ import {
   CheckboxField,
 } from '@/components/ui/FormField';
 import { PhoneInput } from '@/components/ui/PhoneInput';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 interface FormProductorData {
   nombreCompleto: string;
@@ -23,12 +24,12 @@ interface FormProductorData {
   consentimiento: boolean;
 }
 
-const pozoRiegoOptions = [
-  { value: 'si', label: 'Sí' },
-  { value: 'no', label: 'No' },
-];
-
 export function FormProductor() {
+  const t = useT();
+  const pozoRiegoOptions = [
+    { value: 'si', label: t('fp.pozo.si') },
+    { value: 'no', label: t('fp.pozo.no') },
+  ];
   const [data, setData] = useState<FormProductorData>({
     nombreCompleto: '',
     email: '',
@@ -58,28 +59,28 @@ export function FormProductor() {
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof FormProductorData, string>> = {};
 
-    if (!data.nombreCompleto.trim()) newErrors.nombreCompleto = 'Requerido';
+    if (!data.nombreCompleto.trim()) newErrors.nombreCompleto = t('fc.error.required');
     // Email is optional but if provided must be valid
     if (data.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-      newErrors.email = 'Email no válido';
-    if (!data.celular.trim()) newErrors.celular = 'Requerido';
+      newErrors.email = t('fc.error.email');
+    if (!data.celular.trim()) newErrors.celular = t('fc.error.required');
     else if (data.celular.replace(/\D/g, '').length < 7)
-      newErrors.celular = 'Celular no válido';
-    if (!data.ubicacionPredio.trim()) newErrors.ubicacionPredio = 'Requerido';
-    if (!data.hectareas.trim()) newErrors.hectareas = 'Requerido';
+      newErrors.celular = t('fp.error.celular');
+    if (!data.ubicacionPredio.trim()) newErrors.ubicacionPredio = t('fc.error.required');
+    if (!data.hectareas.trim()) newErrors.hectareas = t('fc.error.required');
     else if (Number(data.hectareas) <= 0)
-      newErrors.hectareas = 'Debe ser mayor a 0';
-    if (!data.pozoRiego) newErrors.pozoRiego = 'Selecciona una opción';
-    if (!data.experiencia.trim()) newErrors.experiencia = 'Requerido';
+      newErrors.hectareas = t('fp.error.hectareas');
+    if (!data.pozoRiego) newErrors.pozoRiego = t('fp.error.pozo');
+    if (!data.experiencia.trim()) newErrors.experiencia = t('fc.error.required');
     else if (Number(data.experiencia) < 0)
-      newErrors.experiencia = 'Debe ser un número válido';
+      newErrors.experiencia = t('fp.error.experiencia');
     if (!data.productosExperiencia.trim())
-      newErrors.productosExperiencia = 'Requerido';
-    if (!data.edad.trim()) newErrors.edad = 'Requerido';
+      newErrors.productosExperiencia = t('fc.error.required');
+    if (!data.edad.trim()) newErrors.edad = t('fc.error.required');
     else if (Number(data.edad) < 18 || Number(data.edad) > 100)
-      newErrors.edad = 'Edad debe estar entre 18 y 100';
+      newErrors.edad = t('fp.error.edad');
     if (!data.consentimiento)
-      newErrors.consentimiento = 'Debes aceptar para continuar';
+      newErrors.consentimiento = t('fc.error.consent');
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -102,8 +103,7 @@ export function FormProductor() {
         const err = await response.json().catch(() => ({}));
         console.error('Submission failed:', err);
         setErrors({
-          consentimiento:
-            'No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectaproduce.com',
+          consentimiento: t('form.error'),
         });
         setIsSubmitting(false);
         return;
@@ -113,8 +113,7 @@ export function FormProductor() {
     } catch (err) {
       console.error('Network error:', err);
       setErrors({
-        consentimiento:
-          'Error de conexión. Verifica tu internet e intenta de nuevo.',
+        consentimiento: t('fc.error.network'),
       });
     } finally {
       setIsSubmitting(false);
@@ -139,11 +138,10 @@ export function FormProductor() {
           className="text-2xl font-bold mb-3"
           style={{ color: '#2A2A2A' }}
         >
-          ¡Gracias por tu interés!
+          {t('fp.success.title')}
         </h3>
         <p className="text-base max-w-md mx-auto" style={{ color: '#4A4A4A' }}>
-          Hemos recibido tu información. Un miembro de nuestro equipo técnico se
-          comunicará contigo para conocer tu predio y explorar la coproducción.
+          {t('fp.success.body')}
         </p>
       </motion.div>
     );
@@ -153,34 +151,34 @@ export function FormProductor() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <InputField
         name="nombreCompleto"
-        label="Nombre completo"
+        label={t('fp.nombre.label')}
         value={data.nombreCompleto}
         onChange={(v) => update('nombreCompleto', v)}
         required
         error={errors.nombreCompleto}
-        placeholder="Tu nombre completo"
+        placeholder={t('fp.nombre.placeholder')}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <InputField
           name="email"
           type="email"
-          label="Email"
+          label={t('fp.email.label')}
           value={data.email}
           onChange={(v) => update('email', v)}
           error={errors.email}
-          placeholder="tu@email.com"
-          hint="Opcional"
+          placeholder={t('fp.email.placeholder')}
+          hint={t('fp.email.hint')}
         />
         <InputField
           name="edad"
           type="number"
-          label="Edad"
+          label={t('fp.edad.label')}
           value={data.edad}
           onChange={(v) => update('edad', v)}
           required
           error={errors.edad}
-          placeholder="Ej. 45"
+          placeholder={t('fp.edad.placeholder')}
           min={18}
           max={100}
         />
@@ -194,18 +192,18 @@ export function FormProductor() {
           onPhoneNumberChange={(v) => update('celular', v)}
           required
           error={errors.celular}
-          label="Celular (con WhatsApp)"
+          label={t('fp.celular.label')}
         />
 
         <InputField
           name="ubicacionPredio"
-          label="Ubicación del predio"
+          label={t('fp.predio.label')}
           value={data.ubicacionPredio}
           onChange={(v) => update('ubicacionPredio', v)}
           required
           error={errors.ubicacionPredio}
-          placeholder="Estado, municipio, población"
-          hint="Ej. Sinaloa, Culiacán, Costa Rica"
+          placeholder={t('fp.predio.placeholder')}
+          hint={t('fp.predio.hint')}
         />
       </div>
 
@@ -213,32 +211,32 @@ export function FormProductor() {
         <InputField
           name="hectareas"
           type="number"
-          label="Hectáreas totales disponibles"
+          label={t('fp.hectareas.label')}
           value={data.hectareas}
           onChange={(v) => update('hectareas', v)}
           required
           error={errors.hectareas}
-          placeholder="Ej. 25"
+          placeholder={t('fp.hectareas.placeholder')}
           min={1}
-          hint="Superficie en hectáreas"
+          hint={t('fp.hectareas.hint')}
         />
         <InputField
           name="experiencia"
           type="number"
-          label="Años de experiencia"
+          label={t('fp.experiencia.label')}
           value={data.experiencia}
           onChange={(v) => update('experiencia', v)}
           required
           error={errors.experiencia}
-          placeholder="Ej. 15"
+          placeholder={t('fp.experiencia.placeholder')}
           min={0}
-          hint="Años trabajando el campo"
+          hint={t('fp.experiencia.hint')}
         />
       </div>
 
       <RadioField
         name="pozoRiego"
-        label="¿Cuentas con pozo de agua y/o sistema de riego?"
+        label={t('fp.pozo.label')}
         value={data.pozoRiego}
         onChange={(v) => update('pozoRiego', v)}
         required
@@ -248,13 +246,13 @@ export function FormProductor() {
 
       <InputField
         name="productosExperiencia"
-        label="Productos con mayor experiencia"
+        label={t('fp.productos.label')}
         value={data.productosExperiencia}
         onChange={(v) => update('productosExperiencia', v)}
         required
         error={errors.productosExperiencia}
-        placeholder="Ej. Tomate, pepino, chile..."
-        hint="Cultivos que dominas mejor"
+        placeholder={t('fp.productos.placeholder')}
+        hint={t('fp.productos.hint')}
       />
 
       <div
@@ -268,8 +266,8 @@ export function FormProductor() {
           name="consentimiento"
           label={
             <span>
-              Manifiesto mi interés de participar e integrarme al{' '}
-              <strong>Ecosistema Collecta</strong>
+              {t('fc.consent.label.before')}
+              <strong>{t('fc.consent.label.brand')}</strong>
             </span>
           }
           checked={data.consentimiento}
@@ -288,20 +286,20 @@ export function FormProductor() {
           color: '#0a1a0d',
         }}
       >
-        {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
+        {isSubmitting ? t('fc.submitting') : t('fc.submit')}
       </button>
 
       <p
         className="text-xs text-center"
         style={{ color: '#8B7D6B' }}
       >
-        Al enviar este formulario, aceptas nuestro{' '}
+        {t('fc.privacy.before')}
         <a
           href="/privacidad"
           className="underline hover:opacity-70"
           style={{ color: '#00FF80' }}
         >
-          aviso de privacidad
+          {t('fc.privacy.link')}
         </a>
         .
       </p>
