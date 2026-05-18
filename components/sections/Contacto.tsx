@@ -135,13 +135,11 @@ export function Contacto() {
                     Plataforma
                   </h4>
                   <a
-                    href="https://app.collectaproduce.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="/plataforma"
                     className="hover:opacity-70 transition-opacity"
                     style={{ color: 'rgba(255,255,255,0.78)' }}
                   >
-                    app.collectaproduce.com
+                    collectaproduce.com/plataforma
                   </a>
                 </div>
               </div>

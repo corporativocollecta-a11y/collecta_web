@@ -184,9 +184,7 @@ export function Clientes() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="https://app.collectaproduce.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/plataforma"
                 className="inline-block px-8 py-4 font-semibold rounded-lg transition-colors duration-300"
                 style={{ backgroundColor: '#00FF80', color: '#0a1a0d' }}
               >

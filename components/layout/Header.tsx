@@ -64,9 +64,7 @@ export function Header() {
             ))}
 
             <a
-              href="https://app.collectaproduce.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/plataforma"
               className="px-5 py-2 rounded-lg font-semibold text-sm transition-all duration-300 border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
             >
               Plataforma
@@ -125,9 +123,7 @@ export function Header() {
                 </a>
               ))}
               <a
-                href="https://app.collectaproduce.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/plataforma"
                 className="block mt-4 px-4 py-3 rounded-lg font-semibold text-center border-2 border-brand-blue-dark text-brand-blue-dark hover:border-brand-green hover:text-brand-green"
               >
                 Acceder a la Plataforma
