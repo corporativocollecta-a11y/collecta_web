@@ -40,18 +40,10 @@ export function Footer() {
                 className="object-contain object-left"
               />
             </div>
-            <blockquote className="relative pl-5 pr-2 py-1 border-l-2 border-brand-green/60">
-              <span
-                aria-hidden
-                className="absolute -top-2 left-1 font-serif leading-none select-none"
-                style={{ fontSize: '2.25rem', color: '#00FF80', opacity: 0.75 }}
-              >
-                &ldquo;
-              </span>
-              <p className="text-sm leading-relaxed italic text-dark-text-secondary">
-                Para toda la humanidad
-                <span aria-hidden style={{ color: '#00FF80' }}>&rdquo;</span>
-              </p>
+            <blockquote className="text-sm leading-relaxed italic text-dark-text-secondary">
+              <span style={{ color: '#00FF80' }}>&ldquo;</span>
+              Para toda la humanidad
+              <span style={{ color: '#00FF80' }}>&rdquo;</span>
             </blockquote>
           </div>
 
