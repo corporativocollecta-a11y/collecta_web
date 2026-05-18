@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { HorizontalTimeline, type TimelineStep } from '@/components/ui/HorizontalTimeline';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
 // Canvas-based animation is client-only; lazy load to keep it out of the SSR bundle.
 const NetworkBackdrop = dynamic(() => import('@/components/3d/NetworkBackdrop'), { ssr: false });
@@ -247,26 +248,13 @@ const IconBoxTruck = (
   </svg>
 );
 
-const SUPPLY_STEPS: TimelineStep[] = [
-  {
-    icon: IconClipboardChart,
-    title: 'Planeación comercial',
-    description:
-      'Definimos productos, volúmenes, calibres, especificaciones y ventanas de entrega para estructurar el abasto.',
-  },
-  {
-    icon: IconFieldSprout,
-    title: 'Ejecución en origen',
-    description:
-      'Seleccionamos parcelas, asignamos producción e integramos supervisión técnica y tecnología en campo.',
-  },
-  {
-    icon: IconBoxTruck,
-    title: 'Empaque y entrega',
-    description:
-      'Coordinamos empaque, cadena de frío y envío al punto de entrega acordado.',
-  },
-];
+// SUPPLY_STEPS keys — resolved to translated TimelineStep[] inside the
+// component via useT(). Icons stay here because they're not localized.
+const SUPPLY_STEPS_META = [
+  { icon: IconClipboardChart, titleKey: 'eco.supply.planeacion.title', descKey: 'eco.supply.planeacion.description' },
+  { icon: IconFieldSprout,    titleKey: 'eco.supply.ejecucion.title',  descKey: 'eco.supply.ejecucion.description' },
+  { icon: IconBoxTruck,       titleKey: 'eco.supply.empaque.title',    descKey: 'eco.supply.empaque.description' },
+] as const;
 
 // Step icons for the 4-stage flow (Producción / Empacado / Trazabilidad / Logística)
 const IconProduccion = (
@@ -341,6 +329,15 @@ const flowSteps = [
 ];
 
 export function Ecosistema() {
+  const t = useT();
+
+  // Resolve the SUPPLY_STEPS into translated TimelineSteps once per render.
+  const SUPPLY_STEPS: TimelineStep[] = SUPPLY_STEPS_META.map((s) => ({
+    icon: s.icon,
+    title: t(s.titleKey),
+    description: t(s.descKey),
+  }));
+
   return (
     <section
       id="ecosistema"
@@ -363,15 +360,13 @@ export function Ecosistema() {
             className="text-4xl sm:text-5xl font-bold mb-6"
             style={{ color: '#FFFFFF' }}
           >
-            Producimos desde el campo mexicano.
+            {t('eco.h2')}
           </h2>
           <p
             className="text-lg sm:text-xl max-w-4xl mx-auto leading-relaxed"
             style={{ color: 'rgba(255,255,255,0.78)' }}
           >
-            Trabajamos con pequeños y medianos agricultores para producir hortalizas de alta
-            calidad y nos encargamos de llevar esa producción al mercado con una operación
-            integrada:
+            {t('eco.subtitle')}
           </p>
         </motion.div>
 
@@ -392,7 +387,7 @@ export function Ecosistema() {
             className="font-mono text-xs sm:text-sm tracking-[0.32em] uppercase mb-10 text-center"
             style={{ color: 'rgba(0, 255, 128, 0.85)' }}
           >
-            Flujo operativo completo — COS monitorea cada etapa
+            {t('eco.flow.panelHeader')}
           </p>
 
           {/* 7-node grid — responsive layout */}
@@ -400,8 +395,8 @@ export function Ecosistema() {
             {[
               // Each node has a tiny inline SVG icon picked to match the stage.
               {
-                label: 'CAMPO',
-                sub: 'Insumos',
+                label: t('eco.flow.campo.label'),
+                sub: t('eco.flow.campo.sub'),
                 // Sprout pushing out of soil
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -413,8 +408,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'SUPERVISIÓN',
-                sub: 'Precisión',
+                label: t('eco.flow.supervision.label'),
+                sub: t('eco.flow.supervision.sub'),
                 // Magnifying glass — inspection / oversight
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -425,8 +420,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'COSECHA',
-                sub: 'Calidad',
+                label: t('eco.flow.cosecha.label'),
+                sub: t('eco.flow.cosecha.sub'),
                 // Basket of produce
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -438,8 +433,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'EMPAQUE',
-                sub: 'Inocuidad',
+                label: t('eco.flow.empaque.label'),
+                sub: t('eco.flow.empaque.sub'),
                 // 3D box / package
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -450,8 +445,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'TRAZABILIDAD',
-                sub: 'Verificable',
+                label: t('eco.flow.trazabilidad.label'),
+                sub: t('eco.flow.trazabilidad.sub'),
                 // QR-style code square
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -467,8 +462,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'LOGÍSTICA',
-                sub: 'Frío',
+                label: t('eco.flow.logistica.label'),
+                sub: t('eco.flow.logistica.sub'),
                 // Cold-chain truck
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -480,8 +475,8 @@ export function Ecosistema() {
                 ),
               },
               {
-                label: 'CLIENTE',
-                sub: 'B2B',
+                label: t('eco.flow.cliente.label'),
+                sub: t('eco.flow.cliente.sub'),
                 // Storefront / B2B building
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
@@ -494,7 +489,7 @@ export function Ecosistema() {
               },
             ].map((node, i) => (
               <motion.div
-                key={node.label}
+                key={i}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -573,19 +568,19 @@ export function Ecosistema() {
               className="text-sm sm:text-base font-semibold tracking-[0.22em] uppercase mb-4"
               style={{ color: '#00FF80' }}
             >
-              Clientes
+              {t('eco.clientes.kicker')}
             </p>
             <h3
               className="text-4xl sm:text-5xl font-bold mb-4"
               style={{ color: '#FFFFFF' }}
             >
-              Más que proveedores, socios en su abastecimiento
+              {t('eco.clientes.title')}
             </h3>
             <p
               className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed"
               style={{ color: 'rgba(255,255,255,0.78)' }}
             >
-              Para quienes priorizan calidad, trazabilidad y cumplimiento.
+              {t('eco.clientes.subtitle')}
             </p>
           </motion.div>
 
@@ -596,7 +591,7 @@ export function Ecosistema() {
                 className="text-2xl sm:text-3xl font-bold mb-3"
                 style={{ color: '#FFFFFF' }}
               >
-                Beneficios tangibles de nuestro modelo y zona de cobertura actualmente
+                {t('eco.beneficios.title')}
               </h4>
             </div>
 
@@ -608,33 +603,29 @@ export function Ecosistema() {
               <div className="lg:col-span-5 lg:-ml-16 xl:-ml-[72px] flex flex-col gap-4">
               {[
                 {
-                  title: 'Datos operativos',
-                  description:
-                    'Información verificable para auditorías, FSVP y seguimiento operativo desde nuestra plataforma.',
+                  title: t('eco.benefit.datos.title'),
+                  description: t('eco.benefit.datos.description'),
                   image: '/beneficios/visibilidad.jpeg',
                   metric: '100%',
                   metricLabel: 'Visibilidad digital',
                 },
                 {
-                  title: 'Trazabilidad Total',
-                  description:
-                    'Auditable de extremo a extremo. Control absoluto sobre riesgos alimentarios e inocuidad.',
+                  title: t('eco.benefit.trazabilidad.title'),
+                  description: t('eco.benefit.trazabilidad.description'),
                   image: '/beneficios/trazabilidad.jpeg',
                   metric: '24/7',
                   metricLabel: 'Monitoreo continuo',
                 },
                 {
-                  title: 'Calidad Consistente',
-                  description:
-                    'Mayor porcentaje de calidad, menos rechazos, comunicación en tiempo real.',
+                  title: t('eco.benefit.calidad.title'),
+                  description: t('eco.benefit.calidad.description'),
                   image: '/beneficios/fragmentacion.jpeg',
                   metric: '<5%',
                   metricLabel: 'Rechazos típicos',
                 },
                 {
-                  title: 'Modelo Vertical',
-                  description:
-                    'Un solo operador desde la siembra hasta la venta. Sin intermediarios, sin fragmentación.',
+                  title: t('eco.benefit.modelo.title'),
+                  description: t('eco.benefit.modelo.description'),
                   image: '/beneficios/contacto.jpeg',
                   metric: '100%',
                   metricLabel: 'Cadena integrada',
@@ -728,7 +719,7 @@ export function Ecosistema() {
             className="text-2xl sm:text-3xl font-bold text-center mt-32 mb-8"
             style={{ color: '#FFFFFF' }}
           >
-            Proceso operativo de abastecimiento
+            {t('eco.supply.title')}
           </motion.h3>
 
           {/* Proceso operativo — dark-green plants panel with 3 glass cards.
