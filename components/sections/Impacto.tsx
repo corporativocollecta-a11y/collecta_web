@@ -299,40 +299,198 @@ function ActionsWheel() {
         })}
       </div>
 
-      {/* Móvil / tablet: pila vertical */}
-      <div className="lg:hidden space-y-6">
-        {actions.map((item, i) => (
+      {/* Móvil / tablet: rueda compacta visual + pila vertical de detalles.
+          Mantiene la robustez visual de la rueda radial sin sacrificar legibilidad. */}
+      <div className="lg:hidden">
+        {/* Rueda compacta — 320px diámetro con 5 nodos numerados alrededor de
+            un núcleo central "NUESTRO MODELO · 5 acciones". Solo visual; el
+            detalle de cada acción va en la pila vertical de abajo. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative mx-auto mb-12"
+          style={{ width: 320, height: 320 }}
+        >
+          {/* Anillo exterior dasheado (donde se sientan los nodos) */}
+          <div
+            aria-hidden
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              left: '50%',
+              top: '50%',
+              width: 260,
+              height: 260,
+              transform: 'translate(-50%, -50%)',
+              border: '1px dashed rgba(0, 255, 128, 0.22)',
+            }}
+          />
+
+          {/* Anillo medio giratorio sutil */}
           <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="flex gap-4 items-start"
+            aria-hidden
+            className="absolute pointer-events-none"
+            style={{
+              left: '50%',
+              top: '50%',
+              width: 200,
+              height: 200,
+              x: '-50%',
+              y: '-50%',
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 30, ease: 'linear', repeat: Infinity }}
+          >
+            <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+              <circle
+                cx="50"
+                cy="50"
+                r="49"
+                fill="none"
+                stroke="rgba(0, 255, 128, 0.30)"
+                strokeWidth="0.4"
+                strokeDasharray="2 3"
+              />
+              {[0, 120, 240].map((angle) => {
+                const rad = (angle * Math.PI) / 180;
+                const cx = 50 + Math.cos(rad) * 49;
+                const cy = 50 + Math.sin(rad) * 49;
+                return (
+                  <circle key={angle} cx={cx} cy={cy} r="1.2" fill="#00FF80" opacity="0.85" />
+                );
+              })}
+            </svg>
+          </motion.div>
+
+          {/* SVG líneas radiales del centro a cada nodo */}
+          <svg
+            aria-hidden
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox="0 0 320 320"
+          >
+            {actions.map((_, i) => {
+              const angle = -90 + i * 72;
+              const rad = (angle * Math.PI) / 180;
+              const cx = 160;
+              const cy = 160;
+              const innerR = 55;
+              const outerR = 110;
+              const x1 = cx + Math.cos(rad) * innerR;
+              const y1 = cy + Math.sin(rad) * innerR;
+              const x2 = cx + Math.cos(rad) * outerR;
+              const y2 = cy + Math.sin(rad) * outerR;
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="rgba(0, 255, 128, 0.22)"
+                  strokeWidth="1"
+                  strokeDasharray="3 4"
+                />
+              );
+            })}
+          </svg>
+
+          {/* Núcleo central */}
+          <div
+            className="absolute"
+            style={{
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 110,
+              height: 110,
+            }}
           >
             <div
-              className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+              className="w-full h-full flex flex-col items-center justify-center text-center rounded-full"
               style={{
-                backgroundColor: 'rgba(0, 255, 128, 0.12)',
-                color: '#00FF80',
-                boxShadow: 'inset 0 0 0 1.5px rgba(0, 255, 128, 0.4)',
+                background:
+                  'radial-gradient(circle at center, rgba(0, 255, 128, 0.20) 0%, rgba(0, 255, 128, 0.05) 60%, transparent 100%)',
+                boxShadow: 'inset 0 0 0 1.5px rgba(0, 255, 128, 0.45)',
               }}
             >
-              {i + 1}
-            </div>
-            <div className="flex-1">
-              <h4 className="font-bold text-base mb-1" style={{ color: '#FFFFFF' }}>
-                {item.title}
-              </h4>
               <p
-                className="text-sm leading-relaxed"
-                style={{ color: 'rgba(255,255,255,0.78)' }}
+                className="text-[9px] uppercase tracking-[0.22em] font-semibold mb-1"
+                style={{ color: '#00FF80' }}
               >
-                {item.description}
+                Nuestro modelo
+              </p>
+              <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.9)' }}>
+                5 acciones
               </p>
             </div>
-          </motion.div>
-        ))}
+          </div>
+
+          {/* 5 nodos numerados a 130px del centro */}
+          {actions.map((_, i) => {
+            const angle = -90 + i * 72;
+            const rad = (angle * Math.PI) / 180;
+            const x = Math.cos(rad) * 130;
+            const y = Math.sin(rad) * 130;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.7 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+                className="absolute w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+                style={{
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'rgba(3, 13, 7, 0.85)',
+                  color: '#00FF80',
+                  boxShadow:
+                    'inset 0 0 0 1.5px rgba(0, 255, 128, 0.55), 0 0 12px rgba(0, 255, 128, 0.25)',
+                }}
+              >
+                {i + 1}
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Pila vertical de detalles */}
+        <div className="space-y-6">
+          {actions.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="flex gap-4 items-start"
+            >
+              <div
+                className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+                style={{
+                  backgroundColor: 'rgba(0, 255, 128, 0.12)',
+                  color: '#00FF80',
+                  boxShadow: 'inset 0 0 0 1.5px rgba(0, 255, 128, 0.4)',
+                }}
+              >
+                {i + 1}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-base mb-1" style={{ color: '#FFFFFF' }}>
+                  {item.title}
+                </h4>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: 'rgba(255,255,255,0.78)' }}
+                >
+                  {item.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </>
   );
