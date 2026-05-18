@@ -81,6 +81,15 @@ export const messages: Record<Locale, Dict> = {
     'stats.trazabilidad.label': 'Trazabilidad',
     'stats.trazabilidad.description': 'Productos auditables',
 
+    // ─── Misión y Visión ────────────────────────────────────────────────────
+    'mv.kicker': 'Nuestra razón de ser',
+    'mv.mision.title': 'Misión',
+    'mv.mision.body':
+      'Fortalecer a los productores agrícolas que sostienen el sistema alimentario del mundo.',
+    'mv.vision.title': 'Visión',
+    'mv.vision.body':
+      'Transformar estructuralmente el sistema agroalimentario en una operación trazable, tecnológica y sostenible, generando valor para productores, mercados y comunidades.',
+
     // ─── Ecosistema ──────────────────────────────────────────────────────────
     'eco.h2': 'Producimos desde el campo mexicano.',
     'eco.subtitle':
@@ -426,6 +435,15 @@ export const messages: Record<Locale, Dict> = {
     'stats.cultivos.description': 'Diversified vegetables',
     'stats.trazabilidad.label': 'Traceability',
     'stats.trazabilidad.description': 'Auditable products',
+
+    // ─── Misión y Visión ────────────────────────────────────────────────────
+    'mv.kicker': 'Our reason for being',
+    'mv.mision.title': 'Mission',
+    'mv.mision.body':
+      'To strengthen the agricultural producers who sustain the world’s food system.',
+    'mv.vision.title': 'Vision',
+    'mv.vision.body':
+      'To structurally transform the agri-food system into a traceable, technology-driven and sustainable operation that creates value for producers, markets and communities.',
 
     // ─── Ecosistema ──────────────────────────────────────────────────────────
     'eco.h2': 'We grow from the Mexican fields.',
