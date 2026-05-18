@@ -388,7 +388,7 @@ export const messages: Record<Locale, Dict> = {
     'nav.menu.closeAria': 'Close menu',
 
     // ─── Footer ──────────────────────────────────────────────────────────────
-    'footer.tagline': 'For all humanity',
+    'footer.tagline': 'For all mankind',
     'footer.col.ecosistema': 'Ecosystem',
     'footer.col.audiencias': 'Audiences',
     'footer.col.empresa': 'Company',
