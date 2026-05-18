@@ -80,12 +80,12 @@ Vercel detecta automáticamente que es Next.js y usa el preset correcto.
 
 ---
 
-## 5. Conectar dominio collectagroup.com
+## 5. Conectar dominio collectaproduce.com
 
 En el dashboard de Vercel:
 
 1. **Settings > Domains**
-2. Agrega `collectagroup.com`
+2. Agrega `collectaproduce.com`
 3. Vercel te dará registros DNS para configurar:
    - `A record` (apunta a IP de Vercel)
    - `CNAME` (apunta a `cname.vercel-dns.com`)
@@ -99,7 +99,7 @@ Vercel emitirá un certificado SSL automáticamente.
 ## 6. Configurar Resend (envío de emails)
 
 1. **Regístrate**: https://resend.com (100 emails/día gratis)
-2. **Verifica el dominio** `collectagroup.com`:
+2. **Verifica el dominio** `collectaproduce.com`:
    - Dashboard > Domains > Add Domain
    - Agrega los registros DNS que te indique (DKIM, SPF)
    - Espera verificación (~5 min)
@@ -140,7 +140,7 @@ Después del deploy, verifica:
 ## 9. Checklist post-deploy
 
 - [ ] Sitio carga en `collecta-web.vercel.app`
-- [ ] Dominio `collectagroup.com` apunta correctamente
+- [ ] Dominio `collectaproduce.com` apunta correctamente
 - [ ] SSL funcionando (candado verde)
 - [ ] Formularios envían emails reales
 - [ ] Notificaciones webhook funcionando

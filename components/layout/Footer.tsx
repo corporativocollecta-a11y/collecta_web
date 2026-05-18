@@ -15,7 +15,7 @@ const footerLinks = {
   empresa: [
     { label: 'Impacto', href: '#impacto' },
     { label: 'Contacto', href: '#contacto' },
-    { label: 'Plataforma', href: 'https://app.collectagroup.com' },
+    { label: 'Plataforma', href: 'https://app.collectaproduce.com' },
   ],
   legales: [
     { label: 'Aviso de privacidad', href: '/privacidad' },

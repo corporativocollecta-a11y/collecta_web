@@ -184,7 +184,7 @@ export function Clientes() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="https://app.collectagroup.com"
+                href="https://app.collectaproduce.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-8 py-4 font-semibold rounded-lg transition-colors duration-300"
