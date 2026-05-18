@@ -390,7 +390,7 @@ export const messages: Record<Locale, Dict> = {
     // ─── Footer ──────────────────────────────────────────────────────────────
     'footer.tagline': 'For all mankind',
     'footer.col.ecosistema': 'Ecosystem',
-    'footer.col.audiencias': 'Audiences',
+    'footer.col.audiencias': 'For You',
     'footer.col.empresa': 'Company',
     'footer.col.legal': 'Legal',
     'footer.copyright': '© {year} Collecta. All rights reserved.',
@@ -413,7 +413,7 @@ export const messages: Record<Locale, Dict> = {
     'hero.subtitle':
       'An integrated ecosystem of production, technology, and commerce driving the transformation of agribusiness in Latin America.',
     'hero.cta.primary': 'Discover Collecta',
-    'hero.cta.secondary': 'Let’s talk supply',
+    'hero.cta.secondary': 'Let’s talk about your supply chain',
     'hero.status': 'System · live',
     'hero.location': 'LATAM · 19.43°N 99.13°W',
 
@@ -426,29 +426,29 @@ export const messages: Record<Locale, Dict> = {
       'All with traceability and food safety, to deliver reliable supply and consistent quality to demanding clients who share our vision of transformation.',
 
     // ─── CompanyStats ────────────────────────────────────────────────────────
-    'stats.title.operacion': 'Operations in numbers',
+    'stats.title.operacion': 'Operations by the numbers',
     'stats.hectareas.label': 'Hectares',
     'stats.hectareas.description': 'In integrated operation',
     'stats.productores.label': 'Producers',
-    'stats.productores.description': 'In the co-production network',
+    'stats.productores.description': 'In our co-production network',
     'stats.cultivos.label': 'Crops',
-    'stats.cultivos.description': 'Diversified vegetables',
+    'stats.cultivos.description': 'Diversified vegetable crops',
     'stats.trazabilidad.label': 'Traceability',
     'stats.trazabilidad.description': 'Auditable products',
 
     // ─── Misión y Visión ────────────────────────────────────────────────────
-    'mv.kicker': 'Our reason for being',
+    'mv.kicker': 'Our purpose',
     'mv.mision.title': 'Mission',
     'mv.mision.body':
-      'To strengthen the agricultural producers who sustain the world’s food system.',
+      'To empower the agricultural producers who sustain the world’s food system.',
     'mv.vision.title': 'Vision',
     'mv.vision.body':
-      'To structurally transform the agri-food system into a traceable, technology-driven and sustainable operation that creates value for producers, markets and communities.',
+      'To fundamentally transform the agri-food system into a traceable, technology-driven and sustainable operation that creates value for producers, markets and communities.',
 
     // ─── Ecosistema ──────────────────────────────────────────────────────────
-    'eco.h2': 'We grow from the Mexican fields.',
+    'eco.h2': 'Grown in the Mexican fields.',
     'eco.subtitle':
-      'We work with small and medium farmers to grow high-quality vegetables and take care of getting that production to market through an integrated operation:',
+      'We work with small and mid-sized farmers to grow high-quality vegetables and bring that production to market through an integrated operation:',
     'eco.flow.panelHeader': 'End-to-end operational flow — COS monitors every stage',
     'eco.flow.campo.label': 'FIELD',
     'eco.flow.campo.sub': 'Inputs',
@@ -469,26 +469,26 @@ export const messages: Record<Locale, Dict> = {
     'eco.clientes.subtitle':
       'For those who prioritize quality, traceability and compliance.',
     'eco.beneficios.title':
-      'Tangible benefits of our model and current coverage area',
+      'Tangible benefits of our model and where we operate today',
     'eco.benefit.datos.title': 'Operational data',
     'eco.benefit.datos.description':
       'Verifiable information for audits, FSVP and operational tracking from our platform.',
     'eco.benefit.trazabilidad.title': 'Full traceability',
     'eco.benefit.trazabilidad.description':
-      'Auditable end to end. Full control over food safety and integrity risks.',
+      'Auditable end to end. Full control over food safety risks.',
     'eco.benefit.calidad.title': 'Consistent quality',
     'eco.benefit.calidad.description':
-      'Higher quality rates, fewer rejections, real-time communication.',
+      'Higher quality rates, fewer rejections, and real-time communication.',
     'eco.benefit.modelo.title': 'Vertical model',
     'eco.benefit.modelo.description':
       'A single operator from sowing to sale. No middlemen, no fragmentation.',
-    'eco.supply.title': 'Supply operational process',
+    'eco.supply.title': 'Our supply process',
     'eco.supply.planeacion.title': 'Commercial planning',
     'eco.supply.planeacion.description':
-      'We define products, volumes, sizes, specs and delivery windows to structure the supply.',
-    'eco.supply.ejecucion.title': 'On-origin execution',
+      'We define products, volumes, sizes, specs and delivery windows to structure supply.',
+    'eco.supply.ejecucion.title': 'Execution at origin',
     'eco.supply.ejecucion.description':
-      'We select plots, allocate production and integrate technical oversight and field technology.',
+      'We select plots, allocate production, and integrate technical oversight and field technology.',
     'eco.supply.empaque.title': 'Packing and delivery',
     'eco.supply.empaque.description':
       'We coordinate packing, cold chain and shipping to the agreed delivery point.',
@@ -497,29 +497,29 @@ export const messages: Record<Locale, Dict> = {
     'prod.kicker': 'For Small and Mid-Sized Producers',
     'prod.title': 'Grow without taking on debt',
     'prod.subtitle':
-      'At Collecta we partner with farmers to build serious, transparent and long-term relationships. We want to add producers who want to strengthen their fieldwork and expand their capacity to grow.',
+      'At Collecta we partner with farmers to build serious, transparent and long-term relationships. We’re looking for producers who want to strengthen their fieldwork and expand their capacity to grow.',
     'prod.beneficios.title': 'Benefits for the producer',
     'prod.beneficio.apoyo.title': 'Support to produce',
     'prod.beneficio.apoyo.short': 'Support to produce',
     'prod.beneficio.apoyo.description':
       'We provide farmers with resources to strengthen and increase their field production.',
-    'prod.beneficio.tec.title': 'Support and integration of in-field technology',
-    'prod.beneficio.tec.short': 'In-field technology',
+    'prod.beneficio.tec.title': 'Field support and technology integration',
+    'prod.beneficio.tec.short': 'Field technology',
     'prod.beneficio.tec.description':
-      'We back fieldwork with tracking and tools to reduce production failures.',
-    'prod.beneficio.mercado.title': 'Selling production in high-value markets',
+      'We back fieldwork with monitoring and tools to reduce production losses.',
+    'prod.beneficio.mercado.title': 'Selling into high-value markets',
     'prod.beneficio.mercado.short': 'High-value markets',
     'prod.beneficio.mercado.description':
-      'We place production in export markets to preserve the value of every harvest.',
+      'We place your production into export markets to preserve the value of every harvest.',
     'prod.socio.title': 'What you gain as a Collecta partner',
     'prod.socio.subtitle':
-      'Concrete benefits that transform the operation and economics of your land.',
+      'Concrete benefits that transform the operations and economics of your farm.',
     'prod.socio.insumos.title': 'Inputs without debt',
     'prod.socio.insumos.description':
       'Continuous access to agricultural inputs without finance charges or debt.',
     'prod.socio.crecimiento.title': 'Sustained growth',
     'prod.socio.crecimiento.description':
-      'Progressive increase of planted area cycle after cycle.',
+      'Progressive increase of planted area, cycle after cycle.',
     'prod.socio.mercados.title': 'Competitive markets',
     'prod.socio.mercados.description':
       'Your production reaches high-value channels and demanding clients.',
@@ -528,7 +528,7 @@ export const messages: Record<Locale, Dict> = {
       'Clear, timely and verifiable settlements on every harvest.',
     'prod.socio.operacion.title': 'Integrated operation',
     'prod.socio.operacion.description':
-      'Productive and financial processes under a single ordered management.',
+      'Production and finance unified under a single, structured management.',
 
     // ─── Clientes (page section, "Why clients choose us") ────────────────────
     'clientes.heading': 'Why clients choose us',
@@ -549,7 +549,7 @@ export const messages: Record<Locale, Dict> = {
     'clientes.cta.title': 'Access your Dashboard',
     'clientes.cta.body':
       'As a Collecta client, you have access to the platform with full visibility of your orders, live traceability and direct communication with the operations team.',
-    'clientes.cta.primary': 'Enter the platform →',
+    'clientes.cta.primary': 'Access the platform →',
     'clientes.cta.secondary': 'Let’s talk about your supply chain',
 
     // ─── Impacto ────────────────────────────────────────────────────────────
@@ -559,7 +559,7 @@ export const messages: Record<Locale, Dict> = {
       'We don’t measure production alone. We measure the systemic change we generate in the agri-food chain, the rural economy, and the sustainability of the Mexican countryside.',
     'impacto.por_que.kicker': 'Why now',
     'impacto.por_que.title': 'Mexico needs transformation',
-    'impacto.por_que.r1': 'Aging population of farmers running the fields',
+    'impacto.por_que.r1': 'Aging population of farmers managing the fields',
     'impacto.por_que.r2': 'Low access to agricultural credit and insurance',
     'impacto.por_que.r3': 'Limited tech adoption across the sector',
     'impacto.por_que.r4': 'Rising food waste and water stress',
@@ -578,12 +578,12 @@ export const messages: Record<Locale, Dict> = {
     'impacto.action.3.title': 'We reduce environmental footprint',
     'impacto.action.3.description':
       'We reduce food waste, promote more precise water use and a reduction of unnecessary agrochemical use.',
-    'impacto.action.4.title': 'We bring producers closer to more sustainable practices',
+    'impacto.action.4.title': 'We help producers adopt more sustainable practices',
     'impacto.action.4.description':
       'We help reduce the environmental impact of production and build a more sustainable agricultural base for the long term.',
-    'impacto.action.5.title': 'We order a historically fragmented chain',
+    'impacto.action.5.title': 'We bring order to a historically fragmented chain',
     'impacto.action.5.description':
-      'We enable a traceable and articulated chain, with greater value for production and better conditions to bring high-quality food to market.',
+      'We enable a traceable, coordinated chain with greater value for production and better conditions to bring high-quality food to market.',
     'impacto.ods.kicker': 'Global Alignment',
     'impacto.ods.title': 'Sustainable Development Goals',
     'impacto.ods.subtitle':
@@ -593,7 +593,7 @@ export const messages: Record<Locale, Dict> = {
     'contacto.kicker': 'Join the ecosystem',
     'contacto.title': 'Let’s talk about your supply chain',
     'contacto.subtitle':
-      'If you want to be part of the Collecta ecosystem, whether as a client, producer or partner, write to us.',
+      'If you want to be part of the Collecta ecosystem — whether as a client, producer or partner — reach out.',
     'contacto.info.email': 'Email',
     'contacto.info.location': 'Location',
     'contacto.info.location.value': 'Puebla, Mexico',
@@ -601,7 +601,7 @@ export const messages: Record<Locale, Dict> = {
     'contacto.tab.cliente': 'I’m a Client',
     'contacto.tab.cliente.sub': 'Corporate buyer',
     'contacto.tab.productor': 'I’m a Producer',
-    'contacto.tab.productor.sub': 'Farmer / Field',
+    'contacto.tab.productor.sub': 'Farmer / Land',
 
     // ─── Forms (FormCliente / FormProductor) ────────────────────────────────
     'form.name.label': 'Name',
@@ -670,7 +670,7 @@ export const messages: Record<Locale, Dict> = {
     'fc.error.email': 'Invalid email',
     'fc.error.tel': 'Invalid phone',
     'fc.error.consent': 'You must accept to continue',
-    'fc.error.network': 'Connection error. Check your internet and try again.',
+    'fc.error.network': 'Connection error. Check your network and try again.',
     'fc.success.title': 'Message received!',
     'fc.success.body':
       'Thanks for your interest in Collecta. Our team will be in touch shortly to explore how we can collaborate.',
@@ -684,12 +684,12 @@ export const messages: Record<Locale, Dict> = {
     'fp.edad.label': 'Age',
     'fp.edad.placeholder': 'e.g. 45',
     'fp.celular.label': 'Mobile (with WhatsApp)',
-    'fp.predio.label': 'Plot location',
+    'fp.predio.label': 'Farm location',
     'fp.predio.placeholder': 'State, municipality, town',
     'fp.predio.hint': 'e.g. Sinaloa, Culiacán, Costa Rica',
     'fp.hectareas.label': 'Total available hectares',
     'fp.hectareas.placeholder': 'e.g. 25',
-    'fp.hectareas.hint': 'Surface in hectares',
+    'fp.hectareas.hint': 'Area in hectares',
     'fp.experiencia.label': 'Years of experience',
     'fp.experiencia.placeholder': 'e.g. 15',
     'fp.experiencia.hint': 'Years working the field',
@@ -706,7 +706,7 @@ export const messages: Record<Locale, Dict> = {
     'fp.error.edad': 'Age must be between 18 and 100',
     'fp.success.title': 'Thank you for your interest!',
     'fp.success.body':
-      'We have received your information. A member of our technical team will reach out to learn about your plot and explore co-production.',
+      'We have received your information. A member of our technical team will reach out to learn about your farm and explore co-production.',
 
     // ─── Plataforma (login landing) ─────────────────────────────────────────
     'plataforma.title.line1': 'Traceability',
@@ -715,7 +715,7 @@ export const messages: Record<Locale, Dict> = {
     'plataforma.subtitle':
       'Manage farmers, projects, packing and logistics with advanced technology.',
     'plataforma.stats.agricultores': 'Farmers',
-    'plataforma.stats.cajas': 'Tracked boxes',
+    'plataforma.stats.cajas': 'Traced boxes',
     'plataforma.stats.paises': 'Destination countries',
     'plataforma.mobile.tagline': 'Agri-food Operating System',
     'plataforma.heading': 'Sign in',
