@@ -32,7 +32,7 @@ export default function Home() {
 
         {/* Operación en números — sits up against QuienesSomos above */}
         <SectionContainer background="white" padding="lg" className="!pt-0 !pb-28 -mt-16">
-          <CompanyStats title="Operación en números" />
+          <CompanyStats />
         </SectionContainer>
 
         {/* MISIÓN Y VISIÓN */}

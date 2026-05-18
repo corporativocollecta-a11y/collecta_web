@@ -61,6 +61,25 @@ export const messages: Record<Locale, Dict> = {
     'hero.cta.secondary': 'Hablemos de tu cadena',
     'hero.status': 'Sistema · activo',
     'hero.location': 'LATAM · 19.43°N 99.13°W',
+
+    // ─── QuienesSomos ────────────────────────────────────────────────────────
+    'quienes.kicker': 'Quiénes somos',
+    'quienes.title': 'Una empresa mexicana, una visión global',
+    'quienes.p1':
+      'Collecta es una empresa mexicana que produce y comercializa hortalizas con una operación integrada de principio a fin. Habilitamos la producción desde el origen, trabajamos de cerca con agricultores y cuidamos cada etapa: planeación, producción en campo, cosecha y empaque.',
+    'quienes.p2':
+      'Todo con trazabilidad e inocuidad, para entregar abasto confiable y calidad consistente a clientes exigentes que comparten nuestra visión de transformación.',
+
+    // ─── CompanyStats ────────────────────────────────────────────────────────
+    'stats.title.operacion': 'Operación en números',
+    'stats.hectareas.label': 'Hectáreas',
+    'stats.hectareas.description': 'En operación integrada',
+    'stats.productores.label': 'Productores',
+    'stats.productores.description': 'En la red de coproducción',
+    'stats.cultivos.label': 'Cultivos',
+    'stats.cultivos.description': 'Hortalizas diversificadas',
+    'stats.trazabilidad.label': 'Trazabilidad',
+    'stats.trazabilidad.description': 'Productos auditables',
   },
 
   en: {
@@ -105,5 +124,24 @@ export const messages: Record<Locale, Dict> = {
     'hero.cta.secondary': 'Let’s talk supply',
     'hero.status': 'System · live',
     'hero.location': 'LATAM · 19.43°N 99.13°W',
+
+    // ─── QuienesSomos ────────────────────────────────────────────────────────
+    'quienes.kicker': 'About us',
+    'quienes.title': 'A Mexican company with a global vision',
+    'quienes.p1':
+      'Collecta is a Mexican company that grows and markets vegetables with an integrated end-to-end operation. We enable production from the origin, work closely with farmers, and take care of every stage: planning, field production, harvest and packing.',
+    'quienes.p2':
+      'All with traceability and food safety, to deliver reliable supply and consistent quality to demanding clients who share our vision of transformation.',
+
+    // ─── CompanyStats ────────────────────────────────────────────────────────
+    'stats.title.operacion': 'Operations in numbers',
+    'stats.hectareas.label': 'Hectares',
+    'stats.hectareas.description': 'In integrated operation',
+    'stats.productores.label': 'Producers',
+    'stats.productores.description': 'In the co-production network',
+    'stats.cultivos.label': 'Crops',
+    'stats.cultivos.description': 'Diversified vegetables',
+    'stats.trazabilidad.label': 'Traceability',
+    'stats.trazabilidad.description': 'Auditable products',
   },
 };

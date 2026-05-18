@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useT } from "@/lib/i18n/LocaleProvider";
 
 const Globe = dynamic(() => import("@/components/3d/Globe"), {
   ssr: false,
@@ -8,6 +9,7 @@ const Globe = dynamic(() => import("@/components/3d/Globe"), {
 });
 
 export default function QuienesSomos() {
+  const t = useT();
   return (
     <section
       id="quienes-somos"
@@ -24,7 +26,7 @@ export default function QuienesSomos() {
             className="text-xs sm:text-sm lg:text-base font-semibold tracking-[0.22em] uppercase mb-4"
             style={{ color: "#00FF80" }}
           >
-            Quiénes somos
+            {t('quienes.kicker')}
           </div>
 
           <h2
@@ -35,7 +37,7 @@ export default function QuienesSomos() {
               textWrap: "balance",
             }}
           >
-            Una empresa mexicana, una visión global
+            {t('quienes.title')}
           </h2>
 
           <p
@@ -45,11 +47,7 @@ export default function QuienesSomos() {
               maxWidth: 560,
             }}
           >
-            Collecta es una empresa mexicana que produce y comercializa
-            hortalizas con una operación integrada de principio a fin.
-            Habilitamos la producción desde el origen, trabajamos de cerca con
-            agricultores y cuidamos cada etapa: planeación, producción en
-            campo, cosecha y empaque.
+            {t('quienes.p1')}
           </p>
 
           <p
@@ -59,9 +57,7 @@ export default function QuienesSomos() {
               maxWidth: 560,
             }}
           >
-            Todo con trazabilidad e inocuidad, para entregar abasto confiable
-            y calidad consistente a clientes exigentes que comparten nuestra
-            visión de transformación.
+            {t('quienes.p2')}
           </p>
         </div>
 

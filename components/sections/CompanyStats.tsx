@@ -3,33 +3,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
+import { useT } from '@/lib/i18n/LocaleProvider';
 
-const stats = [
-  {
-    value: 4000,
-    suffix: '+',
-    label: 'Hectáreas',
-    description: 'En operación integrada',
-  },
-  {
-    value: 300,
-    suffix: '+',
-    label: 'Productores',
-    description: 'En la red de coproducción',
-  },
-  {
-    value: 9,
-    suffix: '',
-    label: 'Cultivos',
-    description: 'Hortalizas diversificadas',
-  },
-  {
-    value: 95,
-    suffix: '%',
-    label: 'Trazabilidad',
-    description: 'Productos auditables',
-  },
-];
+const statsData = [
+  { value: 4000, suffix: '+', labelKey: 'stats.hectareas.label', descKey: 'stats.hectareas.description' },
+  { value: 300,  suffix: '+', labelKey: 'stats.productores.label', descKey: 'stats.productores.description' },
+  { value: 9,    suffix: '',  labelKey: 'stats.cultivos.label', descKey: 'stats.cultivos.description' },
+  { value: 95,   suffix: '%', labelKey: 'stats.trazabilidad.label', descKey: 'stats.trazabilidad.description' },
+] as const;
 
 interface CompanyStatsProps {
   /** Optional title above the stats row. */
@@ -47,9 +28,14 @@ interface CompanyStatsProps {
  * row enters the viewport.
  */
 export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
+  const t = useT();
+  // If title prop is omitted, fall back to the translated default. Pass "" to
+  // suppress the title entirely.
+  const resolvedTitle = title === undefined ? t('stats.title.operacion') : title;
+
   return (
     <div className="w-full">
-      {title ? (
+      {resolvedTitle ? (
         <motion.h3
           initial={{ opacity: 0, y: -10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -58,7 +44,7 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
           className="text-center text-sm font-medium tracking-widest uppercase mb-4"
           style={{ color: '#00FF80' }}
         >
-          {title}
+          {resolvedTitle}
         </motion.h3>
       ) : null}
 
@@ -73,9 +59,9 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
           borderBottom: '1px solid rgba(74, 222, 128, 0.11)',
         }}
       >
-        {stats.map((stat, i) => (
+        {statsData.map((stat, i) => (
           <motion.div
-            key={stat.label}
+            key={stat.labelKey}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -83,7 +69,7 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
             className="text-center px-4 py-8 sm:py-10"
             style={{
               borderRight:
-                i < stats.length - 1
+                i < statsData.length - 1
                   ? '1px solid rgba(0, 255, 128, 0.08)'
                   : undefined,
             }}
@@ -109,13 +95,13 @@ export function CompanyStats({ title, caption }: CompanyStatsProps = {}) {
                 fontWeight: 500,
               }}
             >
-              {stat.label}
+              {t(stat.labelKey)}
             </p>
             <p
               className="text-xs sm:text-sm leading-tight"
               style={{ color: 'rgba(236, 248, 237, 0.35)' }}
             >
-              {stat.description}
+              {t(stat.descKey)}
             </p>
           </motion.div>
         ))}
