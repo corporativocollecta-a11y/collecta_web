@@ -38,6 +38,20 @@ export default {
         success: '#2ECC71',
         warning: '#E8A844',
         error: '#D84242',
+        // Collecta platform palette (used by /plataforma login landing)
+        collecta: {
+          50:  '#f0fdf6',
+          100: '#dcfceb',
+          200: '#b9f8d6',
+          300: '#86efb8',
+          400: '#4ade89',
+          500: '#22c562',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22',
+        },
       },
       fontFamily: {
         sans: [
@@ -122,6 +136,7 @@ export default {
         'fade-in': 'fadeIn 0.6s ease-in-out',
         'slide-up': 'slideUp 0.8s ease-out',
         'slide-down': 'slideDown 0.8s ease-out',
+        'slide-in-right': 'slideInRight 0.4s ease-out',
         'float': 'float 3s ease-in-out infinite',
         'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
       },
@@ -137,6 +152,10 @@ export default {
         slideDown: {
           '0%': { transform: 'translateY(-60px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
