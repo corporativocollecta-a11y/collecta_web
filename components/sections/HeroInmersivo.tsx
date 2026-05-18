@@ -610,13 +610,16 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
 
   return (
     <section ref={heroRef} className={`hero-inmersivo ${cfg.className ?? ""}`}>
-      <div
-        className="bg"
-        ref={bgRef}
-        style={{
-          backgroundImage: `radial-gradient(ellipse 35% 30% at 88% 28%, rgba(255,170,80,.10) 0%, rgba(255,130,55,.04) 40%, transparent 75%), linear-gradient(180deg, rgba(2,12,7,1) 0%, rgba(3,16,9,1) 10%, rgba(5,20,11,.98) 16%, rgba(8,26,14,.88) 22%, rgba(10,30,16,.65) 30%, rgba(10,30,16,.42) 40%, rgba(10,30,16,.25) 50%, rgba(10,30,16,.10) 60%, transparent 68%), url(${cfg.backgroundImage})`,
-        }}
-      />
+      <div className="bg" ref={bgRef}>
+        {/* Responsive hero artwork: mobile-portrait crop on narrow viewports,
+            wide desktop crop on tablet+. <picture> lets the browser pick the
+            right asset so each device only downloads what it needs. */}
+        <picture>
+          <source media="(max-width: 1024px)" srcSet="/hero/brocoli-hero-mobile.jpeg" />
+          <img src={cfg.backgroundImage} alt="" aria-hidden />
+        </picture>
+      </div>
+      <div className="bg-overlay" aria-hidden />
       <div className="tint" />
       <div className="shafts" />
 
@@ -697,28 +700,37 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           color:#eaf5ee;-webkit-font-smoothing:antialiased;
         }
         .bg{
-          position:absolute;inset:0;
-          background-size:cover, cover, cover;
-          background-position:center, center, center 55%;
-          background-repeat:no-repeat;background-color:#06120e;
+          position:absolute;inset:0;background-color:#06120e;
           transition:transform .3s cubic-bezier(.2,.7,.3,1);will-change:transform;
           filter:saturate(1.12) contrast(1.10) brightness(1.0);
         }
-        /* Desktop wide (>=1280px): give the hero an aspect ratio that matches
-           the source image (1546x672 ~= 2.3:1). The container height is then
-           derived from its width, so cover no longer needs to crop and the
-           image fills the hero in its native proportions. Capped at 100vh so
-           it never exceeds the viewport on very tall narrow screens. */
+        .bg picture, .bg img{
+          display:block;width:100%;height:100%;
+        }
+        .bg img{
+          object-fit:cover;object-position:center 55%;
+        }
+        /* Soft cinematic overlay layered on top of the responsive hero image:
+           amber sunburst top-right + dark vertical fade at the top so the nav
+           and copy stay legible. */
+        .bg-overlay{
+          position:absolute;inset:0;pointer-events:none;
+          background:
+            radial-gradient(ellipse 35% 30% at 88% 28%, rgba(255,170,80,.10) 0%, rgba(255,130,55,.04) 40%, transparent 75%),
+            linear-gradient(180deg, rgba(2,12,7,1) 0%, rgba(3,16,9,1) 10%, rgba(5,20,11,.98) 16%, rgba(8,26,14,.88) 22%, rgba(10,30,16,.65) 30%, rgba(10,30,16,.42) 40%, rgba(10,30,16,.25) 50%, rgba(10,30,16,.10) 60%, transparent 68%);
+        }
+        /* Desktop wide (>=1280px): hero takes its aspect ratio from the new
+           1376x768 image (16:9). Capped at 100vh so it never overflows the
+           viewport on tall narrow screens. */
         @media (min-width: 1280px){
           .hero-inmersivo{
             height:auto;
             min-height:0;
             max-height:100vh;
-            aspect-ratio: 1546 / 672;
+            aspect-ratio: 1376 / 768;
           }
-          .bg{
-            background-size:cover, cover, cover;
-            background-position:center, center, center;
+          .bg img{
+            object-position:center;
           }
         }
         .tint{
