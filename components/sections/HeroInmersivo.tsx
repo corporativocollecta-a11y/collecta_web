@@ -693,13 +693,21 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           transition:transform .3s cubic-bezier(.2,.7,.3,1);will-change:transform;
           filter:saturate(1.12) contrast(1.10) brightness(1.0);
         }
-        /* Desktop wide: prevent the image from being over-cropped by cover.
-           Show the full image width and let height auto-fit. The dark gradient
-           overlay covers any thin transparent strips that may appear. */
+        /* Desktop wide (>=1280px): give the hero an aspect ratio that matches
+           the source image (1546x672 ~= 2.3:1). The container height is then
+           derived from its width, so cover no longer needs to crop and the
+           image fills the hero in its native proportions. Capped at 100vh so
+           it never exceeds the viewport on very tall narrow screens. */
         @media (min-width: 1280px){
+          .hero-inmersivo{
+            height:auto;
+            min-height:0;
+            max-height:100vh;
+            aspect-ratio: 1546 / 672;
+          }
           .bg{
-            background-size:cover, cover, 100% auto;
-            background-position:center, center, center center;
+            background-size:cover, cover, cover;
+            background-position:center, center, center;
           }
         }
         .tint{
