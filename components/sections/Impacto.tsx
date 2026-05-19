@@ -497,7 +497,7 @@ export function Impacto() {
   return (
     <section
       id="impacto"
-      className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative pt-7 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       style={{
         background:
           'linear-gradient(180deg, #FAF8F5 0%, #F5F2ED 50%, #E8DFD3 100%)',
