@@ -21,7 +21,10 @@ export default function QuienesSomos() {
     >
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center">
         {/* ── Columna izquierda: copy ─────────────────────────────── */}
-        <div className="order-2 lg:order-1">
+        {/* Mobile: copy first (order-1), globe below (order-2).
+            Desktop: copy on the left (lg:order-1), globe on the right
+            (lg:order-2) — same as before. */}
+        <div className="order-1 lg:order-1">
           <div
             className="text-xs sm:text-sm lg:text-base font-semibold tracking-[0.22em] uppercase mb-4"
             style={{ color: "#00FF80" }}
@@ -62,7 +65,7 @@ export default function QuienesSomos() {
         </div>
 
         {/* ── Columna derecha: globo 3D ───────────────────────────── */}
-        <div className="order-1 lg:order-2">
+        <div className="order-2 lg:order-2">
           <div
             className="relative w-full mx-auto max-w-md lg:max-w-none"
             style={{
