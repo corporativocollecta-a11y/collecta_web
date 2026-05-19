@@ -30,7 +30,7 @@ export function Footer() {
   const t = useT();
 
   return (
-    <footer className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-t border-light-border bg-white text-dark-text">
+    <footer className="pt-10 pb-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-t border-light-border bg-white text-dark-text">
       <div className="mx-auto max-w-7xl">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 mb-12 lg:mb-16 items-start">
