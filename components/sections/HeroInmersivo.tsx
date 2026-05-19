@@ -852,6 +852,19 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           position:absolute;inset:0;display:flex;flex-direction:column;
           align-items:center;justify-content:center;padding:14vh 24px 4vh;pointer-events:none;text-align:center;
         }
+        /* Mobile (<=768px): less black space above the title, copy sits
+           higher in the viewport. */
+        @media (max-width: 768px){
+          .content{
+            padding:6vh 20px 4vh;
+          }
+          .subtitle{
+            margin-top:20px !important;
+          }
+          .kicker{
+            margin-bottom:18px;
+          }
+        }
         .kicker{
           pointer-events:auto;display:inline-flex;align-items:center;gap:14px;
           color:#8ce6c0;font:500 11px/1 "Geo","Geo Fallback",-apple-system,sans-serif;
