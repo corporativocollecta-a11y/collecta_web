@@ -16,7 +16,7 @@ export function Contacto() {
     <section
       id="contacto"
       data-keep-bg
-      className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative pt-7 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       style={{ backgroundColor: '#0f1612' }}
     >
       {/* Background image — agricultural field.
