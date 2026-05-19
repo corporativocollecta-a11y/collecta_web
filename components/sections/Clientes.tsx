@@ -24,7 +24,7 @@ export function Clientes() {
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Features in two columns */}
         <div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 lg:-translate-y-10"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-12 items-center mb-20 lg:-translate-y-10"
         >
           <motion.div
             initial={{ opacity: 0, x: -30 }}
