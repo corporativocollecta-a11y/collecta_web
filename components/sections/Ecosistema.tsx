@@ -341,7 +341,7 @@ export function Ecosistema() {
   return (
     <section
       id="ecosistema"
-      className="relative pt-7 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative pt-7 pb-8 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       style={{
         background:
           'linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)',
