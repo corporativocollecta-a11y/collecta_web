@@ -576,7 +576,7 @@ export function Ecosistema() {
 
 
         {/* Socios en abastecimiento */}
-        <div className="mt-48 sm:mt-56">
+        <div className="mt-[140px] sm:mt-56">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
