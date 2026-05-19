@@ -154,7 +154,7 @@ export function Contacto() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="lg:col-span-3 rounded-2xl border"
+            className="lg:col-span-3 rounded-2xl border mt-6 lg:mt-0"
             style={{
               background: '#FFFFFF',
               borderColor: 'rgba(0, 0, 0, 0.08)',

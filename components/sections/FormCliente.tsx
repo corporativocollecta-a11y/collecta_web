@@ -144,7 +144,7 @@ export function FormCliente() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5">
         <InputField
           name="empresa"
           label={t('fc.empresa.label')}
@@ -165,7 +165,7 @@ export function FormCliente() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5">
         <SelectField
           name="cargo"
           label={t('fc.cargo.label')}
@@ -188,7 +188,7 @@ export function FormCliente() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5">
         <PhoneInput
           countryCode={data.countryCode}
           phoneNumber={data.telefono}
@@ -210,7 +210,7 @@ export function FormCliente() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5">
         <InputField
           name="productos"
           label={t('fc.productos.label')}
