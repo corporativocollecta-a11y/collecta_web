@@ -14,7 +14,7 @@ export function MisionVision() {
 
   return (
     <section
-      className="relative pt-20 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative pt-12 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       style={{ background: '#0f1612' }}
     >
       <div className="mx-auto max-w-7xl">
