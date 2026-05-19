@@ -737,7 +737,7 @@ export function Ecosistema() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-2xl sm:text-3xl font-bold text-center mt-[124px] sm:mt-32 mb-8"
+            className="text-2xl sm:text-3xl font-bold text-center mt-16 sm:mt-32 mb-8"
             style={{ color: '#FFFFFF' }}
           >
             {t('eco.supply.title')}
