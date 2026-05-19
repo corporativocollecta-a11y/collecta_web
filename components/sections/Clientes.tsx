@@ -97,7 +97,7 @@ export function Clientes() {
             <img
               src="/assets/caja-brocoli.png"
               alt="Caja Collecta — Brócoli & Trazabilidad"
-              className="w-full max-w-[800px] h-auto select-none mx-auto lg:scale-[1.15] lg:translate-x-12"
+              className="w-full max-w-[800px] h-auto select-none mx-auto scale-[1.3] lg:scale-[1.15] lg:translate-x-12"
               draggable={false}
               style={{
                 transformOrigin: 'center',
