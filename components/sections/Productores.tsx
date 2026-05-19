@@ -171,7 +171,7 @@ export function Productores() {
     accent: b.accent,
   }));
   return (
-    <section id="productores" className="relative py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-neutral-light to-white overflow-hidden">
+    <section id="productores" className="relative pt-7 pb-28 sm:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-neutral-light to-white overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
