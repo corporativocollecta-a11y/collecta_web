@@ -159,7 +159,7 @@ export function FormProductor() {
         placeholder={t('fp.nombre.placeholder')}
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <InputField
           name="email"
           type="email"
@@ -184,7 +184,7 @@ export function FormProductor() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <PhoneInput
           countryCode={data.countryCode}
           phoneNumber={data.celular}
@@ -207,7 +207,7 @@ export function FormProductor() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <InputField
           name="hectareas"
           type="number"
