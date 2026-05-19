@@ -70,7 +70,7 @@ export function Contacto() {
               {t('contacto.subtitle')}
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-6 mt-8 lg:mt-0">
               <div className="flex gap-4 items-start">
                 <div
                   className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl"
@@ -154,7 +154,7 @@ export function Contacto() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="lg:col-span-3 rounded-2xl border mt-6 lg:mt-0"
+            className="lg:col-span-3 rounded-2xl border mt-12 lg:mt-0"
             style={{
               background: '#FFFFFF',
               borderColor: 'rgba(0, 0, 0, 0.08)',
