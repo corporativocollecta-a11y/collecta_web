@@ -858,7 +858,7 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
            sticky header (h-16) plus a small breathing strip. */
         @media (max-width: 768px){
           .content{
-            padding:96px 20px 4vh;
+            padding:120px 20px 4vh;
             justify-content:flex-start;
           }
           .subtitle{
