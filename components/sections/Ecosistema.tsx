@@ -390,8 +390,8 @@ export function Ecosistema() {
             {t('eco.flow.panelHeader')}
           </p>
 
-          {/* 7-node grid — responsive layout */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6 lg:gap-2 w-full">
+          {/* 8-node grid — responsive layout (CAMPO → TECNOLOGÍA → SUPERVISIÓN → COSECHA → EMPAQUE → TRAZABILIDAD → LOGÍSTICA → CLIENTE) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-2 w-full">
             {[
               // Each node has a tiny inline SVG icon picked to match the stage.
               {
@@ -404,6 +404,27 @@ export function Ecosistema() {
                     <line x1={12} y1={20} x2={12} y2={12} />
                     <path d="M12 12c0-3 2-5 5-5 0 3-2 5-5 5z" />
                     <path d="M12 14c0-3-2-5-5-5 0 3 2 5 5 5z" />
+                  </svg>
+                ),
+              },
+              {
+                label: t('eco.flow.tecnologia.label'),
+                sub: t('eco.flow.tecnologia.sub'),
+                // Chip / circuit — in-field technology & sensors
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                    {/* CPU body */}
+                    <rect x={7} y={7} width={10} height={10} rx={1.2} />
+                    <rect x={10} y={10} width={4} height={4} fill="currentColor" stroke="none" opacity={0.55} />
+                    {/* Pins */}
+                    <line x1={4} y1={10} x2={7} y2={10} />
+                    <line x1={4} y1={14} x2={7} y2={14} />
+                    <line x1={17} y1={10} x2={20} y2={10} />
+                    <line x1={17} y1={14} x2={20} y2={14} />
+                    <line x1={10} y1={4} x2={10} y2={7} />
+                    <line x1={14} y1={4} x2={14} y2={7} />
+                    <line x1={10} y1={17} x2={10} y2={20} />
+                    <line x1={14} y1={17} x2={14} y2={20} />
                   </svg>
                 ),
               },
@@ -534,7 +555,7 @@ export function Ecosistema() {
                 </p>
 
                 {/* Connector ">" between nodes (desktop only, hidden on last) */}
-                {i < 6 && (
+                {i < 7 && (
                   <span
                     aria-hidden="true"
                     className="hidden lg:block absolute -right-1 top-1/2 -translate-y-1/2"
