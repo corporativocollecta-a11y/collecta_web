@@ -19,17 +19,18 @@ export function Contacto() {
       className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       style={{ backgroundColor: '#0f1612' }}
     >
-      {/* Background image — agricultural field */}
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: 'url(/beneficios/contacto.jpeg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+      {/* Background image — agricultural field.
+          Responsive: portrait crop on mobile (<=1024px), wide crop on
+          tablet+/desktop. <picture> lets the browser download only the
+          asset that matches the viewport. */}
+      <picture aria-hidden className="absolute inset-0 z-0 block">
+        <source media="(max-width: 1024px)" srcSet="/beneficios/contacto-mobile.jpeg" />
+        <img
+          src="/beneficios/contacto.jpeg"
+          alt=""
+          className="w-full h-full object-cover object-center"
+        />
+      </picture>
       {/* Dark overlay for readability */}
       <div
         aria-hidden
