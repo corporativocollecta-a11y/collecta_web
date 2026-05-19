@@ -240,9 +240,11 @@ export function Productores() {
                 className="group md:h-[480px]"
                 style={{ perspective: '1200px' }}
               >
-                {/* Mobile view — simple navy card with full info (no flip) */}
+                {/* Mobile view — stacked card: image at top, navy panel with
+                    full title + description below. No flip (Safari/Chrome
+                    mobile don't honor backface-visibility consistently). */}
                 <div
-                  className="md:hidden rounded-2xl p-7 flex flex-col"
+                  className="md:hidden rounded-2xl overflow-hidden flex flex-col"
                   style={{
                     background: '#142657',
                     border: '1px solid rgba(255,255,255,0.18)',
@@ -250,18 +252,38 @@ export function Productores() {
                       '0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,255,128,0.10), 0 0 30px rgba(0,255,128,0.10)',
                   }}
                 >
-                  <p
-                    className="text-3xl font-bold leading-none mb-4"
-                    style={{ color: '#00FF80' }}
-                  >
-                    {String(i + 1).padStart(2, '0')}
-                  </p>
-                  <h5 className="text-xl font-bold text-white mb-3 leading-tight">
-                    {benefit.title}
-                  </h5>
-                  <p className="text-white/85 leading-relaxed text-sm">
-                    {benefit.description}
-                  </p>
+                  {/* Image hero — same artwork as the desktop front face */}
+                  <div className="relative w-full aspect-[4/3] overflow-hidden">
+                    <img
+                      src={benefit.image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    {/* Soft fade at the bottom of the image to blend into navy */}
+                    <div
+                      className="absolute inset-x-0 bottom-0 h-20 pointer-events-none"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, rgba(20, 38, 87, 0) 0%, #142657 100%)',
+                      }}
+                    />
+                  </div>
+                  {/* Text panel */}
+                  <div className="p-7 pt-5 flex flex-col">
+                    <p
+                      className="text-3xl font-bold leading-none mb-4"
+                      style={{ color: '#00FF80' }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </p>
+                    <h5 className="text-xl font-bold text-white mb-3 leading-tight">
+                      {benefit.title}
+                    </h5>
+                    <p className="text-white/85 leading-relaxed text-sm">
+                      {benefit.description}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Desktop view — 3D flip card */}
