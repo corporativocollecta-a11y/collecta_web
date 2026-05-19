@@ -852,11 +852,14 @@ export default function HeroInmersivo(props: HeroInmersivoProps) {
           position:absolute;inset:0;display:flex;flex-direction:column;
           align-items:center;justify-content:center;padding:14vh 24px 4vh;pointer-events:none;text-align:center;
         }
-        /* Mobile (<=768px): less black space above the title, copy sits
-           higher in the viewport. */
+        /* Mobile (<=768px): anchor the copy near the top of the hero
+           instead of centering it, so there's no large black void at
+           the top of the viewport. 96px padding-top clears the 64px
+           sticky header (h-16) plus a small breathing strip. */
         @media (max-width: 768px){
           .content{
-            padding:6vh 20px 4vh;
+            padding:96px 20px 4vh;
+            justify-content:flex-start;
           }
           .subtitle{
             margin-top:20px !important;
