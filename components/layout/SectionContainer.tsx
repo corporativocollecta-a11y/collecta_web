@@ -16,13 +16,11 @@ export function SectionContainer({
   children,
   ...props
 }: SectionContainerProps) {
-  // All variants now use the same deep-green near-black so the page reads as
-  // one continuous dark canvas (the hero keeps its own background).
   const bgStyles = {
-    white: '[background-color:#0f1612] text-white',
-    light: '[background-color:#0f1612] text-white',
-    dark: '[background-color:#0f1612] text-white',
-    gradient: '[background-color:#0f1612] text-white',
+    white: 'bg-white text-slate-900',
+    light: 'bg-slate-50 text-slate-900',
+    dark: 'bg-slate-900 text-white',
+    gradient: 'bg-slate-900 text-white',
   };
 
   const paddingStyles = {
@@ -31,6 +29,8 @@ export function SectionContainer({
     lg: 'py-24 px-4 sm:px-6 lg:px-8',
     xl: 'py-32 px-4 sm:px-6 lg:px-8',
   };
+
+  const keepBg = background === 'white' || background === 'light';
 
   return (
     <section
@@ -41,6 +41,7 @@ export function SectionContainer({
         'relative overflow-hidden',
         className
       )}
+      {...(keepBg && { 'data-keep-bg': true })}
       {...props}
     >
       <div className="mx-auto max-w-7xl">
