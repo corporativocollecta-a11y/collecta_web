@@ -39,7 +39,7 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <a href="#" className="flex items-center group">
+          <a href="/" className="flex items-center group">
             <div className="relative h-12 sm:h-14 w-48 sm:w-56 transition-transform duration-300 group-hover:scale-105">
               <Image
                 src="/assets/logo.png"
