@@ -34,7 +34,7 @@ export default function Home() {
         {/* Operación en números — sits up against QuienesSomos above on
             desktop; on mobile we relax the negative margin so both blocks
             breathe more (the globe sits lower and Stats follows). */}
-        <SectionContainer background="white" padding="lg" className="!pt-0 !pb-28 -mt-4 lg:-mt-16">
+        <SectionContainer background="dark" padding="lg" className="!pt-0 !pb-28 -mt-4 lg:-mt-16">
           <CompanyStats />
         </SectionContainer>
 
