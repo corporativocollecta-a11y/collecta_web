@@ -17,7 +17,7 @@ export default function PrivacidadPage() {
 
             <div className="mb-6 text-gray-600">
               <p><strong>Collecta Produce LLC</strong></p>
-              <p><strong>Versión Final: Enero 2026</strong></p>
+              <p><strong>Versión Final: Mayo 2026</strong></p>
             </div>
 
             <h2 className="text-2xl font-bold mt-8 mb-4 text-brand-green">1. Responsable del Tratamiento de Datos</h2>
@@ -131,7 +131,7 @@ export default function PrivacidadPage() {
             </ul>
 
             <div className="mt-10 pt-6 border-t border-light-border text-gray-500 text-sm">
-              <p><strong>Última actualización: Enero 2026</strong></p>
+              <p><strong>Última actualización: Mayo 2026</strong></p>
             </div>
           </div>
         </SectionContainer>
