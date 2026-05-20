@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geo } from "next/font/google";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
+import { TermsAcceptancePopup } from "@/components/TermsAcceptancePopup";
 import "./globals.css";
 
 const geo = Geo({
@@ -37,6 +38,7 @@ export default function RootLayout({
         style={{ backgroundColor: '#0f1612' }}
       >
         <LocaleProvider>{children}</LocaleProvider>
+        <TermsAcceptancePopup />
       </body>
     </html>
   );
