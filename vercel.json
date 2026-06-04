@@ -3,5 +3,9 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "installCommand": "npm install",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "redirects": [
+    { "source": "/plataforma", "destination": "https://app.collectaproduce.com", "permanent": false },
+    { "source": "/plataforma/:path*", "destination": "https://app.collectaproduce.com", "permanent": false }
+  ]
 }
