@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n/LocaleProvider";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HeroInmersivo — full-bleed cinematic hero with:
-//   • parallax background photo (assets/header.jpeg)
+//   • parallax background photo (default: /hero/brocoli-hero.jpeg)
 //   • diagonal sun shafts
 //   • golden sun motes that descend and get absorbed by leaf HUD nodes
 //     (chlorophyll-green flash on absorption)
@@ -45,7 +45,7 @@ export interface HeroLeafNode {
 }
 
 export interface HeroInmersivoProps {
-  /** Background photo URL. @default "/hero/header.jpeg" */
+  /** Background photo URL. @default "/hero/brocoli-hero.jpeg" */
   backgroundImage?: string;
   kicker?: string;
   /** Title can be split in two lines; second line gets the accent color. */
