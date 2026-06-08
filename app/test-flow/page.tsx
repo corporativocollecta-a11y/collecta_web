@@ -1,4 +1,9 @@
+import type { Metadata } from 'next';
 import { FlowVisualization } from '@/components/sections/FlowVisualization';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function TestFlowPage() {
   return (

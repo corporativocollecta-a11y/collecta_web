@@ -1,9 +1,28 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+
+export const metadata: Metadata = {
+  title: 'Aviso de Privacidad',
+  description:
+    'Aviso de Privacidad de Collecta Produce LLC: tratamiento de datos personales, derechos ARCO (LFPDPPP México), cumplimiento FIPA (Florida) y seguridad de información. Versión Mayo 2026.',
+  alternates: {
+    canonical: '/privacidad',
+  },
+  openGraph: {
+    title: 'Aviso de Privacidad | Collecta Produce',
+    description:
+      'Cómo Collecta protege y trata los datos personales de productores y clientes conforme LFPDPPP y leyes de privacidad de EE.UU.',
+    url: 'https://collectaproduce.com/privacidad',
+    type: 'article',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function PrivacidadPage() {
   return (

@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default function TestSimple() {
   return (
     <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>

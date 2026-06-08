@@ -1,9 +1,28 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+
+export const metadata: Metadata = {
+  title: 'Términos y Condiciones',
+  description:
+    'Términos y Condiciones de Collecta Produce LLC: identidad corporativa, plataforma B2B, garantías agroindustriales, jurisdicción y resolución de disputas. Versión Mayo 2026.',
+  alternates: {
+    canonical: '/terminos',
+  },
+  openGraph: {
+    title: 'Términos y Condiciones | Collecta Produce',
+    description:
+      'Marco legal completo de Collecta Produce LLC para clientes y productores del ecosistema agroindustrial.',
+    url: 'https://collectaproduce.com/terminos',
+    type: 'article',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function TerminosPage() {
   return (
