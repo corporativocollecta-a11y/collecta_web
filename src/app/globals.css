@@ -1,0 +1,333 @@
+@import "tailwindcss";
+@source not "../../.next";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --font-serif: var(--font-instrument);
+  --color-signal: var(--signal);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #0b120d;
+  --foreground: #eeebe3;
+  --card: #16211a;
+  --card-foreground: #eeebe3;
+  --popover: #16211a;
+  --popover-foreground: #eeebe3;
+  --primary: #9fd36a;
+  --primary-foreground: #0b120d;
+  --secondary: #1d2a21;
+  --secondary-foreground: #eeebe3;
+  --muted: #16211a;
+  --muted-foreground: #a3ab9f;
+  --accent: #1d2a21;
+  --accent-foreground: #eeebe3;
+  --destructive: #f2703a;
+  --border: rgb(238 235 227 / 0.1);
+  --input: rgb(238 235 227 / 0.16);
+  --ring: #9fd36a;
+  --chart-1: #9fd36a;
+  --chart-2: #f2703a;
+  --chart-3: #6f8f63;
+  --chart-4: #3b5140;
+  --chart-5: #1d2a21;
+  --radius: 0.875rem;
+  --sidebar: #16211a;
+  --sidebar-foreground: #eeebe3;
+  --sidebar-primary: #9fd36a;
+  --sidebar-primary-foreground: #0b120d;
+  --sidebar-accent: #1d2a21;
+  --sidebar-accent-foreground: #eeebe3;
+  --sidebar-border: rgb(238 235 227 / 0.1);
+  --sidebar-ring: #9fd36a;
+
+  /* Collecta */
+  --signal: #f2703a;
+  --line: rgb(238 235 227 / 0.1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@theme {
+  /* Fluid type — modular scale 1.25 */
+  --text-eyebrow: 0.75rem;
+  --text-fluid-sm: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+  --text-fluid-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-fluid-lg: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-fluid-xl: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --text-fluid-2xl: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+  --text-fluid-3xl: clamp(2.75rem, 1.6rem + 5vw, 6rem);
+  --text-fluid-hero: clamp(3.25rem, 1.2rem + 8.4vw, 10.5rem);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+    scroll-padding-top: 5rem;
+    background: #040705;
+  }
+  /* the page goes down into the ground: the hero sits on the brand dark, and from there each
+     section is a shade deeper until the footer's soil. One sheet under everything, so no
+     section carries its own flat colour. */
+  body {
+    background: linear-gradient(180deg, var(--background) 0, var(--background) 100svh, #080e0a 55%, #040705 100%);
+    font-family: var(--font-geist-sans), ui-sans-serif, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: var(--text-eyebrow);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .serif-em {
+    font-family: var(--font-instrument), serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+  .press {
+    transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+  }
+  .press:not(:disabled):active {
+    transform: scale(0.97);
+  }
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--signal);
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--signal);
+    animation: ping 1.8s var(--ease-out) infinite;
+  }
+  .hero-line {
+    display: block;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: rise 800ms var(--ease-out) var(--d, 0ms) forwards;
+  }
+  .fade-up {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: rise 700ms var(--ease-out) var(--d, 0ms) forwards;
+  }
+  .route {
+    stroke-dasharray: 6 8;
+    animation: dash 1.6s linear infinite;
+  }
+  .marquee-track {
+    animation: marquee 40s linear infinite;
+  }
+  .trip-draw {
+    stroke-dashoffset: 1;
+    animation: trip-draw 420ms var(--ease-out) forwards;
+  }
+  .map-ping {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ping 2.2s var(--ease-out) infinite;
+  }
+}
+
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ping {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes dash {
+  to { stroke-dashoffset: -28; }
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes trip-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line, .fade-up {
+    transform: none;
+    animation: fade 400ms linear forwards;
+  }
+  .live-dot::after, .route, .marquee-track, .map-ping { animation: none; }
+  .route-pulse { display: none; }
+  .trip-draw { animation: none; stroke-dashoffset: 0; }
+  html { scroll-behavior: auto; }
+}
+@keyframes fade { to { opacity: 1; } }
+
+/* the page column every section shares: up to 1600px, with side margins that grow with the screen */
+@utility page-col {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 4.5rem);
+}
+
+/* ---- first-visit hero intro (see hero-intro.tsx; html[data-intro] is set before paint) ---- */
+.intro { display: none; }
+html[data-intro] .intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: var(--background);
+  animation: intro-out 450ms var(--ease-out) 1.6s forwards;
+}
+.intro-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* the mark starts centred on its own: shift by half the word's width + gap */
+  transform: translateX(78px);
+  animation: intro-center 600ms var(--ease-in-out) 550ms forwards;
+}
+.intro-mark {
+  height: 48px;
+  width: auto;
+  opacity: 0;
+  transform: scale(0.95);
+  filter: blur(6px);
+  animation: intro-mark 500ms var(--ease-out) 100ms forwards;
+}
+.intro-word {
+  height: 29px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  clip-path: inset(0 100% 0 0);
+  animation: intro-word 600ms var(--ease-out) 600ms forwards;
+}
+/* the hero waits for the intro: every delay in it moves back by 1.5 s */
+html[data-intro] [data-intro-wait] { animation-delay: calc(var(--d, 0ms) + 1.5s); }
+/* skipped: lift the screen now and let the hero play at its own pace */
+html[data-intro="skip"] .intro { animation: intro-out 200ms var(--ease-out) forwards; }
+html[data-intro="skip"] [data-intro-wait] { animation-name: rise-now; animation-delay: var(--d, 0ms); }
+/* same frames under a new name: swapping the name restarts the reveal from the moment of the skip */
+@keyframes rise-now { to { opacity: 1; transform: translateY(0); } }
+/* the whole intro (and the hero waiting behind it) holds until the logo images have loaded,
+   so the mark never pops in half-way through its entrance */
+html[data-intro]:not([data-intro-ready]) .intro,
+html[data-intro]:not([data-intro-ready]) .intro *,
+html[data-intro]:not([data-intro-ready]) [data-intro-wait] { animation-play-state: paused; }
+@keyframes intro-mark { to { opacity: 1; transform: scale(1); filter: blur(0); } }
+@keyframes intro-word { to { clip-path: inset(0 0 0 0); } }
+@keyframes intro-center { to { transform: translateX(0); } }
+@keyframes intro-out {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro] .intro { display: none; }
+}
+
+/* ---- legal pages (privacidad, terminos): long-form text in the brand type ---- */
+.legal { color: rgb(238 235 227 / 0.8); font-size: 1rem; line-height: 1.7; }
+.legal h1 {
+  color: var(--foreground);
+  font-size: clamp(2.25rem, 1.6rem + 3vw, 3.75rem);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+}
+.legal h2 {
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 3rem;
+  margin-bottom: 0.75rem;
+}
+.legal p { margin-top: 0.75rem; }
+.legal ul { margin-top: 0.75rem; padding-left: 1.25rem; list-style: disc; }
+.legal li { margin-top: 0.375rem; }
+.legal li::marker { color: var(--primary); }
+.legal strong { color: var(--foreground); font-weight: 600; }
+.legal a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; word-break: break-word; }

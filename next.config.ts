@@ -1,10 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow LAN-origin requests to /_next/* dev resources (HMR, chunks, RSC).
-  // Without this, browsers reaching the dev server via a non-localhost host
-  // (e.g. http://192.168.100.7:3000) get blocked by Next.js cross-origin guard.
-  allowedDevOrigins: ['192.168.100.7'],
+  // English is the default language and is served at the root; Spanish lives at /es
+  async rewrites() {
+    return [{ source: "/", destination: "/en" }];
+  },
+  async redirects() {
+    return [
+      { source: "/en", destination: "/", permanent: true },
+      // the old site's link to the COS platform keeps working
+      { source: "/plataforma", destination: "https://app.collectaproduce.com/", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
