@@ -56,6 +56,7 @@ type ErrCopy = {
   edad: string;
   network: string;
   send: string;
+  review: string;
 };
 const ERRS: Copy<ErrCopy> = {
   en: {
@@ -70,6 +71,7 @@ const ERRS: Copy<ErrCopy> = {
     pozo: "Select an option",
     edad: "Age must be between 18 and 100",
     network: "Connection error. Check your internet and try again.",
+    review: "Your request wasn't sent. Check the fields marked in red.",
     send: "We couldn't send your message. Try again or write to us at contacto@collectaproduce.com",
   },
   es: {
@@ -84,6 +86,7 @@ const ERRS: Copy<ErrCopy> = {
     pozo: "Selecciona una opción",
     edad: "Edad debe estar entre 18 y 100",
     network: "Error de conexión. Verifica tu internet e intenta de nuevo.",
+    review: "Tu solicitud no se envió. Revisa los campos marcados en rojo.",
     send: "No se pudo enviar el mensaje. Intenta de nuevo o escríbenos a contacto@collectaproduce.com",
   },
 };
@@ -464,8 +467,11 @@ export function ContactForm() {
       errs.cargoOtro = ERR.required;
     setErrors(errs);
     if (Object.keys(errs).length) {
+      // bring the first problem into view (centred, so its label shows too) and focus it
       const first = Object.keys(errs)[0];
-      document.getElementById(`f-${first}`)?.focus();
+      const el = document.getElementById(`f-${first}`);
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
+      el?.focus({ preventScroll: true });
       return;
     }
     setSending(true);
@@ -964,7 +970,7 @@ ${c.mensaje}`
         </div>
       )}
 
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
           {t.privacyPre}{" "}
           {/* new tab, so a half-filled form isn't lost */}
@@ -977,6 +983,12 @@ ${c.mensaje}`
           </Link>
           .
         </p>
+        {/* said next to the button too, so a click that doesn't send never looks like it did */}
+        {Object.keys(errors).length > 0 && (
+          <p role="alert" className="text-sm text-signal sm:order-first sm:basis-full">
+            {ERR.review}
+          </p>
+        )}
         <button
           type="submit"
           disabled={sending}
