@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <base href="/mapa-agroalimentario/">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa Agroalimentario · Collecta</title>
+  <script>
+    // Tema guardado antes de pintar, para evitar parpadeo
+    try { const t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3c6.5 3 10 8.4 10 14.2C26 23.4 21.6 28 16 28S6 23.4 6 17.2C6 11.4 9.5 6 16 3z" fill="var(--productor)"/>
+        <path d="M16 8v17M16 14l-5-3M16 19l5-3" stroke="var(--papel)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div>
+        <h1>Mapa Agroalimentario</h1>
+        <p>México · de la parcela al plato</p>
+      </div>
+    </div>
+    <div class="segmentado region" role="radiogroup" aria-label="Región">
+      <label><input type="radio" name="region" value="mx" checked>México</label>
+      <label><input type="radio" name="region" value="latam">Latinoamérica</label>
+      <label><input type="radio" name="region" value="global">Mundo</label>
+    </div>
+    <select id="paisSub" class="selector-pais" aria-label="Ver un país por regiones">
+      <option value="">Ver país…</option>
+    </select>
+    <div class="aviso" title="Fuentes oficiales integradas">Cargando fuentes…</div>
+    <nav class="acciones" aria-label="Acciones">
+      <a class="boton-texto" href="reporte" target="_blank" rel="noopener">Reporte 2025</a>
+      <button class="boton-icono" id="btnAyuda" type="button" aria-label="Cómo usar el mapa" title="Cómo usar el mapa">?</button>
+      <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main class="escenario">
+    <div id="mapa" aria-label="Mapa de México"></div>
+
+    <aside class="catalogo" aria-label="Productos">
+      <div class="catalogo-cabeza">
+        <span class="etq">Productos</span>
+        <span class="contador" id="contadorProductos"></span>
+      </div>
+      <label class="buscador">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="buscar" type="search" placeholder="Buscar fruta u hortaliza" autocomplete="off">
+      </label>
+      <div class="filtros" role="radiogroup" aria-label="Tipo de producto">
+        <label><input type="radio" name="tipo" value="todos" checked>Todos</label>
+        <label><input type="radio" name="tipo" value="Fruta">Frutas</label>
+        <label><input type="radio" name="tipo" value="Hortaliza">Hortalizas</label>
+      </div>
+      <nav id="productos" class="lista-productos" aria-label="Lista de productos"></nav>
+    </aside>
+
+    <div class="controles-mapa" role="toolbar" aria-label="Capas del mapa">
+      <div class="segmentado" id="ctrlNivel" role="radiogroup" aria-label="Nivel geográfico">
+        <label><input type="radio" name="nivel" value="estatal" checked>Estados</label>
+        <label><input type="radio" name="nivel" value="municipal">Municipios</label>
+      </div>
+      <div id="ctrlEstatal" class="grupo-capas">
+        <label class="interruptor"><input type="checkbox" id="verFlujos" checked><span></span>Flujos</label>
+        <label class="interruptor"><input type="checkbox" id="verImport" checked><span></span>Importación</label>
+        <label class="interruptor" title="Rutas estado de origen → central de abasto reportadas por el SNIIM"><input type="checkbox" id="verRed"><span></span>Red SNIIM</label>
+      </div>
+      <div id="ctrlMunicipal" class="grupo-capas" hidden>
+        <select id="metricaMun" aria-label="Colorear municipios por">
+          <option value="produccion">Producción (t)</option>
+          <option value="autosuficiencia">Autosuficiencia local</option>
+          <option value="rendimiento">Rendimiento (t/ha)</option>
+        </select>
+        <span id="cargandoMun" class="sub" hidden>Cargando 2,475 municipios…</span>
+      </div>
+      <label class="interruptor" id="ctrlCentrales"><input type="checkbox" id="verCentrales"><span></span>Centrales</label>
+      <div id="ctrlSub" class="grupo-capas" hidden>
+        <select id="metricaSub" aria-label="Colorear regiones por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="imp">Dependencia de importaciones</option>
+        </select>
+        <label class="interruptor"><input type="checkbox" id="verImportSub" checked><span></span>Importaciones</label>
+        <span class="sub" id="fuenteSub"></span>
+      </div>
+      <div id="ctrlLatam" class="grupo-capas" hidden>
+        <select id="metricaLatam" aria-label="Colorear países por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="pc">Consumo aparente por persona</option>
+          <option value="rend">Rendimiento (t/ha)</option>
+        </select>
+        <label class="interruptor" id="ctrlRutas"><input type="checkbox" id="verRutas" checked><span></span>Rutas comerciales</label>
+        <span class="sub" id="fuenteLatam">FAOSTAT</span>
+      </div>
+    </div>
+
+    <div class="leyenda" id="leyenda"></div>
+
+    <aside class="panel" aria-label="Análisis">
+      <div class="tabs" role="tablist">
+        <button class="tab activo" data-tab="resumen" role="tab">Resumen</button>
+        <button class="tab" data-tab="balance" role="tab">Producto</button>
+        <button class="tab" data-tab="entidad" role="tab">Entidad</button>
+        <button class="tab" data-tab="simulador" role="tab">Simulador</button>
+        <button class="tab" data-tab="fuentes" role="tab">Fuentes</button>
+      </div>
+      <div class="contenido">
+        <div id="tab-resumen" class="pestana activo"></div>
+        <div id="tab-balance" class="pestana"></div>
+        <div id="tab-entidad" class="pestana"></div>
+        <div id="tab-simulador" class="pestana"></div>
+        <div id="tab-fuentes" class="pestana"></div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="guia" id="guia" hidden role="dialog" aria-modal="true" aria-labelledby="guiaTitulo">
+    <div class="guia-tarjeta">
+      <span class="etq">Guía rápida</span>
+      <h2 id="guiaTitulo">Cómo leer este mapa</h2>
+      <ol>
+        <li><b>Elige un producto</b> en la lista de la izquierda. Puedes buscarlo o filtrar frutas y hortalizas.</li>
+        <li><b>Lee el mapa.</b> Cada burbuja es un estado: su tamaño es lo que produce y su color, si alcanza para su población. Cambia a <i>Municipios</i> para ver 2,475 municipios.</li>
+        <li><b>Haz clic en un estado o municipio</b> para ver quién lo abastece, a dónde envía su excedente y qué produce.</li>
+        <li><b>Usa el Simulador</b> para probar sequías, rutas directas o menos intermediación, y ver el efecto en el precio.</li>
+      </ol>
+      <p class="sub">Todas las cifras vienen de fuentes oficiales 2025: SIAP, INEGI, SNIIM, PROFECO y CONAPO.</p>
+      <button class="boton-primario" id="cerrarGuia" type="button">Empezar</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="data/estados.js"></script>
+  <script src="data/productos.js"></script>
+  <!-- Se genera con scripts/procesar_siap.py; si no existe, se usan los datos preliminares -->
+  <script src="data/produccion_siap.js"></script>
+  <!-- Se genera con scripts/procesar_comercio.py (exportación/importación oficial) -->
+  <script src="data/comercio_oficial.js"></script>
+  <!-- Consumo per cápita oficial (Panorama Agroalimentario) y población CONAPO (scripts/procesar_panorama.py) -->
+  <script src="data/consumo_oficial.js"></script>
+  <!-- Producción municipal SIAP (scripts/procesar_siap.py); los polígonos se cargan al elegir "Municipios" -->
+  <script src="data/produccion_municipal.js"></script>
+  <script src="js/modelo.js"></script>
+  <script src="js/municipal.js"></script>
+  <!-- Precios de mayoreo SNIIM (scripts/procesar_sniim.py) -->
+  <script src="data/precios_sniim.js"></script>
+  <!-- Precio al consumidor PROFECO QQP (scripts/procesar_profeco.py) -->
+  <script src="data/precios_consumidor.js"></script>
+  <script src="js/precios.js"></script>
+  <script src="js/estacionalidad.js"></script>
+  <script src="js/resumen.js"></script>
+  <!-- Fase LATAM: FAOSTAT (scripts/procesar_faostat.py) -->
+  <script src="data/latam.js"></script>
+  <script src="data/latam_comercio.js"></script>
+  <!-- Fase global: FAOSTAT todos los países (procesar_faostat.py global, procesar_faostat_bilateral.py global) -->
+  <script src="data/global.js"></script>
+  <script src="data/global_comercio.js"></script>
+  <!-- Vistas por país (motor común, scripts/subnacional_comun.py): EE. UU. (procesar_usda.py), Brasil (procesar_ibge.py), Colombia (procesar_eva.py), Canadá (procesar_statcan.py), Perú (procesar_midagri.py), España (procesar_mapa_es.py), Italia (procesar_istat.py), Turquía (procesar_tuik.py) -->
+  <script src="data/productos_paises.js"></script>
+  <script src="data/sub_us.js"></script>
+  <script src="data/sub_br.js"></script>
+  <script src="data/sub_ca.js"></script>
+  <script src="data/sub_co.js"></script>
+  <script src="data/sub_es.js"></script>
+  <script src="data/sub_it.js"></script>
+  <script src="data/sub_pe.js"></script>
+  <script src="data/sub_tr.js"></script>
+  <script src="js/subnacional.js"></script>
+  <script src="js/latam.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

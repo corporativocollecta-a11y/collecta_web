@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>De la Parcela al Plato</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --suelo: #F1F3ED;
+  --papel: #FBFCF8;
+  --tinta: #15211B;
+  --suave: #58665E;
+  --tenue: #8A968E;
+  --linea: #D8DDD3;
+  --acento: #C21F63;       /* rosa mexicano, con mesura */
+  --productor: #2F6B4E;
+  --transporte: #D8A02F;
+  --intermedio: #C2452A;
+  --minorista: #7B5AA6;
+  --bueno: #2F6B4E;
+  --alerta: #B8741A;
+  --critico: #B3261E;
+  --barra-fondo: #E4E8DF;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --texto: "Literata", Georgia, "Times New Roman", serif;
+  --dato: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --suelo: #0E1411; --papel: #141C18; --tinta: #E5ECE6; --suave: #A3B0A8; --tenue: #75827A; --linea: #27322C;
+    --acento: #F0609A; --productor: #5DAE84; --transporte: #E7B653; --intermedio: #E2694D; --minorista: #A98AD6;
+    --bueno: #5DAE84; --alerta: #E2A34A; --critico: #EF6A60; --barra-fondo: #1E2823;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --suelo: #0E1411; --papel: #141C18; --tinta: #E5ECE6; --suave: #A3B0A8; --tenue: #75827A; --linea: #27322C;
+  --acento: #F0609A; --productor: #5DAE84; --transporte: #E7B653; --intermedio: #E2694D; --minorista: #A98AD6;
+  --bueno: #5DAE84; --alerta: #E2A34A; --critico: #EF6A60; --barra-fondo: #1E2823;
+}
+* { box-sizing: border-box; }
+body { background: var(--suelo); color: var(--tinta); font: 400 16.5px/1.62 var(--texto); padding-inline: 20px; padding-block: 0 64px; }
+.envoltura { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; letter-spacing: -0.01em; margin: 0; }
+p { margin: 0; }
+.dato, .etq, table, .num { font-family: var(--dato); font-variant-numeric: tabular-nums; }
+.etq { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--suave); }
+a { color: var(--acento); }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* Portada */
+.portada { padding-block: 56px 36px; border-bottom: 1px solid var(--linea); display: grid; gap: 28px; }
+.portada .etq { color: var(--acento); }
+.portada h1 { font-size: clamp(38px, 6.4vw, 76px); font-weight: 800; line-height: 0.98; max-width: 15ch; }
+.portada h1 em { font-style: normal; color: var(--productor); }
+.tesis { font-size: clamp(18px, 2vw, 21px); max-width: 60ch; color: var(--tinta); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--dato); font-size: 12.5px; color: var(--suave); }
+
+.cifras { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--linea); }
+.cifra { padding: 22px 18px 22px 0; display: grid; gap: 6px; align-content: start; }
+.cifra + .cifra { padding-left: 18px; border-left: 1px solid var(--linea); }
+.cifra b { font-family: var(--display); font-size: clamp(28px, 3.6vw, 40px); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.cifra span { font-size: 14px; color: var(--suave); line-height: 1.45; }
+
+/* Secciones */
+section { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 12px 44px; padding-block: 52px; border-bottom: 1px solid var(--linea); }
+section > .lado { display: grid; gap: 8px; align-content: start; position: sticky; top: 16px; }
+section > .lado .etq b { color: var(--tinta); font-weight: 500; }
+section > .cuerpo { display: grid; gap: 22px; min-width: 0; }
+section h2 { font-size: clamp(26px, 3vw, 34px); font-weight: 700; line-height: 1.12; }
+.lectura { max-width: 66ch; display: grid; gap: 14px; }
+.lectura strong { font-weight: 600; }
+.nota { font-size: 14px; color: var(--suave); max-width: 72ch; }
+.clave { border-left: 3px solid var(--acento); padding: 4px 0 4px 16px; font-size: 18px; max-width: 60ch; }
+
+/* Cadena de precio */
+.cadena { display: grid; gap: 9px; }
+.fila-cad { display: grid; grid-template-columns: 150px minmax(0, 1fr) 118px; gap: 14px; align-items: center; }
+.fila-cad .n { font-family: var(--display); font-weight: 500; font-size: 15px; line-height: 1.2; }
+.fila-cad .n small { display: block; font-family: var(--dato); font-size: 11.5px; color: var(--tenue); font-weight: 400; }
+.barra { display: flex; height: 26px; border-radius: 3px; overflow: hidden; background: var(--barra-fondo); }
+.barra i { display: block; height: 100%; }
+.barra i:first-child { position: relative; }
+.fila-cad .v { text-align: right; font-family: var(--dato); font-size: 13px; line-height: 1.25; }
+.fila-cad .v b { font-family: var(--display); font-size: 19px; font-weight: 700; color: var(--productor); }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--dato); font-size: 12px; color: var(--suave); }
+.leyenda i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+/* Tablas */
+.tabla { overflow-x: auto; border-top: 1px solid var(--tinta); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-weight: 500; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); padding: 10px 10px 8px; border-bottom: 1px solid var(--linea); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+td:first-child, th:first-child { padding-left: 0; }
+td.num, th.num { text-align: right; }
+td .sub { display: block; font-size: 11.5px; color: var(--tenue); }
+.baja { color: var(--bueno); font-weight: 500; }
+.alta { color: var(--critico); font-weight: 500; }
+.chip { display: inline-block; font-size: 11.5px; padding: 1px 8px; border-radius: 20px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.c { color: var(--critico); } .chip.a { color: var(--alerta); } .chip.b { color: var(--bueno); }
+
+/* Exportaciones */
+.exp { display: grid; gap: 7px; }
+.fila-exp { display: grid; grid-template-columns: 110px minmax(0,1fr) 92px; gap: 12px; align-items: center; font-size: 14px; }
+.fila-exp .b { height: 14px; background: var(--barra-fondo); border-radius: 2px; overflow: hidden; }
+.fila-exp .b i { display: block; height: 100%; background: var(--productor); }
+.fila-exp .x { text-align: right; font-family: var(--dato); font-size: 13px; }
+
+/* Estacionalidad */
+.multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 32px; }
+.multiple { display: grid; gap: 6px; }
+.multiple h3 { font-size: 18px; font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.multiple h3 .dato { font-size: 12.5px; font-weight: 400; color: var(--suave); }
+.multiple svg { width: 100%; height: auto; display: block; }
+.multiple p { font-size: 14px; color: var(--suave); }
+
+/* Región */
+.mini-cifras { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-block: 1px solid var(--linea); }
+.mini-cifras div { padding: 14px 14px 14px 0; display: grid; gap: 4px; }
+.mini-cifras div + div { padding-left: 14px; border-left: 1px solid var(--linea); }
+.mini-cifras b { font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+.mini-cifras span { font-size: 13.5px; color: var(--suave); line-height: 1.4; }
+.subtitulo { font-size: 18px; font-weight: 700; }
+@media (max-width: 620px) { .mini-cifras { grid-template-columns: 1fr; } .mini-cifras div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--linea); } }
+
+/* Mundo: pares de barras exportación / producción */
+.pares { display: grid; gap: 10px; }
+.par { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 4px 14px; align-items: center; }
+.par .n { font-family: var(--display); font-weight: 500; font-size: 15px; grid-row: span 2; }
+.par .b { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 10px; font-family: var(--dato); font-size: 12px; }
+.par .pista { display: block; }
+.par .b i { display: block; height: 11px; border-radius: 2px; min-width: 2px; }
+@media (max-width: 520px) { .par { grid-template-columns: 1fr; } .par .n { grid-row: auto; } }
+
+/* Estrategias */
+.estrategias { display: grid; gap: 0; counter-reset: e; }
+.estrategia { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 4px 18px; padding-block: 20px; border-top: 1px solid var(--linea); }
+.estrategia::before { counter-increment: e; content: counter(e); font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1; color: var(--acento); grid-row: span 3; }
+.estrategia h3 { font-size: 20px; font-weight: 700; }
+.estrategia p { max-width: 68ch; }
+.estrategia .evid { font-family: var(--dato); font-size: 12.5px; color: var(--suave); }
+
+.fuentes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px 32px; font-size: 14.5px; }
+.fuentes div { display: grid; gap: 2px; }
+.fuentes b { font-family: var(--display); font-weight: 700; }
+
+@media (max-width: 860px) {
+  section { grid-template-columns: 1fr; gap: 18px; padding-block: 40px; }
+  section > .lado { position: static; }
+  .cifras { grid-template-columns: repeat(2, 1fr); }
+  .cifra:nth-child(3) { padding-left: 0; border-left: 0; }
+  .cifra:nth-child(n+3) { border-top: 1px solid var(--linea); }
+  .multiples, .fuentes { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  body { padding-inline: 16px; }
+  .fila-cad { grid-template-columns: 1fr 96px; }
+  .fila-cad .barra { grid-column: 1 / -1; grid-row: 2; }
+  .fila-exp { grid-template-columns: 88px minmax(0,1fr) 76px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .barra i { transition: flex-basis .6s ease; }
+}
+</style>
+
+<div class="envoltura">
+
+<header class="portada">
+  <span class="etq">Collecta · Mapa agroalimentario de México · Hallazgos 2025</span>
+  <h1>De cada $100 que pagas por fruta y verdura, al campo llegan <em>entre $10 y $35</em></h1>
+  <p class="tesis">Cruzamos cinco fuentes oficiales para 34 frutas y hortalizas: producción municipal del SIAP, comercio exterior de INEGI, precios de mayoreo del SNIIM, precios al consumidor de PROFECO y consumo per cápita del Panorama Agroalimentario. El resultado muestra dónde se forma el precio, cuándo falta producto y qué palancas pueden bajar el precio sin quitarle ingreso al productor. Tres secciones finales comparan a México con 34 países de América Latina y el Caribe, con 231 países del mundo y con los 50 estados de Estados Unidos, su principal cliente.</p>
+  <div class="meta"><span>Año de análisis: 2025</span><span>34 productos · 2,048 municipios productores · 43 centrales de abasto</span><span>Población CONAPO 2025: 133.4 millones</span></div>
+</header>
+
+<div class="cifras">
+  <div class="cifra"><b>$10–35</b><span>de cada $100 del precio al consumidor llegan al productor, según el producto</span></div>
+  <div class="cifra"><b>US$15.7 mil M</b><span>en exportaciones de estos 34 productos en 2025; en cada uno, 86% o más va a Estados Unidos</span></div>
+  <div class="cifra"><b>−39%</b><span>jitomate disponible por persona en 2025 frente al consumo oficial; las exportaciones casi no cambiaron</span></div>
+  <div class="cifra"><b>18–27%</b><span>menos precio al consumidor si se recortan 30% la intermediación y 30% el margen minorista</span></div>
+</div>
+
+<section id="cadena">
+  <div class="lado"><span class="etq"><b>01</b> · Precio</span><span class="etq">SIAP · SNIIM · PROFECO</span></div>
+  <div class="cuerpo">
+    <h2>El productor recibe la parte más chica del precio en casi todos los productos</h2>
+    <div class="lectura">
+      <p>Cada barra es el precio que paga el consumidor, repartido entre quien participa en la cadena. El transporte, aun estimado con rutas largas vía centrales de abasto, es el tramo más pequeño: entre $2 y $5 por kilo. Lo que encarece es lo que pasa entre la parcela y el anaquel. Los productos están ordenados de mayor a menor parte para el productor.</p>
+    </div>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--productor)"></i>Productor (precio medio rural)</span>
+      <span><i style="background:var(--transporte)"></i>Transporte y merma (modelo)</span>
+      <span><i style="background:var(--intermedio)"></i>Acopio, intermediación y margen mayorista</span>
+      <span><i style="background:var(--minorista)"></i>Margen minorista</span>
+    </div>
+    <div class="cadena" id="graficaCadena" role="list"></div>
+    <p class="nota">Precio al consumidor: mediana PROFECO 2025 por kilo a granel. Mayoreo: promedio SNIIM 2025, calidad primera, 43 centrales. Productor: precio medio rural SIAP 2025. El transporte se estima con el modelo de rutas del mapa. Faltan lechuga y coliflor (PROFECO las registra por pieza), arándano, frambuesa, zarzamora, berenjena y espárrago (sin precio al consumidor en PROFECO) y nuez (PROFECO registra nuez pelada y el SIAP nuez con cáscara). En nopal, el precio al consumidor es de nopal limpio, sin espinas. Como el mayoreo es solo calidad primera y el precio rural promedia todas las calidades, el tramo de intermediación puede estar algo sobrestimado.</p>
+  </div>
+</section>
+
+<section id="canales">
+  <div class="lado"><span class="etq"><b>02</b> · Canal</span><span class="etq">PROFECO 2025</span></div>
+  <div class="cuerpo">
+    <h2>El mismo kilo cuesta hasta 96% más según dónde se compre</h2>
+    <div class="lectura">
+      <p>PROFECO registra el precio por tipo de comercio. En casi todos los productos la central de abasto y el mercado público son más baratos que el supermercado. La brecha más grande está en nuez, brócoli, cebolla, papa, tomate verde y toronja, justo donde el margen minorista pesa más en la cadena. En fruta importada o de alto valor (pera, uva, durazno, manzana) casi no hay diferencia entre canales.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Central de abasto</th><th class="num">Mercado</th><th class="num">Supermercado</th><th class="num">Súper vs. canal más barato</th></tr></thead>
+        <tbody id="tablaCanales"></tbody>
+      </table>
+    </div>
+    <p class="nota">Mediana por kilo. Cerca de 90% de los registros de PROFECO son de supermercados, por lo que la mediana nacional refleja sobre todo ese canal.</p>
+  </div>
+</section>
+
+<section id="abasto">
+  <div class="lado"><span class="etq"><b>03</b> · Abasto</span><span class="etq">SIAP · INEGI · Panorama</span></div>
+  <div class="cuerpo">
+    <h2>En 2025 cayó la cosecha de hortalizas, y el ajuste lo absorbió el mercado interno</h2>
+    <div class="lectura">
+      <p>Comparamos la producción municipal del SIAP de 2024 y 2025, procesada con el mismo método, y las exportaciones que México reportó para esos años. En jitomate, cebolla y pepino la cosecha bajó entre 16% y 22%, pero las exportaciones se mantuvieron o subieron. Con el comercio exterior intacto, lo que quedó para el consumo nacional se redujo.</p>
+      <p class="clave">Con la producción y el comercio de 2025, la disponibilidad de jitomate alcanza para 8.5 kg por persona, contra 14 kg de consumo oficial. En chile, 8.4 kg contra 15.7 kg; en cebolla, 6.1 kg contra 9.6 kg.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Producción 2024</th><th class="num">Producción 2025</th><th class="num">Cambio</th><th class="num">Exportación 2024 → 2025</th><th class="num">Disponible 2025 vs. consumo oficial</th></tr></thead>
+        <tbody>
+          <tr><td>Jitomate</td><td class="num">3.72 Mt</td><td class="num">3.12 Mt</td><td class="num alta">−16%</td><td class="num">2.06 → 1.99 Mt <span class="sub">−4%</span></td><td class="num">8.5 vs. 14.0 kg <span class="chip c">−39%</span></td></tr>
+          <tr><td>Chile verde</td><td class="num">2.46 Mt</td><td class="num">2.26 Mt</td><td class="num alta">−8%</td><td class="num">1.16 → 1.14 Mt <span class="sub">−2%</span></td><td class="num">8.4 vs. 15.7 kg <span class="chip c">−46%</span></td></tr>
+          <tr><td>Cebolla</td><td class="num">1.67 Mt</td><td class="num">1.35 Mt</td><td class="num alta">−19%</td><td class="num">512 → 555 mil t <span class="sub">+8%</span></td><td class="num">6.1 vs. 9.6 kg <span class="chip c">−36%</span></td></tr>
+          <tr><td>Calabacita</td><td class="num">481 mil t</td><td class="num">434 mil t</td><td class="num alta">−10%</td><td class="num">490 mil t en 2025</td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Berenjena</td><td class="num">60 mil t</td><td class="num">48 mil t</td><td class="num alta">−20%</td><td class="num">88 mil t en 2025</td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Pepino</td><td class="num">959 mil t</td><td class="num">752 mil t</td><td class="num alta">−22%</td><td class="num">880 → 892 mil t <span class="sub">+1%</span></td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Aguacate, limón, naranja, plátano, mango, papa, melón, papaya, toronja, lechuga, durazno, guayaba, nopal, zarzamora y nuez</td><td class="num" colspan="3">Producción estable (−2% a +5%)</td><td class="num">—</td><td class="num">Coinciden ±8% <span class="chip b">consistente</span></td></tr>
+          <tr><td>Sandía, piña y tomate verde</td><td class="num" colspan="3">Estable o al alza (piña +35%)</td><td class="num">—</td><td class="num">31% a 53% más que el consumo oficial <span class="chip b">excedente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Disponible = (producción − exportación + importación) ÷ población CONAPO 2025. El consumo oficial es del Panorama Agroalimentario 2025, calculado por el SIAP con datos de 2024. En chile el Panorama usa una definición más amplia (3.22 Mt en 2024), por lo que su brecha es en parte metodológica. En pepino, calabacita y berenjena la exportación reportada supera la producción registrada, probablemente por sub-registro de agricultura protegida y porque la fracción de calabacita incluye calabaza madura. En uva el SIAP suma uva de mesa y de vino, por lo que no se compara con el consumo de uva de mesa. En arándano, frambuesa y coliflor la disponibilidad calculada supera con mucho el consumo oficial, porque parte del comercio no se registra en su propia fracción arancelaria. Es una conclusión de balance: falta confirmarla con inventarios, mermas y consumo medido en hogares (ENIGH).</p>
+  </div>
+</section>
+
+<section id="exportacion">
+  <div class="lado"><span class="etq"><b>04</b> · Mercados</span><span class="etq">INEGI/SE vía UN Comtrade</span></div>
+  <div class="cuerpo">
+    <h2>US$15.7 mil millones de exportación, casi todo hacia un solo cliente</h2>
+    <div class="lectura">
+      <p>Aguacate, jitomate y chile concentran 53% del valor exportado de estos 34 productos. Las berries (fresa, zarzamora, arándano y frambuesa) suman cerca de US$1,700 millones. En todos los productos exportadores, Estados Unidos recibe 86% o más del volumen. La producción también está concentrada: Michoacán aporta 89% de la zarzamora, 73% del aguacate, 65% de la guayaba y 60% de la fresa, Jalisco 66% de la frambuesa, Veracruz 76% de la piña, Sonora 65% de la uva, Guanajuato 63% del brócoli y Chihuahua 84% de la manzana.</p>
+    </div>
+    <div class="exp" id="graficaExport"></div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th>Estado líder</th><th class="num">10 municipios principales</th><th class="num">Hacia EE. UU.</th></tr></thead>
+        <tbody>
+          <tr><td>Zarzamora</td><td>Michoacán · 89%</td><td class="num">83%</td><td class="num">86%</td></tr>
+          <tr><td>Manzana</td><td>Chihuahua · 84%</td><td class="num">90%</td><td class="num">importa 203 mil t</td></tr>
+          <tr><td>Piña</td><td>Veracruz · 76%</td><td class="num">90%</td><td class="num">100%</td></tr>
+          <tr><td>Aguacate</td><td>Michoacán · 73%</td><td class="num">56%</td><td class="num">86%</td></tr>
+          <tr><td>Frambuesa</td><td>Jalisco · 66%</td><td class="num">80%</td><td class="num">86%</td></tr>
+          <tr><td>Uva</td><td>Sonora · 65%</td><td class="num">83%</td><td class="num">99%</td></tr>
+          <tr><td>Guayaba</td><td>Michoacán · 65%</td><td class="num">87%</td><td class="num">sin fracción propia</td></tr>
+          <tr><td>Brócoli</td><td>Guanajuato · 63%</td><td class="num">48%</td><td class="num">97%</td></tr>
+          <tr><td>Fresa</td><td>Michoacán · 60%</td><td class="num">74%</td><td class="num">100%</td></tr>
+          <tr><td>Nuez</td><td>Chihuahua · 60%</td><td class="num">50%</td><td class="num">94%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Un choque sanitario, climático o comercial en un solo estado o en un solo destino afecta a la mayor parte de la oferta. México depende de importaciones en pera (cubre 25% de su consumo), manzana (72%), durazno (89%), papa (95%) y toronja (98%); Estados Unidos es el origen principal.</p>
+  </div>
+</section>
+
+<section id="estacionalidad">
+  <div class="lado"><span class="etq"><b>05</b> · Temporada</span><span class="etq">Panorama · SNIIM</span></div>
+  <div class="cuerpo">
+    <h2>En cebolla, limón, piña, aguacate y papa, el precio sube cuando baja la cosecha</h2>
+    <div class="lectura">
+      <p>Barras: porcentaje de la cosecha anual que sale cada mes. Línea: precio de mayoreo mensual. Cuando la correlación (r) es negativa y fuerte, escalonar siembras o almacenar reduce los picos de precio. En jitomate y chile el precio no sigue al volumen nacional: ahí pesan más la oferta regional de invierno y la exportación.</p>
+    </div>
+    <div class="multiples" id="multiples"></div>
+    <p class="nota">También siguen a la cosecha la berenjena (r = −0.75, la relación más fuerte), el nopal (−0.61), el aguacate (−0.56; mayo cuesta 75% más que diciembre), la papa (−0.54), la fresa (−0.49) y el melón (−0.44). Cosecha mensual del Panorama 2025 (datos 2024) y precios SNIIM 2025. En el mapa, un escenario estima que escalonar la mitad de la cosecha de cebolla reduciría la brecha entre su mes más caro y el más barato de 91% a cerca de 72%.</p>
+  </div>
+</section>
+
+<section id="rendimiento">
+  <div class="lado"><span class="etq"><b>06</b> · Productividad</span><span class="etq">SIAP municipal 2025</span></div>
+  <div class="cuerpo">
+    <h2>Hay municipios que cosechan la mitad por hectárea que el promedio nacional</h2>
+    <div class="lectura">
+      <p>Con superficie cosechada y volumen por municipio calculamos el rendimiento de cada uno. Si los municipios con más de 200 ha que están por debajo de 70% del promedio llegaran a 90%, la producción crecería sin abrir tierras nuevas. En jitomate la diferencia refleja sobre todo invernadero contra cielo abierto, por lo que no es una comparación entre iguales.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Promedio nacional</th><th>Municipios con mayor brecha (t/ha)</th><th class="num">Potencial teórico</th></tr></thead>
+        <tbody>
+          <tr><td>Plátano</td><td class="num">30.6 t/ha</td><td>Atzalan, Ver. 18 · Las Margaritas, Chis. 20 · San Blas, Nay. 16</td><td class="num">+229 mil t</td></tr>
+          <tr><td>Mango</td><td class="num">11.1 t/ha</td><td>Gabriel Zamora, Mich. 6 · Tonalá, Chis. 5 · Múgica, Mich. 6</td><td class="num">+210 mil t</td></tr>
+          <tr><td>Chile verde</td><td class="num">29.9 t/ha</td><td>Calakmul, Camp. 8 · Palenque, Chis. 9 · Tatahuicapan, Ver. 6</td><td class="num">+180 mil t</td></tr>
+          <tr><td>Naranja</td><td class="num">14.3 t/ha</td><td>Montemorelos, N.L. 9 · Coxcatlán, S.L.P. 7 · Tamazunchale, S.L.P. 10</td><td class="num">+153 mil t</td></tr>
+          <tr><td>Sandía</td><td class="num">31.1 t/ha</td><td>Choix, Sin. 9 · Ahome, Sin. 5 · San Juan Evangelista, Ver. 11</td><td class="num">+126 mil t</td></tr>
+          <tr><td>Manzana</td><td class="num">14.7 t/ha</td><td>Arteaga, Coah. 8 · Canatlán, Dgo. 3 · Zacatlán, Pue. 5</td><td class="num">+119 mil t</td></tr>
+          <tr><td>Cebolla</td><td class="num">29.4 t/ha</td><td>Mexicali, B.C. 16 · San Luis Río Colorado, Son. 18 · Angostura, Sin. 19</td><td class="num">+98 mil t</td></tr>
+          <tr><td>Papaya</td><td class="num">55.5 t/ha</td><td>Tierra Blanca, Ver. 23 · Cotaxtla, Ver. 35 · Buenavista, Mich. 36</td><td class="num">+84 mil t</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Potencial teórico: toneladas adicionales si los municipios con más de 200 ha y rendimiento menor a 70% del promedio nacional llegaran a 90% de ese promedio. Las brechas también reflejan clima, variedad, riego y ciclo; cada caso requiere diagnóstico en campo. En manzana, cerrar la brecha equivaldría a más de la mitad de lo que hoy se importa. En jitomate el potencial calculado (313 mil t) no se incluye porque compara invernadero con cielo abierto.</p>
+  </div>
+</section>
+
+<section id="region">
+  <div class="lado"><span class="etq"><b>07</b> · Región</span><span class="etq">FAOSTAT 2024</span></div>
+  <div class="cuerpo">
+    <h2>México es el mayor productor y exportador de la región, y casi no le vende a Latinoamérica</h2>
+    <div class="lectura">
+      <p>Comparamos 27 frutas y hortalizas en 34 países de América Latina y el Caribe con datos de la FAO. México es el primer productor regional en 14 de ellas y vende 44% de todo lo que exporta la región en estos productos. Pero 95% de sus ventas van a Estados Unidos y menos de 1% a otros países latinoamericanos.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>14 de 27</b><span>productos en que México es el primer productor regional</span></div>
+      <div><b>US$16.8 mil M</b><span>exporta México, 44% de los US$38.6 mil M de la región</span></div>
+      <div><b>5%</b><span>de la exportación regional se vende dentro de Latinoamérica</span></div>
+    </div>
+    <h3 class="subtitulo">A dónde vende cada país exportador</h3>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--intermedio)"></i>Estados Unidos</span>
+      <span><i style="background:var(--minorista)"></i>Europa</span>
+      <span><i style="background:var(--productor)"></i>Latinoamérica</span>
+      <span><i style="background:var(--transporte)"></i>Asia y Oceanía</span>
+      <span><i style="background:var(--tenue)"></i>Otros (Canadá, Medio Oriente y África)</span>
+    </div>
+    <div class="cadena" id="graficaDestinos" role="list"></div>
+    <p class="nota">Valor exportado en 2024 por destino, sumando las 27 frutas y hortalizas. Perú, Chile y Argentina reparten sus ventas entre varios mercados; México, Guatemala y Honduras dependen casi por completo de Estados Unidos.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>País</th><th>Primer productor regional en</th></tr></thead>
+        <tbody>
+          <tr><td>México (14)</td><td>chile verde y morrón 75% · pepino 75% · brócoli 67% · fresa 58% · berries 53% · toronja 51% · lechuga 48% · aguacate 38% · mango 37% · limón 36% · jitomate 32% · berenjena 30% · calabacita 25% · zanahoria 18%</td></tr>
+          <tr><td>Brasil (4)</td><td>naranja · cebolla · sandía · melón</td></tr>
+          <tr><td>Chile (3)</td><td>manzana · uva · durazno</td></tr>
+          <tr><td>Perú (2)</td><td>papa · espárrago</td></tr>
+          <tr><td>Ecuador, Costa Rica, Rep. Dominicana, Argentina</td><td>plátano · piña · papaya · pera</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">México compra fuera de la región lo que la región produce: le paga US$1,240 millones al año a Estados Unidos en estas frutas y hortalizas (manzana US$434 millones, uva 195, fresa 122, papa 119 y pera 73), frente a US$139 millones a Perú y US$51 millones a Chile. Chile encabeza la producción regional de manzana y uva, y Argentina la de pera.</p>
+      <p>Al mismo tiempo, Centroamérica y el Caribe dependen de importaciones en manzana, pera, cebolla y naranja, y México tiene excedente en cebolla, chile, jitomate y aguacate a pocos días por carretera o barco. Las rutas dentro de la región que ya existen muestran el potencial: plátano de Ecuador a Chile y Argentina, manzana de Chile a Brasil y Colombia, uva de Perú a México y aguacate de Perú a Chile.</p>
+    </div>
+    <p class="nota">Fuente: FAOSTAT (FAO), producción y comercio 2024 y matriz detallada de comercio. Las salidas de cada país se toman de lo que reporta el exportador y las llegadas desde fuera de la región, de lo que reporta el importador. FAOSTAT registra casi todo el comercio de berries en una partida genérica, por lo que arándano, frambuesa y zarzamora se agrupan como berries. Las cifras de la FAO para México difieren de las del SIAP (jitomate 2024: 4.42 frente a 3.72 millones de t); se usan solo para comparar países.</p>
+  </div>
+</section>
+
+<section id="mundo">
+  <div class="lado"><span class="etq"><b>08</b> · Mundo</span><span class="etq">FAOSTAT 2024</span></div>
+  <div class="cuerpo">
+    <h2>México es el mayor exportador del mundo en estas frutas y hortalizas, con solo 2% de la producción</h2>
+    <div class="lectura">
+      <p>Con datos de la FAO para 231 países y los mismos 27 productos, México vende 12.9% de todo lo que se exporta en el mundo (US$16.8 mil millones de US$130.2 mil millones), por delante de España y Países Bajos. Lo logra con 2.1% de la producción mundial. China produce casi un tercio del volumen y exporta menos de 5%: su cosecha se queda en su mercado interno.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>#1</b><span>exportador mundial en estas 27 frutas y hortalizas</span></div>
+      <div><b>12.9%</b><span>de la exportación mundial, con 2.1% de la producción</span></div>
+      <div><b>13 de 27</b><span>productos en que México es primer o segundo exportador</span></div>
+    </div>
+    <h3 class="subtitulo">Participación en la exportación y en la producción mundiales</h3>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--acento)"></i>% de la exportación mundial (valor)</span>
+      <span><i style="background:var(--productor)"></i>% de la producción mundial (volumen)</span>
+    </div>
+    <div class="pares" id="graficaMundo" role="list"></div>
+    <p class="nota">Los diez mayores exportadores. Países Bajos exporta 11.4% con 0.6% de la producción porque reexporta hacia el resto de Europa fruta que no cultiva, como el aguacate. La escala de producción de China (32.4%) se recorta para que las demás barras se lean.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Lugar en producción</th><th class="num">Lugar en exportación</th><th class="num">% exportación mundial</th><th>Líder exportador</th></tr></thead>
+        <tbody>
+          <tr><td>Aguacate</td><td class="num">1 · 25%</td><td class="num">1</td><td class="num">39%</td><td>México</td></tr>
+          <tr><td>Papaya</td><td class="num">5 · 8%</td><td class="num">1</td><td class="num">40%</td><td>México</td></tr>
+          <tr><td>Jitomate</td><td class="num">8 · 2%</td><td class="num">1</td><td class="num">28%</td><td>México</td></tr>
+          <tr><td>Calabacita</td><td class="num">11 · 2%</td><td class="num">2</td><td class="num">31%</td><td>España</td></tr>
+          <tr><td>Espárrago</td><td class="num">3 · 4%</td><td class="num">2</td><td class="num">25%</td><td>Perú</td></tr>
+          <tr><td>Chile verde y morrón</td><td class="num">4 · 7%</td><td class="num">2</td><td class="num">23%</td><td>España</td></tr>
+          <tr><td>Pepino</td><td class="num">6 · 1%</td><td class="num">2</td><td class="num">22%</td><td>España</td></tr>
+          <tr><td>Fresa</td><td class="num">4 · 6%</td><td class="num">2</td><td class="num">22%</td><td>España</td></tr>
+          <tr><td>Limón</td><td class="num">2 · 14%</td><td class="num">2</td><td class="num">20%</td><td>España</td></tr>
+          <tr><td>Brócoli</td><td class="num">4 · 3%</td><td class="num">2</td><td class="num">18%</td><td>España</td></tr>
+          <tr><td>Mango</td><td class="num">4 · 4%</td><td class="num">2</td><td class="num">18%</td><td>Tailandia</td></tr>
+          <tr><td>Berries</td><td class="num">1 · 16%</td><td class="num">4</td><td class="num">10%</td><td>Perú</td></tr>
+          <tr><td>Naranja</td><td class="num">3 · 7%</td><td class="num">16</td><td class="num">1%</td><td>España</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">El competidor directo de México es España: es el primer exportador en calabacita, chile, pepino, fresa, limón, brócoli, sandía y berenjena, donde México es segundo. Pero no compiten por el mismo cliente: México le vende a Estados Unidos (95% de sus ventas) y España a Europa.</p>
+      <p>México también produce mucho y exporta poco en naranja (tercer productor mundial, lugar 16 en exportación) y toronja (tercero y lugar 17). En berries es el primer productor del mundo pero el cuarto exportador, detrás de Perú, que vende arándano a Estados Unidos, Europa y Asia.</p>
+    </div>
+    <p class="nota">Fuente: FAOSTAT (FAO), producción, comercio y población 2024 para 231 países (sin agregados regionales ni el total "China", que duplicaría a China continental, Hong Kong, Macao y Taiwán). Lugar en producción con participación mundial; lugar y participación en exportación por valor. Las cifras de la FAO para México difieren de las del SIAP.</p>
+  </div>
+</section>
+
+<section id="eeuu">
+  <div class="lado"><span class="etq"><b>09</b> · EE. UU.</span><span class="etq">USDA · Census · FAOSTAT</span></div>
+  <div class="cuerpo">
+    <h2>México abastece más de la mitad de lo que Estados Unidos consume en ocho frutas y hortalizas</h2>
+    <div class="lectura">
+      <p>Replicamos para Estados Unidos el análisis de México: producción por estado de USDA NASS 2025 (mercado fresco), población 2025 del Census Bureau y comercio de FAOSTAT. El resultado muestra qué tan dependiente es el principal cliente de México y en qué estados se consume lo que México exporta.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>US$15.9 mil M</b><span>le vende México a Estados Unidos en estas frutas y hortalizas</span></div>
+      <div><b>8 de 28</b><span>productos en que México abastece más de la mitad del consumo estadounidense</span></div>
+      <div><b>3.3×</b><span>el jitomate que México le vende frente a toda la producción fresca de EE. UU.</span></div>
+    </div>
+    <h3 class="subtitulo">Parte del consumo de Estados Unidos que viene de México</h3>
+    <div class="exp" id="graficaEEUU"></div>
+    <p class="nota">Consumo aparente = producción de EE. UU. + importación − exportación, solo producto fresco. Brócoli: México reporta haber vendido más de lo que EE. UU. registra como importación; se usa la cifra mayor.</p>
+    <div class="lectura">
+      <p class="clave">Estados Unidos produce solo una cuarta parte del jitomate y del chile que consume, 11% del pepino y 13% del aguacate. México cubre casi todo lo demás: vende 97% del jitomate que importa Estados Unidos, 94% de la calabacita y 89% del chile.</p>
+      <p>Florida es el estado líder en jitomate, chile, pepino y calabacita, pero su producción es pequeña frente a lo que llega de México. Por población y déficit, los estados que más reciben de México serían Texas, Nueva York, California, Illinois, Pensilvania y Ohio; en varios de ellos México cubre cerca de una quinta parte de su consumo en estos productos.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">EE. UU. produce (de su consumo)</th><th class="num">De México (del consumo)</th><th class="num">México en sus importaciones</th><th>Principal competidor</th></tr></thead>
+        <tbody>
+          <tr><td>Berries</td><td class="num">37%</td><td class="num">23%</td><td class="num">28%</td><td>Perú</td></tr>
+          <tr><td>Uva</td><td class="num">60%</td><td class="num">16%</td><td class="num">27%</td><td>Chile y Perú</td></tr>
+          <tr><td>Melón</td><td class="num">59%</td><td class="num">11%</td><td class="num">20%</td><td>Guatemala y Honduras</td></tr>
+          <tr><td>Plátano</td><td class="num">0%</td><td class="num">7%</td><td class="num">6%</td><td>Guatemala y Ecuador</td></tr>
+          <tr><td>Piña</td><td class="num">12%</td><td class="num">1%</td><td class="num">1%</td><td>Costa Rica</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Productos en que Estados Unidos importa mucho y México tiene poca participación: son el espacio de crecimiento. En manzana, pera, durazno, papa y nuez Estados Unidos es autosuficiente y México no le vende. Producción por estado: NASS reserva por confidencialidad muchas cifras estatales de producto fresco; el resto del total nacional se reparte con la superficie del Censo Agropecuario 2022. Los estados que reciben producto mexicano son una estimación que reparte la exportación de México según el déficit de cada estado.</p>
+  </div>
+</section>
+
+<section id="estrategias">
+  <div class="lado"><span class="etq"><b>10</b> · Propuestas</span><span class="etq">En orden de prioridad</span></div>
+  <div class="cuerpo">
+    <h2>Siete líneas de acción que salen de los datos</h2>
+    <div class="estrategias">
+      <div class="estrategia">
+        <h3>Canales cortos y acopio consolidado</h3>
+        <p>Centros de acopio regionales, compra directa a cooperativas y venta en mercados públicos o sobre ruedas. Es la palanca más grande: la intermediación y el margen minorista suman más que productor y transporte juntos en todos los productos analizados.</p>
+        <p class="evid">Evidencia: recortar 30% ambos márgenes bajaría el precio al consumidor entre 18% (jitomate) y 27% (durazno), manteniendo el precio al productor.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Alerta temprana del abasto interno</h3>
+        <p>Un tablero mensual que compare cosecha, exportación y precio en jitomate, chile y cebolla, para detectar cuándo la exportación deja corto al mercado nacional y actuar con compras públicas o acuerdos de abasto.</p>
+        <p class="evid">Evidencia: en 2025 la disponibilidad de jitomate cayó 39% frente al consumo oficial con exportaciones casi iguales.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Escalonar cosechas y almacenar donde el precio sigue a la temporada</h3>
+        <p>Calendarios de siembra escalonada, frigoríficos para papa y cebolla, oferta de piña fuera de temporada y conservación o procesamiento de mango en su pico de junio y julio.</p>
+        <p class="evid">Evidencia: correlación cosecha–precio de −0.69 en cebolla, −0.64 en limón, −0.62 en piña, −0.56 en aguacate y −0.54 en papa; el mango cuesta el doble en enero que en junio.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Productividad en municipios rezagados</h3>
+        <p>Asistencia técnica, riego y renovación de huertas en los municipios de la sección 06, empezando por plátano, mango, chile, naranja, sandía y manzana.</p>
+        <p class="evid">Evidencia: potencial teórico de más de 1 millón de toneladas adicionales en seis productos sin nuevas tierras.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Sustituir importaciones de fruta templada y papa</h3>
+        <p>Frigoríficos, variedades y renovación de huertas para manzana, pera y durazno en Chihuahua, Coahuila, Durango, Puebla y Zacatecas; semilla certificada y almacenamiento para papa.</p>
+        <p class="evid">Evidencia: se importan al año 203 mil t de manzana, 189 mil t de papa fresca, 56 mil t de pera y 36 mil t de durazno; la pera cubre solo 25% de su consumo.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Diversificar destinos y regiones</h3>
+        <p>Abrir mercados en Asia y Europa para aguacate, berries, nuez y hortalizas, y promover nuevas zonas productoras fuera de los estados que hoy concentran la oferta.</p>
+        <p class="evid">Evidencia: México es el primer exportador mundial en estos productos, pero 95% de sus ventas van a Estados Unidos y menos de 1% a Latinoamérica, mientras España, su competidor directo, vende a toda Europa; dentro de EE. UU. aún hay espacio en berries, uva, melón y plátano, donde México tiene 6% a 28% de las importaciones; 86% a 100% del volumen de cada producto va a ese país; un solo estado aporta 60% o más en zarzamora, manzana, piña, aguacate, frambuesa, uva, guayaba, brócoli, fresa y nuez.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Integración comercial latinoamericana</h3>
+        <p>Acuerdos de abasto regional: comprar manzana, pera y uva a Chile, Argentina y Perú en lugar de Estados Unidos, y ofrecer a Centroamérica y el Caribe las hortalizas en que México tiene excedente, con logística terrestre y fitosanitaria compartida.</p>
+        <p class="evid">Evidencia: solo 5% de la exportación regional se queda en Latinoamérica; México paga US$1,240 millones a Estados Unidos en estas frutas y hortalizas y US$190 millones a Perú y Chile juntos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fuentes">
+  <div class="lado"><span class="etq"><b>11</b> · Método</span><span class="etq">Fuentes oficiales</span></div>
+  <div class="cuerpo">
+    <h2>Fuentes y límites</h2>
+    <div class="fuentes">
+      <div><b>Producción</b><span>SIAP/DGSIAP, Cierre de la producción agrícola municipal 2024 y 2025.</span></div>
+      <div><b>Comercio exterior</b><span>Estadística de México (INEGI/SE) reportada a UN Comtrade, 2024–2025, producto fresco.</span></div>
+      <div><b>Mayoreo</b><span>SNIIM, Secretaría de Economía: 53 variedades, 43 centrales, unas 267 mil observaciones, 2025.</span></div>
+      <div><b>Consumidor</b><span>PROFECO, Quién es Quién en los Precios 2025: unos 600 mil registros.</span></div>
+      <div><b>Consumo y estacionalidad</b><span>SIAP, Panorama Agroalimentario 2025 (datos 2024).</span></div>
+      <div><b>Población</b><span>CONAPO, proyección 2025; Censo 2020 (INEGI) para municipios.</span></div>
+      <div><b>Estados Unidos</b><span>USDA NASS 2025 (producción por estado, mercado fresco), Censo Agropecuario 2022 de USDA, Census Bureau 2025 (población).</span></div>
+      <div><b>Latinoamérica y mundo</b><span>FAOSTAT (FAO) 2024: producción, comercio, población y matriz detallada de comercio de 34 países de la región y 231 del mundo.</span></div>
+    </div>
+    <p class="nota">Límites: el consumo oficial es de 2024 y el resto de 2025; zanahoria no tiene ficha en el Panorama; tomate verde, nopal, coliflor y guayaba no tienen fracción arancelaria propia; el comercio de frambuesa y zarzamora se estima repartiendo su fracción compartida según su producción; el comercio considera solo producto fresco; la intermediación puede estar sobrestimada por diferencias de calidad; la muestra de PROFECO es mayoritariamente de supermercados; los flujos entre estados del mapa son estimaciones de un modelo de distancia mínima, no registros. Los ahorros del escenario son un techo: suponen que todo el recorte llega al consumidor.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  var mxn = function (n) { return "$" + n.toFixed(2); };
+  // [nombre, productor, transporte, intermediación, minorista, precio final]  MXN/kg, 2025
+  var cadena = [
+    ["Jitomate", 9.49, 3.38, 6.10, 7.93, 26.90], ["Pepino", 7.90, 3.08, 5.93, 8.09, 25.00],
+    ["Aguacate", 21.34, 2.71, 40.72, 9.23, 74.00], ["Papa", 8.53, 4.68, 5.32, 11.47, 30.00],
+    ["Chile verde y morrón", 11.78, 3.78, 17.74, 9.60, 42.90], ["Cebolla", 7.15, 3.24, 3.59, 12.92, 26.90],
+    ["Manzana", 11.13, 4.23, 28.15, 2.39, 45.90], ["Limón", 7.41, 2.06, 5.93, 18.60, 34.00],
+    ["Plátano", 4.44, 2.96, 10.74, 6.76, 24.90], ["Naranja", 5.90, 2.15, 10.58, 16.27, 34.90],
+    ["Brócoli", 7.61, 1.97, 16.03, 24.29, 49.90], ["Fresa", 24.36, 2.70, 45.15, 95.19, 167.40],
+    ["Mango", 6.24, 2.43, 27.18, 8.05, 43.90], ["Tomate verde", 6.29, 2.01, 9.62, 19.58, 37.50],
+    ["Calabacita", 6.73, 3.39, 9.46, 15.32, 34.90], ["Zanahoria", 4.29, 1.70, 6.09, 2.82, 14.90],
+    ["Sandía", 5.56, 1.51, 5.79, 6.04, 18.90], ["Melón", 6.47, 2.25, 10.42, 14.86, 34.00],
+    ["Papaya", 7.22, 2.34, 13.82, 15.52, 38.90], ["Piña", 6.03, 2.33, 24.70, 0, 33.06],
+    ["Uva", 26.52, 6.21, 45.61, 11.66, 90.00], ["Toronja", 5.26, 2.10, 14.92, 16.62, 38.90],
+    ["Pera", 6.70, 3.01, 42.29, 8.00, 60.00], ["Durazno", 11.96, 2.86, 60.93, 22.75, 98.50],
+    ["Guayaba", 7.78, 1.91, 18.25, 27.06, 55.00], ["Nopal", 4.51, 2.17, 12.44, 24.78, 43.90]
+  ];
+  cadena.sort(function (a, b) { return b[1] / b[5] - a[1] / a[5]; });
+  var colores = ["var(--productor)", "var(--transporte)", "var(--intermedio)", "var(--minorista)"];
+  var nombres = ["Productor", "Transporte", "Intermediación", "Minorista"];
+  document.getElementById("graficaCadena").innerHTML = cadena.map(function (f) {
+    var partes = f.slice(1, 5).map(function (v, i) {
+      return '<i style="flex:0 0 ' + (v / f[5] * 100).toFixed(2) + '%;background:' + colores[i] + '" title="' + nombres[i] + ': ' + mxn(v) + '/kg"></i>';
+    }).join("");
+    return '<div class="fila-cad" role="listitem"><span class="n">' + f[0] + '<small>' + mxn(f[5]) + '/kg al consumidor</small></span>' +
+      '<span class="barra" role="img" aria-label="' + f[0] + ': productor ' + mxn(f[1]) + ', transporte ' + mxn(f[2]) + ', intermediación ' + mxn(f[3]) + ', minorista ' + mxn(f[4]) + '">' + partes + '</span>' +
+      '<span class="v"><b>$' + Math.round(f[1] / f[5] * 100) + '</b> de $100<br>al productor</span></div>';
+  }).join("");
+
+  // Destinos de exportación 2024 (FAOSTAT): [país, miles de millones USD, % EE. UU., % Europa, % Latinoamérica, % Asia, % otros]
+  var destinos = [["México", 16.79, 95.2, 0.3, 0.8, 1.2, 2.5], ["Perú", 6.20, 44.3, 36.1, 7.6, 10.2, 1.8],
+    ["Ecuador", 3.65, 18.6, 47.2, 8.0, 8.5, 17.6], ["Chile", 3.00, 37.4, 23.8, 21.6, 14.1, 3.1],
+    ["Costa Rica", 2.66, 44.1, 49.3, 0.5, 0.5, 5.5], ["Colombia", 1.69, 25.4, 71.7, 0.2, 2.3, 0.4],
+    ["Guatemala", 1.66, 88.6, 5.0, 5.5, 0.3, 0.5], ["Brasil", 1.09, 8.2, 80.8, 6.8, 1.9, 2.2],
+    ["Argentina", 0.50, 20.3, 25.2, 51.9, 0.0, 2.6], ["Honduras", 0.43, 91.1, 5.6, 2.4, 0.4, 0.6]];
+  var coloresDest = ["var(--intermedio)", "var(--minorista)", "var(--productor)", "var(--transporte)", "var(--tenue)"];
+  var nombresDest = ["Estados Unidos", "Europa", "Latinoamérica", "Asia y Oceanía", "Otros"];
+  document.getElementById("graficaDestinos").innerHTML = destinos.map(function (d) {
+    var partes = d.slice(2).map(function (v, i) {
+      return '<i style="flex:0 0 ' + v + '%;background:' + coloresDest[i] + '" title="' + nombresDest[i] + ': ' + v + '%"></i>';
+    }).join("");
+    return '<div class="fila-cad" role="listitem"><span class="n">' + d[0] + '<small>US$' + d[1].toFixed(2) + ' mil M exportados</small></span>' +
+      '<span class="barra" role="img" aria-label="' + d[0] + ': Estados Unidos ' + d[2] + '%, Europa ' + d[3] + '%, Latinoamérica ' + d[4] + '%">' + partes + '</span>' +
+      '<span class="v"><b style="color:var(--productor)">' + Math.round(d[4]) + '%</b> a<br>Latinoamérica</span></div>';
+  }).join("");
+
+  // Mundo 2024 (FAOSTAT): [país, % exportación mundial (valor), % producción mundial (volumen)]
+  var mundo = [["México", 12.9, 2.1], ["España", 11.6, 1.5], ["Países Bajos", 11.4, 0.6], ["Estados Unidos", 6.5, 3.4],
+    ["Perú", 4.8, 0.9], ["China", 4.6, 32.4], ["Italia", 3.1, 1.5], ["Francia", 3.1, 1.1], ["Ecuador", 2.8, 0.6], ["Sudáfrica", 2.7, 0.7]];
+  var tope = 14; // escala común; la producción de China se recorta
+  document.getElementById("graficaMundo").innerHTML = mundo.map(function (m) {
+    var ancho = function (v) { return Math.min(100, v / tope * 100).toFixed(1) + "%"; };
+    return '<div class="par" role="listitem"><span class="n">' + m[0] + '</span>' +
+      '<span class="b"><span class="pista"><i style="width:' + ancho(m[1]) + ';background:var(--acento)"></i></span>' + m[1].toFixed(1) + '% exporta</span>' +
+      '<span class="b"><span class="pista"><i style="width:' + ancho(m[2]) + ';background:var(--productor)"></i></span>' + m[2].toFixed(1) + '% produce' + (m[2] > tope ? ' ▸' : '') + '</span></div>';
+  }).join("");
+
+  // EE. UU.: % del consumo aparente que viene de México (USDA NASS 2025, FAOSTAT 2024)
+  var eeuu = [["Jitomate", 81], ["Aguacate", 77], ["Chile y morrón", 74], ["Mango", 71], ["Calabacita", 69], ["Pepino", 67],
+    ["Espárrago", 67], ["Berenjena", 53], ["Brócoli", 48], ["Limón", 44], ["Sandía", 31], ["Berries", 23], ["Cebolla", 17], ["Fresa", 16]];
+  document.getElementById("graficaEEUU").innerHTML = eeuu.map(function (e) {
+    return '<div class="fila-exp"><span>' + e[0] + '</span><span class="b"><i style="width:' + e[1] + '%;background:' +
+      (e[1] >= 50 ? "var(--intermedio)" : "var(--productor)") + '"></i></span><span class="x">' + e[1] + '%</span></div>';
+  }).join("");
+
+  // Canales PROFECO: [producto, central, mercado, supermercado]
+  var canales = [["Nuez", 280, 340, 549], ["Brócoli", 30, 30, 52.5], ["Guayaba", 40, 40, 57.9], ["Nopal", 38.5, 40, 43.9], ["Cebolla", 15.99, 20, 26.9], ["Papa", 19, 25, 30.9], ["Tomate verde", 25, 25, 39.8],
+    ["Toronja", 26, 30, 38.9], ["Calabacita", 25, 28, 36.9], ["Naranja", 25, 25, 36.8], ["Fresa", 121.15, 120, 174.01],
+    ["Jitomate", 19, 24, 26.9], ["Melón", 25, 28, 34.8], ["Papaya", 29, 30, 39.9], ["Limón", 25, 28, 34.9], ["Piña", 24, 29.9, 32.6],
+    ["Sandía", 14, 18, 18.9], ["Plátano", 20, 22, 24.9], ["Mango", 35, 45, 44], ["Chile verde y morrón", 35, 45, 43.9],
+    ["Aguacate", 65.5, 75, 72.5], ["Pepino", 23, 25, 25], ["Durazno", 98, 90, 98.5], ["Uva", 89, 100, 89.9],
+    ["Manzana", 45, 60, 44.9], ["Pera", 60, 68.5, 59.9], ["Zanahoria", 15, 20, 14.9]];
+  canales.sort(function (a, b) { return (b[3] / Math.min(b[1], b[2]) - 1) - (a[3] / Math.min(a[1], a[2]) - 1); });
+  document.getElementById("tablaCanales").innerHTML = canales.map(function (c) {
+    var min = Math.min(c[1], c[2], c[3]), max = Math.max(c[1], c[2], c[3]);
+    var celda = function (v) { return '<td class="num' + (v === min ? ' baja' : v === max ? ' alta' : '') + '">' + mxn(v) + '</td>'; };
+    var brecha = c[3] / Math.min(c[1], c[2]) - 1;
+    return '<tr><td>' + c[0] + '</td>' + celda(c[1]) + celda(c[2]) + celda(c[3]) + '<td class="num">' + (brecha > 0 ? '+' : '') + Math.round(brecha * 100) + '%</td></tr>';
+  }).join("");
+
+  // Exportaciones 2025, millones de USD
+  var exp = [["Aguacate", 3966], ["Jitomate", 2650], ["Chile", 1783], ["Pepino", 754], ["Limón", 732], ["Fresa", 688], ["Mango", 621],
+    ["Calabacita", 461], ["Nuez", 439], ["Zarzamora (est.)", 429], ["Uva", 379], ["Lechuga", 370], ["Brócoli", 363], ["Cebolla", 344],
+    ["Arándano", 325], ["Plátano", 274], ["Frambuesa (est.)", 259], ["Sandía", 224], ["Espárrago", 174], ["Papaya", 132],
+    ["Berenjena", 99], ["Zanahoria", 93], ["Melón", 85], ["Piña", 59], ["Naranja", 30], ["Toronja", 3], ["Manzana", 1], ["Papa", 0.6]];
+  document.getElementById("graficaExport").innerHTML = exp.map(function (e) {
+    return '<div class="fila-exp"><span>' + e[0] + '</span><span class="b"><i style="width:' + (e[1] / exp[0][1] * 100).toFixed(2) + '%"></i></span><span class="x">' +
+      (e[1] >= 1000 ? "US$" + (e[1] / 1000).toFixed(2) + " mil M" : e[1] >= 1 ? "US$" + Math.round(e[1]) + " M" : "< US$1 M") + '</span></div>';
+  }).join("");
+
+  // Estacionalidad: cosecha % (Panorama) y mayoreo mensual (SNIIM)
+  var meses = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  var series = [
+    ["Cebolla", -0.69, [3.7,5.6,8.5,8.8,12.8,8.5,10.8,10.8,9.5,8.1,6.8,6.1], [18.7,14.52,11.45,10.17,9.79,10.2,11.45,13.27,15.78,17.72,18.42,17.58], "Precio mínimo en mayo, el mes de mayor cosecha; enero cuesta casi el doble."],
+    ["Limón", -0.64, [6.4,7.1,6.9,5.4,7.4,8.6,9.1,10.1,9.8,12.5,8.7,8], [13.04,16.86,22.7,22.5,20.12,15.62,13.23,13.31,13.42,12.36,11.79,12.31], "Marzo y abril, con poca cosecha, son los meses más caros."],
+    ["Piña", -0.62, [5.9,13.8,8,8.9,13.3,12.6,8.8,13.6,4.3,5.5,3,2.3], [31.32,30.31,30.25,31.02,31.9,32.06,32.2,32.44,36.78,37.86,36.12,33.72], "De septiembre a diciembre sale 15% de la cosecha y el precio llega a su máximo del año."],
+    ["Mango", -0.19, [2.2,5.7,7.3,9.7,15.1,19.7,20.3,12.7,5.5,0.9,0.2,0.7], [49.09,41.86,37.63,29.12,24.49,23.75,47.58,44.91,29.72,33.57,35.98,38.53], "Dos tercios de la cosecha salen de mayo a agosto; conservar o procesar ese excedente estabiliza el año."]
+  ];
+  var css = getComputedStyle(document.documentElement);
+  document.getElementById("multiples").innerHTML = series.map(function (s) {
+    var W = 320, H = 132, base = 104, top = 10, bw = W / 12;
+    var maxP = Math.max.apply(null, s[2]);
+    var lo = Math.min.apply(null, s[3]), hi = Math.max.apply(null, s[3]);
+    var y = function (v) { return base - 6 - (v - lo) / (hi - lo) * (base - top - 12); };
+    var barras = s[2].map(function (v, i) {
+      var h = v / maxP * (base - top);
+      return '<rect x="' + (i * bw + 3) + '" y="' + (base - h) + '" width="' + (bw - 6) + '" height="' + h + '" rx="1.5" fill="var(--productor)" fill-opacity="0.22"><title>' + v + '% de la cosecha</title></rect>';
+    }).join("");
+    var pts = s[3].map(function (v, i) { return ((i + 0.5) * bw) + "," + y(v); }).join(" ");
+    var iMax = s[3].indexOf(hi), iMin = s[3].indexOf(lo);
+    var etiquetas = meses.map(function (m, i) { return '<text x="' + ((i + 0.5) * bw) + '" y="' + (base + 16) + '" text-anchor="middle" font-size="10" fill="var(--tenue)" font-family="IBM Plex Mono, monospace">' + m + '</text>'; }).join("");
+    var marca = function (i, v, col) { return '<circle cx="' + ((i + 0.5) * bw) + '" cy="' + y(v) + '" r="3.5" fill="' + col + '"/><text x="' + Math.min(W - 4, Math.max(4, (i + 0.5) * bw)) + '" y="' + (y(v) - 8) + '" text-anchor="' + (i > 9 ? 'end' : i < 2 ? 'start' : 'middle') + '" font-size="10.5" fill="var(--tinta)" font-family="IBM Plex Mono, monospace">$' + v.toFixed(0) + '</text>'; };
+    return '<div class="multiple"><h3>' + s[0] + '<span class="dato">r = ' + s[1].toFixed(2) + '</span></h3>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + s[0] + ': cosecha mensual y precio de mayoreo">' + barras +
+      '<polyline points="' + pts + '" fill="none" stroke="var(--intermedio)" stroke-width="2"/>' + marca(iMax, hi, "var(--intermedio)") + marca(iMin, lo, "var(--productor)") +
+      '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="var(--linea)"/>' + etiquetas + '</svg><p>' + s[4] + '</p></div>';
+  }).join("");
+})();
+</script>
+
+</html>
