@@ -262,6 +262,10 @@ tr.resaltado td:first-child { font-weight: 600; }
   position: absolute; left: 10px; top: -9px; white-space: nowrap; font-family: var(--dato); font-size: 10.5px; padding: 2px 8px;
   border-radius: 999px; background: color-mix(in srgb, var(--papel) 85%, transparent); color: var(--tinta); border: 1px solid var(--linea);
 }
+.cruce { position: relative; }
+.cruce i { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; background: var(--c-importa); border: 2px solid var(--suelo); transform: rotate(45deg); box-shadow: 0 0 12px 2px color-mix(in srgb, var(--c-importa) 50%, transparent); }
+.cruce span { position: absolute; left: 11px; top: -9px; white-space: nowrap; font-family: var(--dato); font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--papel) 88%, transparent); color: var(--tinta); border: 1px solid var(--linea); }
+.leyenda .sw.cruce-sw { width: 9px; height: 9px; margin: 0 2px; background: var(--c-importa); transform: rotate(45deg); border-radius: 1px; }
 .central { width: 11px; height: 11px; background: var(--tinta); border: 2px solid var(--suelo); transform: rotate(45deg); }
 
 /* Panel de análisis */

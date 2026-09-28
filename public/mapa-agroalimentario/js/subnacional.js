@@ -168,7 +168,8 @@
       ${recibe.length ? `<h3>${Reg()}s que más importan (estimado)</h3>${recibe.map(f => barra(f.nombre, f.imp, recibe[0].imp, fmtT(f.imp))).join("")}
         <p class="sub">Estimación: la importación se reparte entre ${regs()} según su déficit (demanda − producción propia).</p>` : ""}
       ${deficit.length ? `<div class="nota">${Reg()}s grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
-      <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>`;
+      <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>
+      ${D().codigo === "US" && window.PreciosEUA ? window.PreciosEUA.panelHTML(R.k) : ""}`;
   }
 
   function regionHTML(id) {

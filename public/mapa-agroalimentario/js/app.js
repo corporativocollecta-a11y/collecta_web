@@ -148,6 +148,8 @@
   const capaLatam = Latam.crearCapa(mapa);
   const capaComercio = Latam.crearCapaComercio(mapa);
   const capaSub = Subnacional.crearCapa(mapa);
+  const capaEUA = window.PreciosEUA ? PreciosEUA.crearCapa(mapa) : null;
+  const verPreciosEUA = () => capaEUA && estado.paisSub === "US" && document.getElementById("verMercadosEUA").checked && PreciosEUA.disponible(estado.producto);
 
   function dibujarMapa() {
     capaBurbujas.clearLayers();
@@ -161,10 +163,13 @@
         Subnacional.meta(estado.producto).color, id => { estado.regionSub = id; activarTab("entidad"); dibujarMapa(); renderRegionSub(); abrirHoja(); },
         verVolumen());
       capaSub.mostrar();
-      document.getElementById("leyenda").innerHTML = Subnacional.leyendaHTML(estado.metricaSub, Subnacional.nombre(estado.producto), verVolumen());
+      document.getElementById("leyenda").innerHTML = Subnacional.leyendaHTML(estado.metricaSub, Subnacional.nombre(estado.producto), verVolumen()) +
+        (verPreciosEUA() ? capaEUA.leyendaHTML() : "");
+      if (verPreciosEUA()) { capaEUA.dibujar(estado.producto); capaEUA.mostrar(); } else capaEUA?.ocultar();
       return;
     }
     capaSub.ocultar();
+    capaEUA?.ocultar();
     if (estado.region !== "mx") {
       capaPrecios.ocultar(); capaMunicipal.ocultar(); capaCentrales.remove();
       const R = Latam.calcular(estado.producto);
@@ -556,7 +561,7 @@
         <li><b>Chile</b> – selector <i>Ver país…</i>: superficie por región de hortalizas (INE, ESH 2024) y frutales (catastros CIREN-ODEPA) para repartir la producción nacional de FAOSTAT 2024 (estimado); papa y tomate industrial con producción oficial por región (INE 2024/25); población del Censo 2024.</li>
         <li><b>Colombia</b> – selector <i>Ver país…</i>: producción oficial por municipio de las Evaluaciones Agropecuarias Municipales (EVA) 2025 del Ministerio de Agricultura y la UPRA (datos.gov.co), sumada por departamento; población de las proyecciones 2025 del DANE (publicadas por el DNP en TerriData) y comercio de FAOSTAT.</li>
         <li><b>Brasil</b> – selector <i>Ver país…</i>: producción oficial por estado de la Producción Agrícola Municipal (PAM) 2025 del IBGE, población estimada 2025 del IBGE (API SIDRA) y comercio de FAOSTAT.</li>
-        <li><b>Estados Unidos</b> – selector <i>Ver país…</i>: producción por estado de USDA NASS Quick Stats 2025 (mercado fresco; donde NASS reserva el dato, reparto con la superficie del Censo Agropecuario 2022), población 2025 del Census Bureau y comercio de FAOSTAT, incluida la exportación de México a EE. UU.</li>
+        <li><b>Estados Unidos</b> – selector <i>Ver país…</i>: producción por estado de USDA NASS Quick Stats 2025 (mercado fresco; donde NASS reserva el dato, reparto con la superficie del Censo Agropecuario 2022), población 2025 del Census Bureau y comercio de FAOSTAT, incluida la exportación de México a EE. UU. Precios de mayoreo 2025 de USDA AMS Market News: 11 mercados terminales y precio FOB del producto mexicano en los cruces de Nogales, McAllen y Otay Mesa.</li>
         <li><b>ENIGH (INEGI)</b>: gasto y consumo de alimentos en hogares, para ajustar consumo por región.</li>
         <li><b>FAOSTAT (FAO)</b> – vista <i>Latinoamérica</i>: producción, superficie, exportación e importación (t y USD) y población de 34 países de América Latina y el Caribe, año 2024, desde las descargas masivas de la región Américas. Para comparar países se usa FAOSTAT también para México, cuyas cifras pueden diferir de las del SIAP. El comercio bilateral viene de la matriz detallada de comercio de FAOSTAT: salidas de países latinoamericanos según el exportador y llegadas desde fuera de la región según el importador. La vista <i>Mundo</i> usa los archivos mundiales de FAOSTAT (231 países; sin agregados regionales) y solo lo que reporta cada exportador.</li>
       </ul>
@@ -731,6 +736,7 @@
     if (region === "sub") Subnacional.usar(estado.paisSub);
     const latam = region !== "mx";
     document.getElementById("ctrlSub").hidden = region !== "sub";
+    document.getElementById("ctrlMercadosEUA").hidden = !(region === "sub" && estado.paisSub === "US" && window.PRECIOS_EUA);
     document.getElementById("fuenteSub").textContent = region === "sub" ? Subnacional.datos().fuenteCorta : "";
     const selector = document.getElementById("paisSub");
     selector.classList.toggle("activo", region === "sub");
@@ -837,6 +843,7 @@
   };
   document.getElementById("metricaSub").onchange = e => { estado.metricaSub = e.target.value; dibujarMapa(); };
   document.getElementById("verImportSub").onchange = dibujarMapa;
+  document.getElementById("verMercadosEUA").onchange = dibujarMapa;
   actualizarAviso();
   renderFuentes();
   render();

@@ -95,6 +95,7 @@
           <option value="imp">Dependencia de importaciones</option>
         </select>
         <label class="interruptor"><input type="checkbox" id="verImportSub" checked><span></span>Importaciones</label>
+        <label class="interruptor" id="ctrlMercadosEUA" hidden title="Mercados terminales y cruces con México (USDA AMS)"><input type="checkbox" id="verMercadosEUA" checked><span></span>Precios USDA</label>
         <span class="sub" id="fuenteSub"></span>
       </div>
       <div id="ctrlLatam" class="grupo-capas" hidden>
@@ -190,6 +191,9 @@
   <script src="data/sub_pl.js"></script>
   <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
   <script src="js/paleta.js"></script>
+  <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
+  <script src="data/precios_eua.js"></script>
+  <script src="js/precios_eua.js"></script>
   <script src="js/subnacional.js"></script>
   <script src="js/latam.js"></script>
   <script src="js/app.js"></script>
