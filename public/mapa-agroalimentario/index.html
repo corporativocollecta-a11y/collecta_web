@@ -9,6 +9,10 @@
   <script>
     // Tema guardado antes de pintar, para evitar parpadeo; oscuro por omisión (vista de presentación)
     document.documentElement.dataset.theme = "dark";
+    try {
+      const l = new URLSearchParams(location.hash.slice(1)).get("l") || localStorage.getItem("idioma");
+      if (l === "en") document.documentElement.lang = "en";
+    } catch (e) {}
     try { const t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +41,13 @@
     <div class="aviso" title="Fuentes oficiales integradas">Cargando fuentes…</div>
     <nav class="acciones" aria-label="Acciones">
       <a class="boton-texto" href="reporte" target="_blank" rel="noopener">Reporte 2025</a>
+      <button class="boton-icono" id="btnIdioma" type="button" aria-label="English / Español" title="English / Español">EN</button>
+      <button class="boton-icono" id="btnFicha" type="button" aria-label="Descargar ficha en PDF" title="Descargar ficha en PDF">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="boton-icono" id="btnEnlace" type="button" aria-label="Copiar enlace a esta vista" title="Copiar enlace a esta vista">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
       <button class="boton-icono" id="btnAyuda" type="button" aria-label="Cómo usar el mapa" title="Cómo usar el mapa">?</button>
       <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
@@ -84,6 +95,7 @@
           <option value="produccion">Producción (t)</option>
           <option value="autosuficiencia">Autosuficiencia local</option>
           <option value="rendimiento">Rendimiento (t/ha)</option>
+          <option value="sequia">Sequía hoy (CONAGUA)</option>
         </select>
         <span id="cargandoMun" class="sub" hidden>Cargando 2,475 municipios…</span>
       </div>
@@ -131,6 +143,7 @@
       </div>
     </aside>
   </main>
+  <div class="pie-ficha" id="pieFicha" aria-hidden="true"></div>
 
   <div class="guia" id="guia" hidden role="dialog" aria-modal="true" aria-labelledby="guiaTitulo">
     <div class="guia-tarjeta">
@@ -201,13 +214,27 @@
   <script src="data/sub_hn.js"></script>
   <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
   <script src="js/paleta.js"></script>
+  <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
+  <script src="data/sequia.js"></script>
+  <script src="js/sequia.js"></script>
+  <!-- Acceso a mercados: requisitos fitosanitarios y aranceles para México (scripts/construir_acceso.py) -->
+  <script src="data/acceso.js"></script>
+  <script src="js/acceso.js"></script>
   <!-- Historia de 10 años de FAOSTAT (scripts/procesar_historia.py → data/historia.js, carga diferida) -->
   <script src="js/historia.js"></script>
   <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
   <script src="data/precios_eua.js"></script>
+  <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
+  <script src="data/competencia_eua.js"></script>
   <script src="js/precios_eua.js"></script>
+  <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
+  <script src="data/precios_ue.js"></script>
+  <script src="js/precios_ue.js"></script>
   <script src="js/subnacional.js"></script>
   <script src="js/latam.js"></script>
   <script src="js/app.js"></script>
+  <!-- Versión en inglés: traducción del texto ya pintado (data/traduccion_en.js) -->
+  <script src="data/traduccion_en.js"></script>
+  <script src="js/idioma.js"></script>
 </body>
 </html>

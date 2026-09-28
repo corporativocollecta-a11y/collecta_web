@@ -28,6 +28,7 @@
   const unReg = () => (D()?.femenino ? "una " : "un ") + reg();
   const regs = () => D().nivelPlural;    // "estados", "provincias", …
   const Reg = () => reg().charAt(0).toUpperCase() + reg().slice(1);
+  const Regs = () => regs().charAt(0).toUpperCase() + regs().slice(1);   // "Regiones", "Comunidades autónomas"…
   // Ubicación de un país de origen (vista mundial de FAOSTAT)
   const coordPais = m49 => window.GLOBAL?.paises?.[m49];
 
@@ -165,11 +166,12 @@
       </table>
       <p class="sub">${publicados} de ${conProd} ${regs()} con cifra oficial publicada. ${D().metodo}</p>` :
       `<div class="nota">${D().pais} casi no produce este producto: su consumo depende de importaciones.</div>`}
-      ${recibe.length ? `<h3>${Reg()}s que más importan (estimado)</h3>${recibe.map(f => barra(f.nombre, f.imp, recibe[0].imp, fmtT(f.imp))).join("")}
+      ${recibe.length ? `<h3>${Regs()} que más importan (estimado)</h3>${recibe.map(f => barra(f.nombre, f.imp, recibe[0].imp, fmtT(f.imp))).join("")}
         <p class="sub">Estimación: la importación se reparte entre ${regs()} según su déficit (demanda − producción propia).</p>` : ""}
-      ${deficit.length ? `<div class="nota">${Reg()}s grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
+      ${deficit.length ? `<div class="nota">${Regs()} grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
       <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>
       ${D().codigo === "US" && window.PreciosEUA ? window.PreciosEUA.panelHTML(R.k) : ""}
+      ${window.PreciosUE ? PreciosUE.html(R.k, D().codigo === "GR" ? "EL" : D().codigo) : ""}
       ${window.Historia ? Historia.marca("pais", R.k, { pais: D().m49, titulo: `${D().pais} en diez años` }) : ""}`;
   }
 

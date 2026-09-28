@@ -170,6 +170,8 @@
       ${importadores.length ? `<h3>Quién importa (volumen)</h3>${importadores.map(f => barra(f.nombre, f.imp, importadores[0].imp, fmtT(f.imp))).join("")}` : ""}
       ${rutasHTML(R.k)}
       ${oportunidadesHTML(R)}
+      ${window.PreciosUE ? PreciosUE.html(R.k) : ""}
+      ${window.Acceso ? Acceso.html(R.k) : ""}
       ${window.Historia ? Historia.marca("tendencias", R.k, esGlobal() ? {} : { paises: R.filas.map(f => f.id).join(",") }) : ""}
       ${deficit.length ? `<div class="nota">No cubren su consumo aparente: <b>${deficit.slice(0, 6).map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>${deficit.length > 6 ? ` y ${deficit.length - 6} más` : ""}.
         ${mx && mx.auto > 1.2 ? `México tiene excedente (${mx.auto.toFixed(1)}×): una oportunidad de abasto.` : ""}</div>` : ""}
@@ -323,9 +325,9 @@
       <h3>Dónde puede vender México <span class="tag ok">FAOSTAT ${C().anio}</span></h3>
       <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México. Precio = valor ÷ volumen importado.</p>
       <table>
-        <tr><th>País</th><th class="num">Compra fuera de México</th><th class="num">US$/kg</th><th class="num">De México</th><th>Hoy le vende</th></tr>
+        <tr><th>País</th><th class="num">Compra fuera de México</th><th class="num">US$/kg</th><th class="num">De México</th><th>Hoy le vende</th>${window.Acceso ? "<th>Acceso</th>" : ""}</tr>
         ${top.map(([id, o]) => `<tr class="clic" data-pais="${id}"><td>${fila(id).nombre}</td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
-          <td class="num">${o.precio.toFixed(2)}</td><td class="num">${o.parteMX > 0.005 ? pct(o.parteMX) : "—"}</td><td>${o.principal ? nombreNodo(o.principal) : "—"}</td></tr>`).join("")}
+          <td class="num">${o.precio.toFixed(2)}</td><td class="num">${o.parteMX > 0.005 ? pct(o.parteMX) : "—"}</td><td>${o.principal ? nombreNodo(o.principal) : "—"}</td>${window.Acceso ? `<td>${(c => c ? Acceso.etiqueta(c) : '<span class="est">—</span>')(Acceso.celda(R.k, L().paises[id]?.iso))}</td>` : ""}</tr>`).join("")}
       </table>
       <p class="sub">Ojo: Países Bajos, Bélgica y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: no considera aranceles, requisitos fitosanitarios ni acceso sanitario para producto mexicano. Elige <i>Oportunidad para México</i> en el menú de color del mapa para verlo por país.</p>`;
   }

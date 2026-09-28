@@ -152,6 +152,7 @@
   const verPreciosEUA = () => capaEUA && estado.paisSub === "US" && document.getElementById("verMercadosEUA").checked && PreciosEUA.disponible(estado.producto);
 
   function dibujarMapa() {
+    guardarURL();
     capaBurbujas.clearLayers();
     capaFlujos.clearLayers();
     capaTerritorios.clearLayers();
@@ -279,6 +280,8 @@
       </div>
       ${nota}
       ${Precios.balanceHTML(res)}
+      ${window.Sequia ? Sequia.balanceHTML(res.clave, res.producto.nombre) : ""}
+      ${window.Acceso ? Acceso.html(res.clave) : ""}
       ${window.PreciosEUA ? PreciosEUA.mexicoHTML(res.clave) : ""}
       ${window.Historia && res.clave !== "arandano" ? Historia.marca("pais", res.clave, { pais: "484", titulo: "México en diez años (FAOSTAT)" }) : ""}
       ${Estacionalidad.balanceHTML(res, escenario())}
@@ -373,6 +376,8 @@
         ${recibe.slice(0, 8).map(fl => barra(fl.origen.nombre, fl.t, f.deficit)).join("")}` : ""}
       ${envia.length ? `<h3>A dónde envía su excedente (modelo)</h3>
         ${envia.slice(0, 8).map(fl => barra(fl.destino.nombre, fl.t, f.envia)).join("")}` : ""}
+      ${window.Sequia && f.prod > 0 ? Sequia.entidadHTML(res.clave, f.id, f.nombre) : ""}
+      ${window.PreciosEUA && f.prod > 0 ? PreciosEUA.netoHTML(res.clave, f, res.producto.precioRural, escenario().tarifa) : ""}
       ${Precios.entidadHTML(res, f.id)}
       <div class="ctrl">
         <label>Escenario: variación de producción en ${f.abr} <b id="lblFactor">${pctVar(esc.factorProd[f.id] ?? 1)}</b></label>
@@ -572,6 +577,11 @@
         <li><b>Chile</b> – selector <i>Ver país…</i>: superficie por región de hortalizas (INE, ESH 2024) y frutales (catastros CIREN-ODEPA) para repartir la producción nacional de FAOSTAT 2024 (estimado); papa y tomate industrial con producción oficial por región (INE 2024/25); población del Censo 2024.</li>
         <li><b>Colombia</b> – selector <i>Ver país…</i>: producción oficial por municipio de las Evaluaciones Agropecuarias Municipales (EVA) 2025 del Ministerio de Agricultura y la UPRA (datos.gov.co), sumada por departamento; población de las proyecciones 2025 del DANE (publicadas por el DNP en TerriData) y comercio de FAOSTAT.</li>
         <li><b>Brasil</b> – selector <i>Ver país…</i>: producción oficial por estado de la Producción Agrícola Municipal (PAM) 2025 del IBGE, población estimada 2025 del IBGE (API SIDRA) y comercio de FAOSTAT.</li>
+        <li><b>Acceso a mercados</b>: USDA APHIS ACIR y USITC HTS (EE. UU.); CFIA AIRS y CBSA (Canadá); Reglamento (UE) 2019/2072 y EU Access2Markets; DEFRA y UK Trade Tariff (Reino Unido); MAFF y Aduana de Japón; GACC y arancel de China 2026; APQA y arancel de Corea. Consulta: septiembre de 2026.</li>
+        <li><b>Competencia en EE. UU.</b>: importaciones mensuales de EE. UU. por país de origen (UN Comtrade, reporte de EE. UU., 2025); calendario comercial con los embarques semanales del USDA por procedencia (National Shipping Point Trends).</li>
+        <li><b>Precios en la Unión Europea</b>: precio en empacadora por país productor, semanal 2025 (Comisión Europea, Agri-food data portal); tipos de cambio promedio 2025 de la Reserva Federal (H.10).</li>
+        <li><b>Sequía</b>: Monitor de Sequía de México por municipio (CONAGUA / Servicio Meteorológico Nacional), último corte quincenal, cruzado con la producción municipal del SIAP.</li>
+        <li><b>Historia de 10 años</b>: producción, exportación e importación 2015–2024 por país (FAOSTAT).</li>
         <li><b>Estados Unidos</b> – selector <i>Ver país…</i>: producción por estado de USDA NASS Quick Stats 2025 (mercado fresco; donde NASS reserva el dato, reparto con la superficie del Censo Agropecuario 2022), población 2025 del Census Bureau y comercio de FAOSTAT, incluida la exportación de México a EE. UU. Precios de mayoreo 2025 de USDA AMS Market News: 11 mercados terminales y precio FOB del producto mexicano en los cruces de Nogales, McAllen y Otay Mesa.</li>
         <li><b>ENIGH (INEGI)</b>: gasto y consumo de alimentos en hogares, para ajustar consumo por región.</li>
         <li><b>FAOSTAT (FAO)</b> – vista <i>Latinoamérica</i>: producción, superficie, exportación e importación (t y USD) y población de 34 países de América Latina y el Caribe, año 2024, desde las descargas masivas de la región Américas. Para comparar países se usa FAOSTAT también para México, cuyas cifras pueden diferir de las del SIAP. El comercio bilateral viene de la matriz detallada de comercio de FAOSTAT: salidas de países latinoamericanos según el exportador y llegadas desde fuera de la región según el importador. La vista <i>Mundo</i> usa los archivos mundiales de FAOSTAT (231 países; sin agregados regionales) y solo lo que reporta cada exportador.</li>
@@ -657,6 +667,7 @@
     indicadores = Resumen.indicadores(estado.escenarios);
     renderLista(); renderResumen();
     dibujarMapa(); renderBalance(); renderEntidad(); renderSimulador();
+    guardarURL();
   }
 
   // ---------- Lista de productos y resumen nacional ----------
@@ -803,12 +814,86 @@
   function activarTab(nombre) {
     document.querySelectorAll(".tab").forEach(t => t.classList.toggle("activo", t.dataset.tab === nombre));
     document.querySelectorAll(".pestana").forEach(p => p.classList.toggle("activo", p.id === "tab-" + nombre));
+    guardarURL();
   }
+
+  // ---------- Enlaces directos: la vista actual vive en el #hash de la URL ----------
+  // #v=mx|latam|global|<código de país>&p=<producto>&m=<métrica>&s=<entidad, país o región seleccionada>&t=<pestaña>
+  const idiomaInicial = new URLSearchParams(location.hash.slice(1)).get("l");   // idioma.js se carga después
+  let urlLista = false;   // no se escribe el #hash hasta haber leído el del enlace recibido
+  function guardarURL() {
+    if (!urlLista) return;
+    const tab = document.querySelector(".tab.activo")?.dataset.tab;
+    const v = estado.region === "sub" ? estado.paisSub : estado.region;
+    const sel = estado.region === "sub" ? estado.regionSub : estado.region === "mx" ? estado.entidad : estado.pais;
+    const m = estado.region === "sub" ? estado.metricaSub : estado.region === "mx" ? null : estado.metricaLatam;
+    const q = new URLSearchParams({ v, p: estado.producto });
+    if (m) q.set("m", m);
+    if (sel) q.set("s", sel);
+    if (tab && tab !== "resumen") q.set("t", tab);
+    if (window.Idioma ? Idioma.activo() : idiomaInicial === "en") q.set("l", "en");
+    try { history.replaceState(null, "", "#" + q.toString()); } catch (e) { /* vista previa sin historial */ }
+  }
+  function aplicarURL() {
+    urlLista = true;
+    const q = new URLSearchParams(location.hash.slice(1));
+    const v = q.get("v");
+    if (!v) return false;
+    if (q.get("p")) estado.producto = q.get("p");
+    const tab = q.get("t");
+    if (v === "latam" || v === "global") {
+      if (q.get("m")) { estado.metricaLatam = q.get("m"); document.getElementById("metricaLatam").value = q.get("m"); }
+      document.querySelector(`input[name=region][value=${v}]`).checked = true;
+      cambiarRegion(v);
+      if (q.get("s")) { estado.pais = q.get("s"); dibujarMapa(); renderPaisLatam(); }
+    } else if (v !== "mx" && window.SUBNACIONAL?.[v]) {
+      if (q.get("m")) { estado.metricaSub = q.get("m"); document.getElementById("metricaSub").value = q.get("m"); }
+      estado.paisSub = v;
+      document.getElementById("paisSub").value = v;
+      cambiarRegion("sub");
+      if (q.get("s")) { estado.regionSub = q.get("s"); dibujarMapa(); renderRegionSub(); }
+    } else {
+      if (q.get("s")) estado.entidad = q.get("s");
+      render();
+    }
+    if (tab) activarTab(tab);
+    guardarURL();
+    return true;
+  }
+  document.getElementById("btnEnlace").onclick = async () => {
+    guardarURL();
+    const b = document.getElementById("btnEnlace");
+    try { await navigator.clipboard.writeText(location.href); b.title = "Enlace copiado"; b.classList.add("copiado"); }
+    catch (e) { prompt("Copia este enlace:", location.href); }
+    setTimeout(() => { b.classList.remove("copiado"); b.title = "Copiar enlace a esta vista"; }, 1800);
+  };
 
   document.getElementById("buscar").addEventListener("input", e => { filtro.texto = e.target.value; renderLista(); });
   document.querySelectorAll("input[name=tipo]").forEach(r => r.onchange = () => { filtro.tipo = r.value; renderLista(); });
 
   // Tema claro/oscuro (se guarda por navegador)
+  // Ficha en PDF: se imprime la vista actual en tema claro (el mapa oscuro no se imprime bien) con enlace a la vista
+  let temaPrevio = null;
+  function prepararFicha() {
+    guardarURL();
+    const hoy = new Date().toLocaleDateString(document.documentElement.lang === "en" ? "en-US" : "es-MX", { year: "numeric", month: "long", day: "numeric" });
+    document.getElementById("pieFicha").innerHTML = `<b>Collecta · Mapa Agroalimentario</b> · ${document.querySelector(".aviso").textContent} · ${hoy}<br>${location.href}`;
+  }
+  window.addEventListener("beforeprint", prepararFicha);
+  window.addEventListener("afterprint", () => {
+    if (!temaPrevio) return;
+    document.documentElement.dataset.theme = temaPrevio; temaPrevio = null;
+    Paleta.refrescar(); actualizarBase(); dibujarMapa();
+  });
+  document.getElementById("btnFicha").onclick = () => {
+    if (temaOscuro()) {
+      temaPrevio = "dark";
+      document.documentElement.dataset.theme = "light";
+      Paleta.refrescar(); actualizarBase(); dibujarMapa();
+      setTimeout(() => window.print(), 1500);   // tiempo para que carguen los mosaicos claros
+    } else window.print();
+  };
+
   document.getElementById("btnTema").onclick = () => {
     const nuevo = temaOscuro() ? "light" : "dark";
     document.documentElement.dataset.theme = nuevo;
@@ -859,5 +944,5 @@
   document.getElementById("verMercadosEUA").onchange = dibujarMapa;
   actualizarAviso();
   renderFuentes();
-  render();
+  if (!aplicarURL()) render();
 })();

@@ -35,7 +35,101 @@
       </svg>
       <p class="sub">Embarques semanales que el USDA registra en los cruces con México (reporte National Shipping Point Trends, 1,000 cwt = 45.4 t). No cubre todos los pasos: suele sumar entre 70% y 90% de lo que México reporta exportar a EE. UU.</p>`;
   }
-  const mexicoHTML = k => volumenHTML(E()?.mexico?.[k], "Exportación a EE. UU.: por dónde y cuándo cruza");
+  // Calendario comercial: de dónde viene lo que se vende en EE. UU. cada mes y a qué precio
+  function calendarioHTML(k) {
+    const c = E()?.calendario?.[k];
+    if (!c) return "";
+    const otros = Object.values(c.otros ?? {}).reduce((a, s) => a.map((x, i) => x + s[i]), Array(12).fill(0));
+    const tot = c.eua.map((x, i) => x + c.mx[i] + otros[i]);
+    const maxT = Math.max(...tot, 1);
+    const precio = datos(k)?.mensual?.todos ?? null;
+    const pv = precio?.filter(v => v != null) ?? [];
+    const pMed = pv.length ? [...pv].sort((a, b) => a - b)[Math.floor(pv.length / 2)] : null;
+    const altos = precio && pMed ? precio.map((v, i) => [v, i]).filter(([v]) => v != null && v >= pMed * 1.05).sort((a, b) => b[0] - a[0]) : [];
+    const MES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const parteMX = i => tot[i] > 0 ? c.mx[i] / tot[i] : 0;
+    const W = 300, H = 110, bw = (W - 30) / 12, y = t => H - 16 - t / maxT * (H - 26);
+    const pMax = pv.length ? Math.max(...pv) * 1.1 : 1, yp = v => H - 16 - v / pMax * (H - 26);
+    const barras = tot.map((_, i) => {
+      let base = H - 16;
+      return [[c.eua[i], "var(--productor)"], [c.mx[i], "var(--c-importa)"], [otros[i], "var(--c-neutro)"]].map(([t, col]) => {
+        const h = t / maxT * (H - 26); base -= h;
+        return h > 0 ? `<rect x="${24 + i * bw + 2}" y="${base}" width="${bw - 4}" height="${h}" fill="${col}"${altos.some(a => a[1] === i) ? "" : ' opacity=".55"'}/>` : "";
+      }).join("");
+    }).join("");
+    const linea = precio ? `<polyline points="${precio.map((v, i) => v == null ? null : `${24 + i * bw + bw / 2},${yp(v)}`).filter(Boolean).join(" ")}" fill="none" stroke="var(--tinta)" stroke-width="1.6" stroke-dasharray="3 2"/>` : "";
+    return `
+      <h3>Calendario comercial en EE. UU. <span class="tag ok">USDA ${E().anio}</span></h3>
+      <svg class="estac" viewBox="0 0 ${W} ${H}" role="img" aria-label="Abasto y precio por mes">
+        ${barras}${linea}
+        ${MESES.map((m, i) => `<text x="${24 + i * bw + bw / 2 - 3}" y="${H - 3}">${m}</text>`).join("")}
+      </svg>
+      <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>EE. UU.</span><span><i style="background:var(--c-importa)"></i>México</span>${otros.some(x => x > 0) ? `<span><i style="background:var(--c-neutro)"></i>${Object.keys(c.otros).slice(0, 3).join(", ")}</span>` : ""}${precio ? `<span><i style="background:var(--tinta)"></i>precio mayoreo</span>` : ""}</div>
+      ${altos.length ? `<div class="nota"><b>Mejores meses para vender:</b> ${altos.slice(0, 4).map(([v, i]) => `${MES[i]} (US$${v.toFixed(2)}/kg, México ${(parteMX(i) * 100).toFixed(0)}% del abasto)`).join(" · ")}. Precio mediano del año: US$${pMed.toFixed(2)}/kg.</div>` : ""}
+      <p class="sub">Barras: toneladas embarcadas por mes según su procedencia (reporte semanal de embarques del USDA; la producción de EE. UU. que no pasa por los distritos reportados no aparece). Los meses resaltados tienen precio de mayoreo al menos 5% arriba de la mediana del año.</p>`;
+  }
+  // Competencia: importaciones mensuales de EE. UU. por país de origen (UN Comtrade, window.COMPETENCIA_EUA)
+  let nombresES = null;
+  try { nombresES = new Intl.DisplayNames(["es"], { type: "region" }); } catch (e) { nombresES = null; }
+  const nombrePais = m49 => { if (m49 === "otros") return "Otros"; const p = window.GLOBAL?.paises?.[m49]; try { return (p?.iso && nombresES?.of(p.iso)) || p?.nombre || m49; } catch (e) { return p?.nombre ?? m49; } };
+  const COLORES = ["#8aa0b8", "#cdbb72", "#a98ad6", "#6f8f63", "#d98e73", "#7fb3a8", "#b5a7c9", "#9aa5a0"];
+  function competenciaHTML(k) {
+    const C = window.COMPETENCIA_EUA?.productos?.[k];
+    if (!C) return "";
+    const MESL = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    // Las claves M49 parecen números: el navegador las ordena por código, así que se reordenan por volumen ("otros" al final)
+    const suma = v => v.reduce((a, b) => a + b, 0);
+    const orig = Object.entries(C.origenes).sort((a, b) => a[0] === "otros" ? 1 : b[0] === "otros" ? -1 : suma(b[1]) - suma(a[1]));
+    const tot = Array.from({ length: 12 }, (_, i) => orig.reduce((s, [, v]) => s + v[i], 0));
+    const maxT = Math.max(...tot, 1);
+    const color = (o, j) => o === "484" ? "var(--c-importa)" : o === "otros" ? "var(--linea)" : COLORES[j % COLORES.length];
+    const W = 300, H = 110, bw = (W - 30) / 12;
+    const barras = tot.map((_, i) => {
+      let base = H - 16;
+      return orig.map(([o, v], j) => { const h = v[i] / maxT * (H - 26); base -= h; return h > 0 ? `<rect x="${24 + i * bw + 2}" y="${base}" width="${bw - 4}" height="${h}" fill="${color(o, j)}"><title>${nombrePais(o)}: ${fmtT(v[i])}</title></rect>` : ""; }).join("");
+    }).join("");
+    const mx = C.origenes["484"] ?? Array(12).fill(0);
+    const parte = mx.reduce((a, b) => a + b, 0) / (C.total || 1);
+    // Temporada de cada competidor: meses con al menos la mitad de su mes más fuerte
+    const temporada = v => { const m = Math.max(...v); const meses = v.map((x, i) => x >= m * 0.5 ? i : -1).filter(i => i >= 0); return meses.length === 12 ? "todo el año" : meses.map(i => MESL[i]).join(", "); };
+    const rivales = orig.filter(([o]) => o !== "484" && o !== "otros").slice(0, 3);
+    const flojos = mx.map((x, i) => [x / (tot[i] || 1), i]).filter(([p]) => p < 0.5 && tot.some(t => t > 0)).map(([, i]) => MESL[i]);
+    return `
+      <h3>Competencia en EE. UU. <span class="tag ok">Comtrade ${window.COMPETENCIA_EUA.anio}</span></h3>
+      <p class="sub">EE. UU. importó ${fmtT(C.total)}; México aportó <b>${pct(parte)}</b>.${flojos.length && flojos.length < 12 ? ` México tiene menos de la mitad del mercado en <b>${flojos.join(", ")}</b>.` : ""}</p>
+      <svg class="estac" viewBox="0 0 ${W} ${H}" role="img" aria-label="Importaciones de EE. UU. por origen y mes">
+        ${barras}
+        ${MESES.map((m, i) => `<text x="${24 + i * bw + bw / 2 - 3}" y="${H - 3}">${m}</text>`).join("")}
+      </svg>
+      <div class="leyenda-cadena">${orig.slice(0, 6).map(([o], j) => `<span><i style="background:${color(o, j)}"></i>${nombrePais(o)}</span>`).join("")}</div>
+      ${rivales.length ? `<h4 class="mini">Cuándo entra cada competidor</h4>${rivales.map(([o, v]) => `<div class="ruta temporada"><span>${nombrePais(o)}</span><span class="x">${fmtT(v.reduce((a, b) => a + b, 0))}</span><span class="x">${temporada(v)}</span></div>`).join("")}` : ""}
+      <p class="sub">Importaciones de EE. UU. por país de origen y mes, según EE. UU. (UN Comtrade), producto fresco.</p>`;
+  }
+  // Cuánto le queda al productor de un estado si vende en la frontera: precio FOB (US$ → pesos) menos flete al cruce.
+  // No descuenta empaque, enfriado, agente aduanal ni margen del exportador, que van dentro del precio FOB.
+  function netoHTML(k, entidad, precioRural, tarifa) {
+    const f = datos(k)?.frontera;
+    const tc = E()?.tipoCambio?.valor;
+    if (!f?.precio || !tc || !entidad) return "";
+    const opciones = Object.entries(f.cruces).map(([id, [p]]) => {
+      const c = E().cruces[id];
+      const km = window.Modelo.distanciaKm(entidad, c);
+      const flete = km * (tarifa ?? 2.2) / 1000;   // MXN por kg (tarifa en MXN por tonelada-km)
+      return { id, nombre: c.nombre, km, fob: p * tc, flete, neto: p * tc - flete };
+    }).sort((a, b) => b.neto - a.neto);
+    const mejor = opciones[0];
+    const mxn = n => "$" + n.toFixed(2);
+    return `
+      <h3>Si ${entidad.nombre} exporta a EE. UU. <span class="tag ok">USDA ${E().anio}</span></h3>
+      <div class="kpis">
+        <div class="kpi destacado"><div class="v">${mxn(mejor.neto)}/kg por ${mejor.nombre.split(",")[0]}</div>
+          <div class="l">Precio en la frontera ${mxn(mejor.fob)}/kg (US$${(mejor.fob / tc).toFixed(2)} × ${tc}) menos flete de ${Math.round(mejor.km).toLocaleString("es-MX")} km (${mxn(mejor.flete)}/kg).
+          ${precioRural ? `Es <b>${(mejor.neto / precioRural).toFixed(1)}×</b> el precio medio rural nacional (${mxn(precioRural)}/kg, SIAP).` : ""}</div></div>
+      </div>
+      ${opciones.length > 1 ? opciones.map(o => `<div class="ruta"><span>${o.nombre}</span><span class="x">${Math.round(o.km).toLocaleString("es-MX")} km</span><span class="x">${mxn(o.neto)}/kg</span></div>`).join("") : ""}
+      <p class="sub">Referencia: ${f.mercancia}, ${f.empaque}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.</p>`;
+  }
+  const mexicoHTML = k => calendarioHTML(k) + competenciaHTML(k) + volumenHTML(E()?.mexico?.[k], "Exportación a EE. UU.: por dónde y cuándo cruza");
 
   // Precio relativo a la mediana nacional: barato (lima) → caro (naranja)
   const colorRel = r => { const t = window.Paleta.tokens(); return r < 0.9 ? t.exc : r <= 1.1 ? t.neutro : t.def; };
@@ -103,7 +197,7 @@
 
   function panelHTML(k) {
     const d = datos(k);
-    const vol = volumenHTML(d?.volumen, "Lo que cruza de México");
+    const vol = calendarioHTML(k) + competenciaHTML(k) + volumenHTML(d?.volumen, "Lo que cruza de México");
     if (!d?.precio) return vol;
     const f = d.frontera;
     const ciudades = Object.entries(d.mercados).sort((a, b) => a[1][0] - b[1][0]);
@@ -131,5 +225,5 @@
       <p class="sub">Precios diarios de mayoreo del USDA (Market News) en ${ciudades.length} mercados terminales y en los cruces de Nogales, McAllen y Otay Mesa, sin orgánicos. Precio = punto medio del rango más frecuente. La parte de origen mexicano cuenta cotizaciones, no volumen.</p>`;
   }
 
-  window.PreciosEUA = { disponible, crearCapa, panelHTML, mexicoHTML };
+  window.PreciosEUA = { disponible, crearCapa, panelHTML, mexicoHTML, netoHTML };
 })();

@@ -73,6 +73,7 @@
     function valor(feature) {
       const c = feature.properties.c, f = d.filas[c];
       const metrica = ctx.metrica();
+      if (metrica === "sequia") return window.Sequia ? window.Sequia.nivel(c) : 0;
       if (metrica === "rendimiento") return f && f.ha > 0 ? f.rend / d.rendNacional : 0;
       if (metrica === "autosuficiencia") {
         const dem = feature.properties.p * d.pc / 1000;
@@ -81,19 +82,21 @@
       return f ? f.t : 0;
     }
     function escala() {
-      return { rendimiento: ESCALA_REND, autosuficiencia: ESCALA_AUTO }[ctx.metrica()] ?? ESCALA_T;
+      return { rendimiento: ESCALA_REND, autosuficiencia: ESCALA_AUTO, sequia: window.Sequia?.ESCALA }[ctx.metrica()] ?? ESCALA_T;
     }
     function estilo(feature) {
       const sel = feature.properties.c === ctx.seleccionado();
       return {
-        renderer, fillColor: color(escala(), valor(feature)), fillOpacity: valor(feature) > 0 ? 0.85 : 0.35,
+        renderer, fillColor: color(escala(), valor(feature)),
+        fillOpacity: ctx.metrica() === "sequia" ? (d.filas[feature.properties.c] ? 0.9 : 0.4) : valor(feature) > 0 ? 0.85 : 0.35,
         color: sel ? "#111" : "#ffffff", weight: sel ? 2.5 : 0.3, opacity: sel ? 1 : 0.7
       };
     }
     function tooltip(feature) {
       const { c, n, p } = feature.properties, f = d.filas[c];
       const dem = p * d.pc / 1000;
-      return `<b>${n}</b>, ${nombreEstado(c.slice(0, 2))}<br>` + (f
+      const seq = window.Sequia?.disponible() ? `<br>Sequía (${window.Sequia.fecha()}): <b>${window.Sequia.NIVELES[window.Sequia.nivel(c)]}</b>` : "";
+      return `<b>${n}</b>, ${nombreEstado(c.slice(0, 2))}${seq}<br>` + (f
         ? `Producción: ${fmtT(f.t)} (${pct(f.t / d.totT)} nacional)<br>Rendimiento: ${f.rend.toFixed(1)} t/ha
            (${pct(f.rend / d.rendNacional)} del promedio)<br>` +
           (p ? `Cubre ${dem > 0 ? (f.t / dem >= 10 ? (f.t / dem).toFixed(0) + "×" : pct(f.t / dem)) : "—"} de su demanda local` : "Sin población censal 2020")
@@ -120,7 +123,7 @@
 
     function leyenda() {
       const titulo = { produccion: "Producción municipal", rendimiento: "Rendimiento vs. promedio nacional",
-        autosuficiencia: "Autosuficiencia municipal" }[ctx.metrica()];
+        autosuficiencia: "Autosuficiencia municipal", sequia: `Sequía al ${window.Sequia?.fecha() ?? ""} (CONAGUA); resaltados los municipios productores de` }[ctx.metrica()];
       const extra = ctx.metrica() === "rendimiento" ? `<div class="fila" style="margin-top:6px;color:#5f6b64">Promedio nacional: ${d.rendNacional.toFixed(1)} t/ha</div>` : "";
       document.getElementById("leyenda").innerHTML = `<h4>${titulo}: ${ctx.nombreProducto()}</h4>` +
         escala().map(([, c, t]) => `<div class="fila"><span class="sw" style="background:${c};border-radius:2px"></span>${t}</div>`).join("") + extra +
