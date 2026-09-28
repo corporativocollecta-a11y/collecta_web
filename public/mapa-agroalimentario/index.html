@@ -7,25 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mapa Agroalimentario · Collecta</title>
   <script>
-    // Tema guardado antes de pintar, para evitar parpadeo
+    // Tema guardado antes de pintar, para evitar parpadeo; oscuro por omisión (vista de presentación)
+    document.documentElement.dataset.theme = "dark";
     try { const t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header class="cabecera">
     <div class="marca">
-      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 3c6.5 3 10 8.4 10 14.2C26 23.4 21.6 28 16 28S6 23.4 6 17.2C6 11.4 9.5 6 16 3z" fill="var(--productor)"/>
-        <path d="M16 8v17M16 14l-5-3M16 19l5-3" stroke="var(--papel)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-      </svg>
+      <img class="logo" src="img/isotipo-color.png" alt="Collecta" width="44" height="27">
       <div>
-        <h1>Mapa Agroalimentario</h1>
-        <p>México · de la parcela al plato</p>
+        <h1>Mapa <em>Agroalimentario</em></h1>
+        <p>Del campo a la mesa · 16 países</p>
       </div>
     </div>
     <div class="segmentado region" role="radiogroup" aria-label="Región">
@@ -51,8 +49,8 @@
 
     <aside class="catalogo" aria-label="Productos">
       <div class="catalogo-cabeza">
-        <span class="etq">Productos</span>
-        <span class="contador" id="contadorProductos"></span>
+        <span class="etq">Productos <span class="contador" id="contadorProductos"></span></span>
+        <button class="plegar" id="plegarCatalogo" type="button" aria-label="Ocultar productos" title="Ocultar productos">‹</button>
       </div>
       <label class="buscador">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -65,6 +63,11 @@
       </div>
       <nav id="productos" class="lista-productos" aria-label="Lista de productos"></nav>
     </aside>
+
+    <button class="reabrir izq" id="abrirCatalogo" type="button">Productos ›</button>
+    <button class="reabrir der" id="abrirPanel" type="button">‹ Análisis</button>
+
+    <section class="titular" id="titular" aria-live="polite"></section>
 
     <div class="controles-mapa" role="toolbar" aria-label="Capas del mapa">
       <div class="segmentado" id="ctrlNivel" role="radiogroup" aria-label="Nivel geográfico">
@@ -84,6 +87,7 @@
         </select>
         <span id="cargandoMun" class="sub" hidden>Cargando 2,475 municipios…</span>
       </div>
+      <label class="interruptor" title="Círculos del tamaño de la producción sobre el mapa de color"><input type="checkbox" id="verVolumen"><span></span>Volumen</label>
       <label class="interruptor" id="ctrlCentrales"><input type="checkbox" id="verCentrales"><span></span>Centrales</label>
       <div id="ctrlSub" class="grupo-capas" hidden>
         <select id="metricaSub" aria-label="Colorear regiones por">
@@ -107,12 +111,14 @@
     <div class="leyenda" id="leyenda"></div>
 
     <aside class="panel" aria-label="Análisis">
+      <button class="asa" id="asaHoja" type="button" aria-label="Expandir o contraer el análisis"><i></i></button>
       <div class="tabs" role="tablist">
         <button class="tab activo" data-tab="resumen" role="tab">Resumen</button>
         <button class="tab" data-tab="balance" role="tab">Producto</button>
         <button class="tab" data-tab="entidad" role="tab">Entidad</button>
         <button class="tab" data-tab="simulador" role="tab">Simulador</button>
         <button class="tab" data-tab="fuentes" role="tab">Fuentes</button>
+        <button class="plegar" id="plegarPanel" type="button" aria-label="Ocultar análisis" title="Ocultar análisis">›</button>
       </div>
       <div class="contenido">
         <div id="tab-resumen" class="pestana activo"></div>
@@ -130,11 +136,11 @@
       <h2 id="guiaTitulo">Cómo leer este mapa</h2>
       <ol>
         <li><b>Elige un producto</b> en la lista de la izquierda. Puedes buscarlo o filtrar frutas y hortalizas.</li>
-        <li><b>Lee el mapa.</b> Cada burbuja es un estado: su tamaño es lo que produce y su color, si alcanza para su población. Cambia a <i>Municipios</i> para ver 2,475 municipios.</li>
+        <li><b>Lee el mapa.</b> El color de cada estado dice si su producción alcanza para su población (naranja: le falta; verde: le sobra). Activa <i>Volumen</i> para ver cuánto produce, o cambia a <i>Municipios</i> para ver 2,475 municipios.</li>
         <li><b>Haz clic en un estado o municipio</b> para ver quién lo abastece, a dónde envía su excedente y qué produce.</li>
         <li><b>Usa el Simulador</b> para probar sequías, rutas directas o menos intermediación, y ver el efecto en el precio.</li>
       </ol>
-      <p class="sub">Todas las cifras vienen de fuentes oficiales 2025: SIAP, INEGI, SNIIM, PROFECO y CONAPO.</p>
+      <p class="sub">Con <i>Ver país</i> abres 15 países por estados o regiones; con <i>Latinoamérica</i> y <i>Mundo</i>, la comparación internacional de FAOSTAT. Los paneles se ocultan con ‹ › para dejar el mapa completo. Todas las cifras vienen de fuentes oficiales.</p>
       <button class="boton-primario" id="cerrarGuia" type="button">Empezar</button>
     </div>
   </div>
@@ -182,6 +188,8 @@
   <script src="data/sub_jp.js"></script>
   <script src="data/sub_ph.js"></script>
   <script src="data/sub_pl.js"></script>
+  <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
+  <script src="js/paleta.js"></script>
   <script src="js/subnacional.js"></script>
   <script src="js/latam.js"></script>
   <script src="js/app.js"></script>

@@ -53,15 +53,8 @@
     return { k, P, filas, orden, T, mx: filas.find(f => f.id === MX) };
   }
 
-  function colorAuto(r) {
-    if (r <= 0.001) return "#cfcfcf";
-    if (r < 0.5) return "#c0392b";
-    if (r < 1) return "#f0a35e";
-    if (r < 2) return "#a8d5a2";
-    if (r < 10) return "#3fa05f";
-    return "#145a32";
-  }
-  const colorRel = r => r == null ? "#cfcfcf" : r < 0.5 ? "#c0392b" : r < 0.85 ? "#f0a35e" : r <= 1.15 ? "#e9d98a" : r <= 2 ? "#74b86f" : "#145a32";
+  const colorAuto = r => window.Paleta.auto(r);
+  const colorRel = r => window.Paleta.rel(r);
   const METRICAS = {
     auto: { titulo: "Autosuficiencia", valor: (f) => f.auto, color: colorAuto,
       rangos: [["Sin producción", 0], ["< 50% de su consumo", 0.3], ["50–99%", 0.7], ["Autosuficiente (1–2×)", 1.5], ["Excedentario (2–10×)", 5], ["Gran exportador (>10×)", 20]] },
@@ -73,31 +66,41 @@
 
   function crearCapa(mapa) {
     const capa = window.L.layerGroup();
-    function dibujar(R, metrica, seleccionado, alClic) {
+    let ultimo = null;
+    function dibujar(R, metrica, seleccionado, alClic, verVolumen) {
+      ultimo = [...arguments];
       capa.clearLayers();
-      const M = METRICAS[metrica];
+      const M = METRICAS[metrica], geo = window.GEO_PAISES;
+      if (!geo) window.Paleta.geoPaises().then(() => { if (ultimo) dibujar(...ultimo); }).catch(() => {});
+      const porId = Object.fromEntries(R.filas.map(f => [f.id, f]));
+      const tip = f => `<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)} (${pct(f.prod / R.T.prod)} ${TX().de}, lugar ${f.lugar})<br>
+          Exporta ${fmtT(f.exp)} · importa ${fmtT(f.imp)}<br>Autosuficiencia: ${f.auto >= 10 ? f.auto.toFixed(0) + "×" : pct(f.auto)}
+          ${f.pc != null ? `<br>Disponible: ${f.pc.toFixed(1)} kg por persona` : ""}`;
+      if (geo) window.Paleta.coropletas(mapa, capa, geo, {
+        color: id => porId[id] ? M.color(M.valor(porId[id], R)) : null, seleccionado,
+        tooltip: id => tip(porId[id]), clic: alClic
+      });
+      const conForma = geo ? new Set(geo.features.map(f => f.properties.id)) : new Set();
       const maxP = Math.max(...R.filas.map(f => f.prod), 1);
       [...R.filas].sort((a, b) => b.prod - a.prod).forEach(f => {
         const r = f.prod > 0 ? 4 + 34 * Math.sqrt(f.prod / maxP) : 3;
-        const m = window.L.circleMarker([f.lat, f.lon], {
-          radius: r, color: f.id === seleccionado ? "#111" : "#fff", weight: f.id === seleccionado ? 3 : 1.2,
-          fillColor: M.color(M.valor(f, R)), fillOpacity: 0.85
-        });
-        m.bindTooltip(`<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)} (${pct(f.prod / R.T.prod)} ${TX().de}, lugar ${f.lugar})<br>
-          Exporta ${fmtT(f.exp)} · importa ${fmtT(f.imp)}<br>Autosuficiencia: ${f.auto >= 10 ? f.auto.toFixed(0) + "×" : pct(f.auto)}
-          ${f.pc != null ? `<br>Disponible: ${f.pc.toFixed(1)} kg por persona` : ""}`);
-        m.on("click", () => alClic(f.id));
-        m.addTo(capa);
+        if (conForma.has(f.id)) { if (verVolumen && f.prod > 0) window.Paleta.volumen(capa, f.lat, f.lon, r); return; }
+        // Islas pequeñas sin contorno a esta escala: punto
+        const t = window.Paleta.tokens();
+        window.L.circleMarker([f.lat, f.lon], {
+          radius: geo ? 4 : r, color: f.id === seleccionado ? t.sel : t.borde, weight: f.id === seleccionado ? 3 : 1,
+          fillColor: M.color(M.valor(f, R)), fillOpacity: 0.9
+        }).bindTooltip(tip(f)).on("click", () => alClic(f.id)).addTo(capa);
       });
     }
     return { dibujar, mostrar: () => capa.addTo(mapa), ocultar: () => capa.remove() };
   }
 
-  function leyendaHTML(R, metrica, nombreProducto) {
+  function leyendaHTML(R, metrica, nombreProducto, verVolumen) {
     const M = METRICAS[metrica];
     return `<h4>${M.titulo}: ${nombreProducto}</h4>` +
       M.rangos.map(([t, v]) => `<div class="fila"><span class="sw" style="background:${M.color(v)}"></span>${t}</div>`).join("") +
-      `<div class="fila" style="margin-top:6px;color:var(--tenue)">Tamaño = producción · FAOSTAT ${L().anio}</div>`;
+      `<div class="fila pie">${verVolumen ? "Círculo = volumen producido · " : ""}FAOSTAT ${L().anio}</div>`;
   }
 
   const etiqueta = r => r <= 0 ? `<span class="tag def">0%</span>` : r < 1 ? `<span class="tag def">${pct(r)}</span>` :
@@ -255,21 +258,21 @@
       capa.clearLayers();
       let lista = flujos(k);
       if (pais) lista = lista.filter(f => f[0] === pais || f[1] === pais);
-      lista = lista.slice(0, pais ? 30 : 25);
+      lista = lista.slice(0, pais ? 15 : 12);
       if (!lista.length) return;
       const max = lista[0][2];
       const usados = new Set();
+      const cImp = window.Paleta.tokens().importa;
       lista.forEach(([o, d, t, usdMiles]) => {
         const A = nodo(o), B = nodo(d);
         if (!A || !B) return;
         usados.add(o); usados.add(d);
         const entra = pais && d === pais;
-        window.L.polyline(arco([A.lat, A.lon], [B.lat, B.lon]), {
-          color: entra ? "#7b4fa0" : color, weight: 1 + 8 * Math.sqrt(t / max), opacity: 0.6, lineCap: "round"
-        }).bindTooltip(`${nombreNodo(o)} → ${nombreNodo(d)}<br><b>${fmtT(t)}</b> · ${usd(usdMiles)}`, { sticky: true }).addTo(capa);
-        // punta de flecha en el destino
-        window.L.circleMarker([B.lat, B.lon], { radius: 2.5, color: entra ? "#7b4fa0" : color, fillOpacity: 1, weight: 0 }).addTo(capa);
+        window.Paleta.ruta(capa, arco([A.lat, A.lon], [B.lat, B.lon]), entra ? cImp : color, 0.8 + 3 * Math.sqrt(t / max),
+          `${nombreNodo(o)} → ${nombreNodo(d)}<br><b>${fmtT(t)}</b> · ${usd(usdMiles)}`);
       });
+      // orígenes con brillo
+      new Set(lista.map(f => f[0])).forEach(o => { const A = nodo(o); if (A) window.Paleta.origen(capa, A.lat, A.lon, "", color); });
       // anclas fuera de Latinoamérica como etiquetas
       [...usados].filter(id => !L().paises[id] && C().anclas?.[id]).forEach(id => {
         const A = C().anclas[id];

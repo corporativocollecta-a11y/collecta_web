@@ -36,13 +36,17 @@
   const LATINOAMERICA = [[-55, -126], [41, -24]];
   const MUNDO = [[-48, -160], [68, 170]];
   // Encuadre que deja libre el espacio de los paneles flotantes en pantallas anchas
-  function encuadrar() {
+  function encuadrar(animar = false) {
     const ancho = window.innerWidth > 900;
-    const css = getComputedStyle(document.documentElement);
-    const izq = ancho ? parseFloat(css.getPropertyValue("--ancho-catalogo")) + 28 : 10;
-    const der = ancho ? parseFloat(css.getPropertyValue("--ancho-panel")) + 28 : 10;
+    const esc = document.querySelector(".escenario"), caja = esc.getBoundingClientRect();
+    const izq = ancho && !esc.classList.contains("sin-catalogo") ? document.querySelector(".catalogo").getBoundingClientRect().right - caja.left + 20 : 16;
+    const der = ancho && !esc.classList.contains("sin-panel") ? caja.right - document.querySelector(".panel").getBoundingClientRect().left + 20 : 16;
+    // Arriba: barra de capas y titular; en móvil, abajo: la hoja del panel
+    const tit = document.getElementById("titular").getBoundingClientRect();
+    const arriba = Math.max(60, tit.height ? tit.bottom - caja.top - (ancho ? 40 : 0) : 150);
+    const abajo = ancho ? 16 : (document.querySelector(".panel")?.getBoundingClientRect().height ?? 0) + 12;
     mapa.stop();
-    mapa.fitBounds(estado.region === "latam" ? LATINOAMERICA : estado.region === "global" ? MUNDO : estado.region === "sub" ? Subnacional.datos().limites : MEXICO, { paddingTopLeft: [izq, ancho ? 60 : 10], paddingBottomRight: [der, 10], animate: false });
+    mapa.fitBounds(estado.region === "latam" ? LATINOAMERICA : estado.region === "global" ? MUNDO : estado.region === "sub" ? Subnacional.datos().limites : MEXICO, { paddingTopLeft: [izq, arriba], paddingBottomRight: [der, abajo], animate: animar });
   }
   encuadrar();
   let anchoPrevio = window.innerWidth > 900;
@@ -96,25 +100,20 @@
     if (capaBase) capaBase.remove();
     capaBase = nuevaBase();
   };
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", actualizarBase);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { Paleta.refrescar(); actualizarBase(); });
   const capaFlujos = L.layerGroup().addTo(mapa);
   const capaBurbujas = L.layerGroup().addTo(mapa);
   const capaCentrales = L.layerGroup();
 
   window.CENTRALES.forEach(c => {
     L.marker([c.lat, c.lon], {
-      icon: L.divIcon({ className: "", html: '<div style="width:14px;height:14px;background:#1f2a24;border:2px solid #fff;transform:rotate(45deg)"></div>' })
+      icon: L.divIcon({ className: "", html: '<div class="central"></div>' })
     }).bindTooltip(c.nombre).addTo(capaCentrales);
   });
 
-  function colorAutosuf(r) {
-    if (r <= 0.001) return "#cfcfcf";
-    if (r < 0.5) return "#c0392b";
-    if (r < 1) return "#f0a35e";
-    if (r < 2) return "#a8d5a2";
-    if (r < 10) return "#3fa05f";
-    return "#145a32";
-  }
+  const colorAutosuf = r => Paleta.auto(r);
+  const capaTerritorios = L.layerGroup().addTo(mapa);
+  const verVolumen = () => document.getElementById("verVolumen").checked;
 
   function dibujarLeyenda() {
     const rangos = [["Sin producción relevante", 0], ["< 50% de su demanda", 0.3], ["50–99%", 0.7],
@@ -122,7 +121,7 @@
     document.getElementById("leyenda").innerHTML =
       `<h4>Autosuficiencia: ${res.producto.nombre}</h4>` +
       rangos.map(([t, v]) => `<div class="fila"><span class="sw" style="background:${colorAutosuf(v)}"></span>${t}</div>`).join("") +
-      `<div class="fila" style="margin-top:6px;color:#5f6b64">Tamaño = volumen producido</div>` +
+      `<div class="fila pie">${verVolumen() ? "Círculo = volumen producido · " : ""}SIAP ${window.PRODUCCION_SIAP?.anio ?? ""}</div>` +
       (document.getElementById("verRed").checked && Precios.disponible(res.clave) ? capaPrecios.leyendaHTML() : "");
   }
 
@@ -139,6 +138,13 @@
     if (enfocar) capaMunicipal.enfocar(cve);
   }
 
+  // Curva suave entre dos puntos (para que las rutas no se encimen)
+  function arcoMX([y1, x1], [y2, x2]) {
+    const cx = (x1 + x2) / 2 - (y2 - y1) * 0.18, cy = (y1 + y2) / 2 + (x2 - x1) * 0.18, pts = [];
+    for (let i = 0; i <= 16; i++) { const t = i / 16; pts.push([(1 - t) ** 2 * y1 + 2 * (1 - t) * t * cy + t * t * y2, (1 - t) ** 2 * x1 + 2 * (1 - t) * t * cx + t * t * x2]); }
+    return pts;
+  }
+
   const capaLatam = Latam.crearCapa(mapa);
   const capaComercio = Latam.crearCapaComercio(mapa);
   const capaSub = Subnacional.crearCapa(mapa);
@@ -146,26 +152,29 @@
   function dibujarMapa() {
     capaBurbujas.clearLayers();
     capaFlujos.clearLayers();
+    capaTerritorios.clearLayers();
+    renderTitular();
     if (estado.region === "sub") {
       capaPrecios.ocultar(); capaMunicipal.ocultar(); capaCentrales.remove(); capaLatam.ocultar(); capaComercio.ocultar();
       const R = Subnacional.calcular(estado.producto);
       capaSub.dibujar(R, estado.metricaSub, estado.regionSub, document.getElementById("verImportSub").checked,
-        Subnacional.meta(estado.producto).color, id => { estado.regionSub = id; activarTab("entidad"); dibujarMapa(); renderRegionSub(); });
+        Subnacional.meta(estado.producto).color, id => { estado.regionSub = id; activarTab("entidad"); dibujarMapa(); renderRegionSub(); abrirHoja(); },
+        verVolumen());
       capaSub.mostrar();
-      document.getElementById("leyenda").innerHTML = Subnacional.leyendaHTML(estado.metricaSub, Subnacional.nombre(estado.producto));
+      document.getElementById("leyenda").innerHTML = Subnacional.leyendaHTML(estado.metricaSub, Subnacional.nombre(estado.producto), verVolumen());
       return;
     }
     capaSub.ocultar();
     if (estado.region !== "mx") {
       capaPrecios.ocultar(); capaMunicipal.ocultar(); capaCentrales.remove();
       const R = Latam.calcular(estado.producto);
-      capaLatam.dibujar(R, estado.metricaLatam, estado.pais, id => { estado.pais = id; activarTab("entidad"); dibujarMapa(); renderPaisLatam(); });
+      capaLatam.dibujar(R, estado.metricaLatam, estado.pais, id => { estado.pais = id; activarTab("entidad"); dibujarMapa(); renderPaisLatam(); abrirHoja(); }, verVolumen());
       capaLatam.mostrar();
       if (Latam.comercioDisponible() && document.getElementById("verRutas").checked) {
         capaComercio.dibujar(estado.producto, window.PRODUCTOS[estado.producto].color, estado.pais);
         capaComercio.mostrar();
       } else capaComercio.ocultar();
-      document.getElementById("leyenda").innerHTML = Latam.leyendaHTML(R, estado.metricaLatam, Latam.nombre(estado.producto));
+      document.getElementById("leyenda").innerHTML = Latam.leyendaHTML(R, estado.metricaLatam, Latam.nombre(estado.producto), verVolumen());
       return;
     }
     capaLatam.ocultar();
@@ -190,36 +199,44 @@
     const verImport = document.getElementById("verImport").checked;
     const viaCentral = escenario().ruta === "centrales";
 
+    const T = Paleta.tokens();
+    const porId = Object.fromEntries(res.filas.map(f => [f.id, f]));
+    const tip = f => `<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)}${f.estimado ? " (est.)" : ""}<br>
+        Demanda local: ${fmtT(f.demanda)}<br>Autosuficiencia: ${f.autosuf >= 10 ? f.autosuf.toFixed(0) + "×" : pct(f.autosuf)}<br>
+        Abastece a ${fmtP(f.personas)} personas`;
+    const clicEntidad = id => { estado.entidad = id; estado.municipio = null; activarTab("entidad"); render(); abrirHoja(); };
+    const geo = window.GEO_SUB?.MX;
+    if (!geo) Paleta.geoRegiones("MX").then(() => { if (estado.region === "mx" && estado.nivel === "estatal") dibujarMapa(); }).catch(() => {});
+    const conPrecios = document.getElementById("verRed").checked && Precios.disponible(res.clave);
+    if (geo) Paleta.coropletas(mapa, capaTerritorios, geo, {
+      color: id => porId[id] ? colorAutosuf(porId[id].autosuf) : null, seleccionado: estado.entidad,
+      tooltip: id => tip(porId[id]), clic: clicEntidad
+    });
+
     if (verFlujos) {
-      const maxT = Math.max(...res.flujos.map(f => f.t), 1);
-      res.flujos
-        .filter(fl => fl.t > maxT * 0.01 && (verImport || !fl.importado))
-        .forEach(fl => {
-          const pts = viaCentral && !fl.importado
-            ? [[fl.origen.lat, fl.origen.lon], [fl.central.lat, fl.central.lon], [fl.destino.lat, fl.destino.lon]]
-            : [[fl.origen.lat, fl.origen.lon], [fl.destino.lat, fl.destino.lon]];
-          L.polyline(pts, {
-            color: fl.importado ? "#7b4fa0" : res.producto.color,
-            weight: 1 + 9 * Math.sqrt(fl.t / maxT), opacity: 0.55,
-            dashArray: fl.importado ? "6 6" : null
-          }).bindTooltip(`${fl.origen.nombre} → ${fl.destino.nombre}<br><b>${fmtT(fl.t)}</b> (${fmt(fl.kmDirecto)} km)${fl.importado ? "<br>Importación" : ""}`)
-            .addTo(capaFlujos);
-        });
+      // Solo las 20 rutas principales: trazo fino animado sobre un halo tenue
+      const lista = res.flujos.filter(fl => verImport || !fl.importado).sort((a, b) => b.t - a.t).slice(0, 20);
+      const maxT = Math.max(...lista.map(f => f.t), 1);
+      const origenes = new Map();
+      lista.forEach(fl => {
+        const pts = viaCentral && !fl.importado
+          ? [[fl.origen.lat, fl.origen.lon], [fl.central.lat, fl.central.lon], [fl.destino.lat, fl.destino.lon]]
+          : arcoMX([fl.origen.lat, fl.origen.lon], [fl.destino.lat, fl.destino.lon]);
+        const c = fl.importado ? T.importa : res.producto.color;
+        Paleta.ruta(capaFlujos, pts, c, 0.8 + 3 * Math.sqrt(fl.t / maxT),
+          `${fl.origen.nombre} → ${fl.destino.nombre}<br><b>${fmtT(fl.t)}</b> (${fmt(fl.kmDirecto)} km)${fl.importado ? "<br>Importación" : ""}`);
+        origenes.set(fl.origen.nombre, [fl.origen.lat, fl.origen.lon, c]);
+      });
+      origenes.forEach(([la, lo, c]) => Paleta.origen(capaFlujos, la, lo, "", c));
     }
 
     res.filas.forEach(f => {
       const r = f.prod > 0 ? 4 + 34 * Math.sqrt(f.prod / maxProd) : 3;
-      const m = L.circleMarker([f.lat, f.lon], {
-        radius: r, color: f.id === estado.entidad ? "#111" : "#fff",
-        weight: f.id === estado.entidad ? 3 : 1.2,
-        fillColor: colorAutosuf(f.autosuf),
-        fillOpacity: document.getElementById("verRed").checked && Precios.disponible(res.clave) ? 0.35 : 0.85
-      });
-      m.bindTooltip(`<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)}${f.estimado ? " (est.)" : ""}<br>
-        Demanda local: ${fmtT(f.demanda)}<br>Autosuficiencia: ${f.autosuf >= 10 ? f.autosuf.toFixed(0) + "×" : pct(f.autosuf)}<br>
-        Abastece a ${fmtP(f.personas)} personas`);
-      m.on("click", () => { estado.entidad = f.id; estado.municipio = null; activarTab("entidad"); render(); });
-      m.addTo(capaBurbujas);
+      if (geo) { if (verVolumen() && f.prod > 0) Paleta.volumen(capaBurbujas, f.lat, f.lon, r); return; }
+      L.circleMarker([f.lat, f.lon], {
+        radius: r, color: f.id === estado.entidad ? T.sel : T.borde, weight: f.id === estado.entidad ? 3 : 1.2,
+        fillColor: colorAutosuf(f.autosuf), fillOpacity: conPrecios ? 0.35 : 0.85
+      }).bindTooltip(tip(f)).on("click", () => clicEntidad(f.id)).addTo(capaBurbujas);
     });
     dibujarLeyenda();
   }
@@ -559,6 +576,60 @@
       </ul>`;
   }
 
+  // ---------- Titular sobre el mapa: tres cifras clave del producto en la vista activa ----------
+  function renderTitular() {
+    const el = document.getElementById("titular");
+    if (!el) return;
+    let ojo, titulo, kpis;
+    if (estado.region === "sub") {
+      const R = Subnacional.calcular(estado.producto), d = Subnacional.datos();
+      ojo = `${d.pais} · ${d.fuenteCorta}`;
+      titulo = Subnacional.nombre(estado.producto);
+      kpis = [[fmtT(R.P.nacional), "producción"], [R.pc.toFixed(1) + " kg", "consumo por persona al año"],
+        [R.C ? pct(R.impConsumo) : "—", "de lo que consume es importado"]];
+    } else if (estado.region !== "mx") {
+      const R = Latam.calcular(estado.producto), D = Latam.datos();
+      const f = estado.pais ? R.filas.find(x => x.id === estado.pais) : null;
+      titulo = Latam.nombre(estado.producto);
+      if (f) {
+        ojo = `${f.nombre} · FAOSTAT ${D.anio}`;
+        kpis = [[fmtT(f.prod), "producción"], [f.pc != null ? f.pc.toFixed(1) + " kg" : "—", "disponible por persona al año"],
+          [f.disp > 0 ? pct(Math.min(1, f.imp / f.disp)) : "—", "de lo que consume es importado"]];
+      } else {
+        ojo = `${estado.region === "global" ? "Mundo" : "Latinoamérica y el Caribe"} · FAOSTAT ${D.anio}`;
+        kpis = [[fmtT(R.T.prod), "producción"], [R.T.pc.toFixed(1) + " kg", "disponible por persona al año"],
+          [R.T.disp > 0 ? pct(Math.min(1, R.T.imp / R.T.disp)) : "—", "importado (suma de países)"]];
+      }
+    } else {
+      const n = res.nacional, p = res.producto;
+      const consumo = n.produccion - (p.exportacion ?? 0) + (p.importacion ?? 0);
+      ojo = `México · SIAP ${window.PRODUCCION_SIAP?.anio ?? ""}`;
+      titulo = p.nombre;
+      kpis = [[fmtT(n.produccion), "producción"], [res.pc.toFixed(1) + " kg", "consumo por persona al año"],
+        [consumo > 0 ? pct(Math.min(1, (p.importacion ?? 0) / consumo)) : "—", "de lo que consume es importado"]];
+    }
+    el.innerHTML = `<span class="etq">${ojo}</span><h2>${titulo}</h2>
+      <div class="kpis-grandes">${kpis.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>`;
+  }
+
+  // ---------- Paneles plegables (escritorio) y hoja inferior (móvil) ----------
+  const escenarioEl = document.querySelector(".escenario");
+  function plegar(clase) {
+    escenarioEl.classList.toggle(clase);
+    setTimeout(() => { mapa.invalidateSize(); encuadrar(true); }, 280);
+  }
+  document.getElementById("plegarCatalogo").onclick = () => plegar("sin-catalogo");
+  document.getElementById("abrirCatalogo").onclick = () => plegar("sin-catalogo");
+  document.getElementById("plegarPanel").onclick = () => plegar("sin-panel");
+  document.getElementById("abrirPanel").onclick = () => plegar("sin-panel");
+  // El titular va justo debajo de la barra de capas, que puede ocupar una o dos líneas
+  const controlesEl = document.querySelector(".controles-mapa");
+  new ResizeObserver(() => escenarioEl.style.setProperty("--bajo-controles", controlesEl.offsetTop + controlesEl.offsetHeight + 12 + "px")).observe(controlesEl);
+  const panelEl = document.querySelector(".panel");
+  function abrirHoja() { if (window.innerWidth <= 900) panelEl.classList.add("expandida"); }
+  document.getElementById("asaHoja").onclick = () => panelEl.classList.toggle("expandida");
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", abrirHoja));
+
   // ---------- Orquestación ----------
   function recalcular() { res = Modelo.calcular(estado.producto, escenario()); }
 
@@ -725,7 +796,9 @@
     const nuevo = temaOscuro() ? "light" : "dark";
     document.documentElement.dataset.theme = nuevo;
     try { localStorage.setItem("tema", nuevo); } catch (e) {}
+    Paleta.refrescar();
     actualizarBase();
+    dibujarMapa();
   };
 
   // Guía rápida: se muestra la primera vez y con el botón "?"
@@ -738,6 +811,7 @@
   try { if (!localStorage.getItem("guiaVista")) guia.hidden = false; } catch (e) {}
   document.querySelectorAll(".tab").forEach(t => t.onclick = () => activarTab(t.dataset.tab));
   document.getElementById("verFlujos").onchange = dibujarMapa;
+  document.getElementById("verVolumen").onchange = dibujarMapa;
   document.getElementById("verImport").onchange = dibujarMapa;
   document.getElementById("verRed").onchange = dibujarMapa;
   document.getElementById("verCentrales").onchange = e => e.target.checked ? capaCentrales.addTo(mapa) : capaCentrales.remove();
