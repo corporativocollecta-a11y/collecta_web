@@ -50,8 +50,32 @@
     T.pc = T.disp * 1000 / Object.values(paises).reduce((s, p) => s + (p.pob || 0), 0);
     const orden = [...filas].sort((a, b) => b.prod - a.prod);
     orden.forEach((f, i) => f.lugar = i + 1);
-    return { k, P, filas, orden, T, mx: filas.find(f => f.id === MX) };
+    return { k, P, filas, orden, T, mx: filas.find(f => f.id === MX), opp: oportunidades(k, filas) };
   }
+
+  // Oportunidad para México: lo que cada país importa y NO le compra a México (volumen y valor).
+  // La parte mexicana sale de la matriz bilateral de FAOSTAT (reportada por el exportador).
+  function oportunidades(k, filas) {
+    const lista = (C()?.productos?.[k] ?? []);
+    if (!lista.length) return null;
+    const desdeMX = {}, principal = {};
+    lista.forEach(([o, d, t]) => {
+      if (o === MX) desdeMX[d] = (desdeMX[d] ?? 0) + t;
+      if (!principal[d] || t > principal[d][1]) principal[d] = [o, t];
+    });
+    const out = {};
+    let total = 0;
+    filas.forEach(f => {
+      if (f.id === MX || !(f.imp > 0) || !(f.impUSD > 0)) return;
+      const parteMX = Math.min(1, (desdeMX[f.id] ?? 0) / f.imp);
+      const libreUSD = f.impUSD * (1 - parteMX);
+      total += libreUSD;
+      out[f.id] = { parteMX, libreT: f.imp * (1 - parteMX), libreUSD, precio: f.impUSD / f.imp, principal: principal[f.id]?.[0] };
+    });
+    Object.values(out).forEach(o => { o.parte = total > 0 ? o.libreUSD / total : 0; });
+    return out;
+  }
+  const colorOpp = r => { const t = window.Paleta.tokens(); return r == null || r <= 0 ? t.sin : r < 0.01 ? t.auto : r < 0.05 ? t.exc : t.gran; };
 
   const colorAuto = r => window.Paleta.auto(r);
   const colorRel = r => window.Paleta.rel(r);
@@ -60,6 +84,8 @@
       rangos: [["Sin producción", 0], ["< 50% de su consumo", 0.3], ["50–99%", 0.7], ["Autosuficiente (1–2×)", 1.5], ["Excedentario (2–10×)", 5], ["Gran exportador (>10×)", 20]] },
     pc: { titulo: "Consumo aparente por persona", valor: (f, R) => f.pc != null && R.T.pc > 0 ? f.pc / R.T.pc : null, color: colorRel,
       rangos: [["Sin dato", null], ["< 50% del promedio", 0.3], ["50–85%", 0.7], ["85–115%", 1], ["115–200%", 1.5], ["> 2× el promedio", 3]] },
+    opp: { titulo: "Oportunidad para México", valor: (f, R) => R.opp?.[f.id]?.parte ?? null, color: colorOpp,
+      rangos: [["Sin importación o es México", null], ["< 1% del mercado disponible", 0.005], ["1–5%", 0.03], ["> 5% del mercado disponible", 0.1]] },
     rend: { titulo: "Rendimiento vs. promedio", valor: (f, R) => f.rend != null && R.T.rend ? f.rend / R.T.rend : null, color: colorRel,
       rangos: [["Sin dato", null], ["< 50% del promedio", 0.3], ["50–85%", 0.7], ["85–115%", 1], ["115–200%", 1.5], ["> 2× el promedio", 3]] }
   };
@@ -143,6 +169,8 @@
       ${exportadores.length ? `<h3>Quién exporta (valor)</h3>${exportadores.map(f => barra(f.nombre, f.expUSD, exportadores[0].expUSD, usd(f.expUSD))).join("")}` : ""}
       ${importadores.length ? `<h3>Quién importa (volumen)</h3>${importadores.map(f => barra(f.nombre, f.imp, importadores[0].imp, fmtT(f.imp))).join("")}` : ""}
       ${rutasHTML(R.k)}
+      ${oportunidadesHTML(R)}
+      ${window.Historia ? Historia.marca("tendencias", R.k, esGlobal() ? {} : { paises: R.filas.map(f => f.id).join(",") }) : ""}
       ${deficit.length ? `<div class="nota">No cubren su consumo aparente: <b>${deficit.slice(0, 6).map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>${deficit.length > 6 ? ` y ${deficit.length - 6} más` : ""}.
         ${mx && mx.auto > 1.2 ? `México tiene excedente (${mx.auto.toFixed(1)}×): una oportunidad de abasto.` : ""}</div>` : ""}
       <p class="sub">Disponibilidad aparente = producción − exportación + importación; incluye mermas y usos industriales. Países con menos de 1 millón de habitantes no se listan como deficitarios.</p>`;
@@ -168,6 +196,7 @@
       </div>
       ${deficit.length ? `<div class="nota">Depende de importaciones en <b>${deficit.slice(0, 6).map(f => f.nombre.toLowerCase()).join(", ")}</b>${deficit.length > 6 ? " y otros" : ""}.</div>` : ""}
       ${C() ? sociosHTML(id, productoActual) : ""}
+      ${window.Historia ? Historia.marca("pais", productoActual, { pais: id, titulo: `${nombreProd(productoActual)} en ${nombrePais(pa)}: diez años` }) : ""}
       <h3>Portafolio de ${nombrePais(pa)}</h3>
       <table>
         <tr><th>Producto</th><th class="num">Producción</th><th class="num">Lugar</th><th class="num">Autosuf.</th><th class="num">kg/persona</th></tr>
@@ -282,6 +311,23 @@
       });
     }
     return { dibujar, mostrar: () => capa.addTo(mapa), ocultar: () => capa.remove() };
+  }
+
+  // Dónde puede vender México: importadores con más compra que no viene de México
+  function oportunidadesHTML(R) {
+    if (!R.opp) return "";
+    const top = Object.entries(R.opp).sort((a, b) => b[1].libreUSD - a[1].libreUSD).slice(0, 10);
+    if (!top.length) return "";
+    const fila = id => R.filas.find(f => f.id === id);
+    return `
+      <h3>Dónde puede vender México <span class="tag ok">FAOSTAT ${C().anio}</span></h3>
+      <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México. Precio = valor ÷ volumen importado.</p>
+      <table>
+        <tr><th>País</th><th class="num">Compra fuera de México</th><th class="num">US$/kg</th><th class="num">De México</th><th>Hoy le vende</th></tr>
+        ${top.map(([id, o]) => `<tr class="clic" data-pais="${id}"><td>${fila(id).nombre}</td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
+          <td class="num">${o.precio.toFixed(2)}</td><td class="num">${o.parteMX > 0.005 ? pct(o.parteMX) : "—"}</td><td>${o.principal ? nombreNodo(o.principal) : "—"}</td></tr>`).join("")}
+      </table>
+      <p class="sub">Ojo: Países Bajos, Bélgica y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: no considera aranceles, requisitos fitosanitarios ni acceso sanitario para producto mexicano. Elige <i>Oportunidad para México</i> en el menú de color del mapa para verlo por país.</p>`;
   }
 
   function rutasHTML(k) {

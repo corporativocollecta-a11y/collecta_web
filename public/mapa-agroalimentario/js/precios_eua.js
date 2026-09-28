@@ -10,7 +10,32 @@
 
   const E = () => window.PRECIOS_EUA;
   const datos = k => E()?.productos?.[k];
-  const disponible = k => !!datos(k)?.precio;
+  const disponible = k => !!(datos(k)?.precio || datos(k)?.volumen);
+  const fmtT = t => t >= 1e6 ? (t / 1e6).toFixed(2) + " Mt" : t >= 1e3 ? Math.round(t / 1e3).toLocaleString("es-MX") + " mil t" : Math.round(t).toLocaleString("es-MX") + " t";
+  // "MEXICO CROSSINGS THROUGH TEXAS" agrupa Pharr/McAllen, Laredo y el resto de Texas
+  const NOMBRE_CRUCE = { McAllen: "Texas (Pharr, Laredo…)", Nogales: "Nogales, Arizona", "Otay Mesa": "Otay Mesa, California",
+    Calexico: "Calexico y San Luis", Varios: "Varios cruces (AZ, CA, TX)" };
+
+  // Lo que cruza de México: toneladas por paso fronterizo y por mes (USDA, embarques semanales)
+  function volumenHTML(v, titulo) {
+    if (!v?.total) return "";
+    const cruces = Object.entries(v.cruces);
+    const maxM = Math.max(...v.mensual, 1);
+    const W = 300, H = 70, bw = (W - 20) / 12;
+    return `
+      <h3>${titulo} <span class="tag ok">USDA ${E().anio}</span></h3>
+      <div class="kpis"><div class="kpi destacado"><div class="v">${fmtT(v.total)}</div>
+        <div class="l">registradas por el USDA al cruzar de México en ${E().anio}</div></div></div>
+      <h4 class="mini">Por dónde cruza</h4>
+      ${cruces.map(([c, t]) => `<div class="barra-h"><span class="n">${NOMBRE_CRUCE[c] ?? c}</span><span class="b"><i style="width:${t / cruces[0][1] * 100}%;background:var(--c-importa)"></i></span><span class="x">${pct(t / v.total)}</span></div>`).join("")}
+      <h4 class="mini">Cuándo cruza (t por mes)</h4>
+      <svg class="estac" viewBox="0 0 ${W} ${H + 14}" role="img" aria-label="Volumen mensual">
+        ${v.mensual.map((t, i) => `<rect x="${10 + i * bw + 2}" y="${H - t / maxM * (H - 6)}" width="${bw - 4}" height="${t / maxM * (H - 6)}" rx="2" fill="var(--c-importa)" opacity=".85"><title>${fmtT(t)}</title></rect>
+          <text x="${10 + i * bw + bw / 2 - 3}" y="${H + 12}">${MESES[i]}</text>`).join("")}
+      </svg>
+      <p class="sub">Embarques semanales que el USDA registra en los cruces con México (reporte National Shipping Point Trends, 1,000 cwt = 45.4 t). No cubre todos los pasos: suele sumar entre 70% y 90% de lo que México reporta exportar a EE. UU.</p>`;
+  }
+  const mexicoHTML = k => volumenHTML(E()?.mexico?.[k], "Exportación a EE. UU.: por dónde y cuándo cruza");
 
   // Precio relativo a la mediana nacional: barato (lima) → caro (naranja)
   const colorRel = r => { const t = window.Paleta.tokens(); return r < 0.9 ? t.exc : r <= 1.1 ? t.neutro : t.def; };
@@ -34,11 +59,13 @@
       const f = d.frontera;
       Object.entries(E().cruces).forEach(([id, c]) => {
         const v = f?.cruces?.[id];
+        const tCruce = d.volumen?.cruces?.[id];
+        if (!v && !tCruce) return;
         window.L.marker([c.lat, c.lon], {
           icon: window.L.divIcon({ className: "cruce", iconSize: null,
-            html: `<i></i><span>${c.nombre.split(",")[0]}${v ? " · " + usd(v[0]) : ""}</span>` })
-        }).bindTooltip(v ? `<b>Cruce ${c.nombre}</b><br>Producto mexicano, precio FOB: <b>${usd(v[0])}/kg</b><br>
-          <span style="opacity:.7">${f.mercancia}, ${f.empaque} · ${v[1]} cotizaciones</span>` : `<b>Cruce ${c.nombre}</b><br>Sin cotizaciones de este producto`).addTo(grupo);
+            html: `<i style="--s:${tCruce ? 1 + 1.4 * Math.sqrt(tCruce / (d.volumen.total || 1)) : 1}"></i><span>${c.nombre.split(",")[0]}${v ? " · " + usd(v[0]) : ""}${tCruce ? " · " + fmtT(tCruce) : ""}</span>` })
+        }).bindTooltip(`<b>Cruce ${c.nombre}</b>${tCruce ? `<br>Cruzan <b>${fmtT(tCruce)}</b> al año (${pct(tCruce / d.volumen.total)} de lo registrado)` : ""}
+          ${v ? `<br>Precio FOB del producto mexicano: <b>${usd(v[0])}/kg</b><br><span style="opacity:.7">${f.mercancia}, ${f.empaque} · ${v[1]} cotizaciones</span>` : ""}`).addTo(grupo);
       });
     }
     return {
@@ -76,7 +103,8 @@
 
   function panelHTML(k) {
     const d = datos(k);
-    if (!d?.precio) return "";
+    const vol = volumenHTML(d?.volumen, "Lo que cruza de México");
+    if (!d?.precio) return vol;
     const f = d.frontera;
     const ciudades = Object.entries(d.mercados).sort((a, b) => a[1][0] - b[1][0]);
     const maxP = Math.max(...ciudades.map(c => c[1][0]));
@@ -99,8 +127,9 @@
         ${d.origenes.map(([o, p, n, t]) => `<tr${t === "mx" ? ' class="resaltado"' : ""}><td>${o}</td><td class="num">${usd(p)}</td><td class="num">${pct(n)}</td></tr>`).join("")}
       </table>
       ${estacionalidad(d)}
+      ${vol}
       <p class="sub">Precios diarios de mayoreo del USDA (Market News) en ${ciudades.length} mercados terminales y en los cruces de Nogales, McAllen y Otay Mesa, sin orgánicos. Precio = punto medio del rango más frecuente. La parte de origen mexicano cuenta cotizaciones, no volumen.</p>`;
   }
 
-  window.PreciosEUA = { disponible, crearCapa, panelHTML };
+  window.PreciosEUA = { disponible, crearCapa, panelHTML, mexicoHTML };
 })();

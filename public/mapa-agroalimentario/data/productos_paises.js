@@ -15,5 +15,7 @@ window.PRODUCTOS_PAISES = {
   cereza:       { nombre: "Cereza", tipo: "Fruta", color: "#9f1239" },
   kiwi:         { nombre: "Kiwi", tipo: "Fruta", color: "#7c8f2e" },
   chabacano:    { nombre: "Chabacano (albaricoque)", tipo: "Fruta", color: "#f4a340" },
-  granada:      { nombre: "Granada", tipo: "Fruta", color: "#be123c" }
+  granada:      { nombre: "Granada", tipo: "Fruta", color: "#be123c" },
+  col:          { nombre: "Col (repollo y col china)", tipo: "Hortaliza", color: "#4d7c0f" },
+  caqui:        { nombre: "Caqui", tipo: "Fruta", color: "#ea580c" }
 };

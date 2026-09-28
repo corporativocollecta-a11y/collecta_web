@@ -169,7 +169,8 @@
         <p class="sub">Estimación: la importación se reparte entre ${regs()} según su déficit (demanda − producción propia).</p>` : ""}
       ${deficit.length ? `<div class="nota">${Reg()}s grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
       <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>
-      ${D().codigo === "US" && window.PreciosEUA ? window.PreciosEUA.panelHTML(R.k) : ""}`;
+      ${D().codigo === "US" && window.PreciosEUA ? window.PreciosEUA.panelHTML(R.k) : ""}
+      ${window.Historia ? Historia.marca("pais", R.k, { pais: D().m49, titulo: `${D().pais} en diez años` }) : ""}`;
   }
 
   function regionHTML(id) {

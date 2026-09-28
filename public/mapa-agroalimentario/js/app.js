@@ -279,6 +279,8 @@
       </div>
       ${nota}
       ${Precios.balanceHTML(res)}
+      ${window.PreciosEUA ? PreciosEUA.mexicoHTML(res.clave) : ""}
+      ${window.Historia && res.clave !== "arandano" ? Historia.marca("pais", res.clave, { pais: "484", titulo: "México en diez años (FAOSTAT)" }) : ""}
       ${Estacionalidad.balanceHTML(res, escenario())}
       <h3>Destino de las exportaciones (por volumen)</h3>
       ${barras(p.destinos)}
@@ -552,6 +554,15 @@
         <li><b>Turquía</b> – selector <i>Ver país…</i>: producción 2025 por provincia (81 il) del sistema MEDAS de TÜİK, población 2025 del registro ADNKS y comercio de FAOSTAT.</li>
         <li><b>Perú</b> – selector <i>Ver país…</i>: producción enero-diciembre 2025 por región del boletín "El Agro en Cifras" del MIDAGRI (preliminar), población 2025 del INEI y comercio de FAOSTAT.</li>
         <li><b>Canadá</b> – selector <i>Ver país…</i>: producción 2025 por provincia de Statistics Canada (frutas, hortalizas de campo, invernadero y papa; cifras suprimidas repartidas según superficie), población estimada 2025 y comercio de FAOSTAT.</li>
+        <li><b>Bélgica</b> – selector <i>Ver país…</i>: papa 2024 por provincia de Eurostat; demás productos de FAOSTAT 2024 repartidos por la superficie de la encuesta de explotaciones 2023 (estimado); población de Eurostat al 1 de enero de 2025 y comercio de FAOSTAT.</li>
+        <li><b>Grecia</b> – selector <i>Ver país…</i>: producción 2024 por región (periferia) de la Encuesta Agrícola Anual de ELSTAT (último año publicado), población de Eurostat al 1 de enero de 2025 y comercio de FAOSTAT.</li>
+        <li><b>Países Bajos</b> – selector <i>Ver país…</i>: producción 2025 por provincia de CBS StatLine (papa y cebolla publicadas; hortalizas de invernadero y campo, fresa, manzana y pera repartidas por superficie de cada cultivo), población de CBS al 1 de enero de 2025 y comercio de FAOSTAT.</li>
+        <li><b>Portugal</b> – selector <i>Ver país…</i>: producción 2025 por región NUTS II (versión 2024) de las estadísticas de producción vegetal del INE de Portugal (frutas, papa y tomate para industria; las hortalizas solo tienen dato nacional), población estimada 2025 del INE y comercio de FAOSTAT.</li>
+        <li><b>Corea del Sur</b> – selector <i>Ver país…</i>: producción 2024 por provincia (manzana, pera y cebolla 2025) de la Encuesta de producción de cultivos de Estadística de Corea (KOSIS), población registrada de junio de 2026 y comercio de FAOSTAT.</li>
+        <li><b>Nueva Zelanda</b> – selector <i>Ver país…</i>: producción nacional de FAOSTAT 2024 repartida por región (16 consejos regionales) según la superficie de frutales y hortalizas de la encuesta agropecuaria 2024 y el censo agropecuario 2022 de Stats NZ (estimado), población estimada 2025 de Stats NZ y comercio de FAOSTAT.</li>
+        <li><b>Costa Rica</b> – selector <i>Ver país…</i>: producción nacional 2024 de la Encuesta Nacional Agropecuaria del INEC (o FAOSTAT) repartida por provincia según la superficie del Censo Agropecuario 2014 (estimado), población del Censo 2022 y comercio de FAOSTAT.</li>
+        <li><b>Guatemala</b> – selector <i>Ver país…</i>: producción de FAOSTAT 2024 repartida por departamento según la superficie del Mapa de Cobertura y Uso de la Tierra 2020 del MAGA (El Agro en Cifras 2023; estimado), población estimada 2023 del INE y comercio de FAOSTAT.</li>
+        <li><b>Honduras</b> – selector <i>Ver país…</i>: producción por departamento del Censo Agropecuario Nacional 2024 del INE (año agrícola 2023-2024, preliminar; banano y plátano de FAOSTAT repartidos según el censo), proyecciones de población 2024 del INE y comercio de FAOSTAT.</li>
         <li><b>Australia</b> – selector <i>Ver país…</i>: producción 2024-25 por estado del ABS (Australian Agriculture: Horticulture, cifras de Hort Innovation) y población del ABS a junio de 2025.</li>
         <li><b>Ecuador</b> – selector <i>Ver país…</i>: producción 2025 por provincia de la ESPAC del INEC y proyección de población 2025 del INEC.</li>
         <li><b>Filipinas</b> – selector <i>Ver país…</i>: producción 2025 por región de la Philippine Statistics Authority (OpenSTAT) y Censo de Población 2024.</li>
@@ -836,6 +847,8 @@
   if (!window.GLOBAL) document.querySelector("input[name=region][value=global]").disabled = true;
   // Selector de países con vista por regiones
   const selectorPais = document.getElementById("paisSub");
+  // México más los países con vista por regiones
+  document.getElementById("lema").textContent = `Del campo a la mesa · ${Subnacional.paises().length + 1} países`;
   Subnacional.paises().forEach(p => selectorPais.insertAdjacentHTML("beforeend", `<option value="${p.codigo}">${p.nombre}</option>`));
   selectorPais.onchange = () => {
     if (selectorPais.value) { estado.paisSub = selectorPais.value; cambiarRegion("sub"); }
