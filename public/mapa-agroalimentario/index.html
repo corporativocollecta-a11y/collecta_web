@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="css/styles.css?v=645452e4">
+  <link rel="stylesheet" href="css/styles.css?v=46ba6990">
 </head>
 <body>
   <header class="cabecera">
@@ -40,17 +40,29 @@
     </select>
     <div class="aviso" title="Fuentes oficiales integradas">Cargando fuentes…</div>
     <nav class="acciones" aria-label="Acciones">
-      <a class="boton-texto" href="reporte" target="_blank" rel="noopener">Reporte 2025</a>
+      <!-- En pantallas angostas estas opciones se agrupan en el menú "⋯" -->
+      <div class="menu-acciones" id="menuAcciones">
+        <a class="boton-texto" href="reporte" target="_blank" rel="noopener">Reporte 2025</a>
+        <button class="boton-icono" id="btnRecorrido" type="button" aria-label="Modo presentación" title="Modo presentación">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5h17v11h-17zM12 16v4M8 20h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 8.2v4.6l4-2.3z" fill="currentColor"/></svg>
+        </button>
+        <button class="boton-icono" id="btnComparar" type="button" aria-label="Comparar lado a lado" title="Comparar lado a lado">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6.5v14H4zM13.5 5H20v14h-6.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6.5 15.5v-3M8.5 15.5v-6M16 15.5v-5M18 15.5v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnFicha" type="button" aria-label="Descargar ficha en PDF" title="Descargar ficha en PDF">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnEnlace" type="button" aria-label="Copiar enlace a esta vista" title="Copiar enlace a esta vista">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnAyuda" type="button" aria-label="Cómo usar el mapa" title="Cómo usar el mapa">?</button>
+        <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+        </button>
+      </div>
       <button class="boton-icono" id="btnIdioma" type="button" aria-label="English / Español" title="English / Español">EN</button>
-      <button class="boton-icono" id="btnFicha" type="button" aria-label="Descargar ficha en PDF" title="Descargar ficha en PDF">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="boton-icono" id="btnEnlace" type="button" aria-label="Copiar enlace a esta vista" title="Copiar enlace a esta vista">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-      <button class="boton-icono" id="btnAyuda" type="button" aria-label="Cómo usar el mapa" title="Cómo usar el mapa">?</button>
-      <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      <button class="boton-icono" id="btnMas" type="button" aria-label="Más opciones" title="Más opciones" aria-expanded="false" aria-controls="menuAcciones">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="18.5" cy="12" r="1.8" fill="currentColor"/></svg>
       </button>
     </nav>
   </header>
@@ -124,19 +136,23 @@
 
     <div class="leyenda" id="leyenda"></div>
 
+    <button class="plegar plegar-panel" id="plegarPanel" type="button" aria-label="Ocultar análisis" title="Ocultar análisis">›</button>
     <aside class="panel" aria-label="Análisis">
       <button class="asa" id="asaHoja" type="button" aria-label="Expandir o contraer el análisis"><i></i></button>
       <div class="tabs" role="tablist">
         <button class="tab activo" data-tab="resumen" role="tab">Resumen</button>
         <button class="tab" data-tab="balance" role="tab">Producto</button>
+        <button class="tab" data-tab="exportar" role="tab">Exportar</button>
         <button class="tab" data-tab="entidad" role="tab">Entidad</button>
         <button class="tab" data-tab="simulador" role="tab">Simulador</button>
-        <button class="tab" data-tab="fuentes" role="tab">Fuentes</button>
-        <button class="plegar" id="plegarPanel" type="button" aria-label="Ocultar análisis" title="Ocultar análisis">›</button>
+        <button class="tab tab-icono" data-tab="fuentes" role="tab" aria-label="Fuentes y metodología" title="Fuentes y metodología">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5L19 9v10.5H5zM14.5 4.5V9H19M8.5 13h7M8.5 16.5h7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <div class="contenido">
         <div id="tab-resumen" class="pestana activo"></div>
         <div id="tab-balance" class="pestana"></div>
+        <div id="tab-exportar" class="pestana"></div>
         <div id="tab-entidad" class="pestana"></div>
         <div id="tab-simulador" class="pestana"></div>
         <div id="tab-fuentes" class="pestana"></div>
@@ -171,15 +187,17 @@
   <script src="data/consumo_oficial.js?v=28e27863"></script>
   <!-- Producción municipal SIAP (scripts/procesar_siap.py); los polígonos se cargan al elegir "Municipios" -->
   <script src="data/produccion_municipal.js?v=9a19c9f0"></script>
+  <!-- Secciones plegables de los paneles (título + resumen de una línea) -->
+  <script src="js/secciones.js?v=f1282559"></script>
   <script src="js/modelo.js?v=ab7ff367"></script>
-  <script src="js/municipal.js?v=f62be9c6"></script>
+  <script src="js/municipal.js?v=febefa3a"></script>
   <!-- Precios de mayoreo SNIIM (scripts/procesar_sniim.py) -->
   <script src="data/precios_sniim.js?v=5719761c"></script>
   <!-- Precio al consumidor PROFECO QQP (scripts/procesar_profeco.py) -->
   <script src="data/precios_consumidor.js?v=c49670f2"></script>
-  <script src="js/precios.js?v=15d54dac"></script>
-  <script src="js/estacionalidad.js?v=12361e15"></script>
-  <script src="js/resumen.js?v=d337552e"></script>
+  <script src="js/precios.js?v=b2efd7d8"></script>
+  <script src="js/estacionalidad.js?v=fd77be00"></script>
+  <script src="js/resumen.js?v=931eb546"></script>
   <!-- Fase LATAM: FAOSTAT (scripts/procesar_faostat.py) -->
   <script src="data/latam.js?v=ab5ad978"></script>
   <script src="data/latam_comercio.js?v=62bf2324"></script>
@@ -216,24 +234,30 @@
   <script src="js/paleta.js?v=3eb644ca"></script>
   <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
   <script src="data/sequia.js?v=ba9098ae"></script>
-  <script src="js/sequia.js?v=042aaa40"></script>
+  <script src="js/sequia.js?v=8023c968"></script>
   <!-- Acceso a mercados: requisitos fitosanitarios y aranceles para México (scripts/construir_acceso.py) -->
   <script src="data/acceso.js?v=bd6cfbb5"></script>
-  <script src="js/acceso.js?v=9b8ece9a"></script>
+  <script src="js/acceso.js?v=488986a1"></script>
   <!-- Historia de 10 años de FAOSTAT (scripts/procesar_historia.py → data/historia.js, carga diferida) -->
-  <script src="js/historia.js?v=95c3b096"></script>
+  <script src="js/historia.js?v=4d9549b4"></script>
   <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
   <script src="data/precios_eua.js?v=756ac34e"></script>
   <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
   <script src="data/competencia_eua.js?v=e44eefcb"></script>
-  <script src="js/precios_eua.js?v=ec544588"></script>
+  <script src="js/precios_eua.js?v=cb51a73f"></script>
   <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
   <script src="data/precios_ue.js?v=72cf1e71"></script>
-  <script src="js/precios_ue.js?v=dc846fc1"></script>
-  <script src="js/subnacional.js?v=7486677d"></script>
-  <script src="js/latam.js?v=3daed432"></script>
-  <script src="js/app.js?v=975f400a"></script>
+  <script src="js/precios_ue.js?v=53ad15f9"></script>
+  <!-- Vista por mercado de destino: proveedores de cada país comprador (scripts/procesar_mercados.py → data/mercados.js, carga diferida) -->
+  <script src="js/mercado.js?v=1e1cd56d"></script>
+  <script src="js/subnacional.js?v=790c8952"></script>
+  <script src="js/latam.js?v=d707ae81"></script>
+  <script src="js/app.js?v=ec338c32"></script>
+  <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
+  <script src="js/recorrido.js?v=52b1c5ed"></script>
+  <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->
+  <script src="js/comparar.js?v=a1c55b78"></script>
   <!-- Versión en inglés: traducción del texto ya pintado (data/traduccion_en.js) -->
-  <script src="js/idioma.js?v=58358622"></script>
+  <script src="js/idioma.js?v=a8d39620"></script>
 </body>
 </html>

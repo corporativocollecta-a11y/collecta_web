@@ -91,7 +91,7 @@
       </div>
       <div class="orden" role="group" aria-label="Ordenar tabla">${Object.entries(ORDENES).map(([k, [t]]) =>
         `<button type="button" data-orden="${k}" aria-pressed="${k === orden}">${t}</button>`).join("")}</div>
-      <table class="tabla-resumen">
+      <div class="desplaza"><table class="tabla-resumen">
         <thead><tr><th>Producto</th><th class="num">Autosuf.</th><th class="num">Al productor</th><th class="num">Exporta US$</th><th>Cosecha</th></tr></thead>
         <tbody>${filas.map(x => `
           <tr class="clic" data-prod="${x.k}">
@@ -101,7 +101,7 @@
             <td class="num">${x.exportUSD >= 1e9 ? (x.exportUSD / 1e9).toFixed(2) + " mil M" : x.exportUSD >= 1e6 ? fmt(x.exportUSD / 1e6) + " M" : x.exportUSD > 0 ? "< 1 M" : "—"}</td>
             <td title="Producción mensual (Panorama SIAP)">${chispa(x.mensual, x.color)}</td>
           </tr>`).join("")}</tbody>
-      </table>
+      </table></div>
       <div class="hallazgos">
         <span class="etq">Lo que muestran los datos</span>
         ${minP ? `<p class="hallazgo"><span><b>${minP.nombre}</b> es el producto donde menos llega al campo: $${Math.round(minP.alProductor * 100)} de cada $100 que paga el consumidor. En <b>${maxP.nombre}</b> llegan $${Math.round(maxP.alProductor * 100)}.</span></p>` : ""}

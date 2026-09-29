@@ -26,7 +26,7 @@
     const linea = (v, c) => `<polyline points="${v.map((p, i) => `${x(i).toFixed(1)},${y(p).toFixed(1)}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2"/>`;
     const cp = cambio(d[0]);
     return `
-      <h3>${titulo ?? "Diez años"} <span class="tag ok">FAOSTAT ${anios[0]}–${anios.at(-1)}</span></h3>
+      ${titulo === "" ? `<p class="sub"><span class="tag ok">FAOSTAT ${anios[0]}–${anios.at(-1)}</span></p>` : `<h3>${titulo ?? "Diez años"} <span class="tag ok">FAOSTAT ${anios[0]}–${anios.at(-1)}</span></h3>`}
       <svg class="estac" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Serie de 10 años">
         ${[0.5, 1].map(f => `<line x1="26" x2="${W - 6}" y1="${y(max / 1.08 * f)}" y2="${y(max / 1.08 * f)}" stroke="var(--linea)"/><text x="0" y="${y(max / 1.08 * f) + 3}">${fmtT(max / 1.08 * f).replace(" mil t", "k").replace(" Mt", "M").replace(" t", "")}</text>`).join("")}
         ${series.map(s => linea(s[1], s[2])).join("")}
@@ -53,11 +53,31 @@
       <h4 class="mini">Caen más</h4>${orden.slice(-5).reverse().filter(x => x.c < 0).map(fila).join("") || '<p class="sub">Ninguno cayó.</p>'}`;
   }
 
+  function resumen(k, id) {
+    const d = H()?.productos?.[k]?.[id];
+    const c = d ? cambio(d[0]) : null;
+    if (c == null) return "Sin serie de FAOSTAT";
+    const ce = d[1].some(v => v > 0) ? cambio(d[1]) : null;
+    return `Producción ${pct(c)} en diez años` + (ce != null ? ` · exportación ${pct(ce)}` : "");
+  }
+  function resumenTendencias(k, ids) {
+    const P = H()?.productos?.[k];
+    if (!P) return "";
+    const lista = Object.entries(P).filter(([id, s]) => (!ids || ids.has(id)) && s[0].at(-1) > 0)
+      .sort((a, b) => b[1][0].at(-1) - a[1][0].at(-1)).slice(0, 20)
+      .map(([id, s]) => ({ id, c: cambio(s[0]) })).filter(x => x.c != null).sort((a, b) => b.c - a.c);
+    if (lista.length < 4) return "";
+    return `Crece más: ${nombre(lista[0].id)} (${pct(lista[0].c)}) · cae más: ${nombre(lista.at(-1).id)} (${pct(lista.at(-1).c)})`;
+  }
+
   function llenar(el) {
     el.dataset.lleno = "1";
     const { historia, k, pais, titulo, paises } = el.dataset;
     const pintar = () => {
       el.innerHTML = historia === "tendencias" ? tendenciasHTML(k, paises ? new Set(paises.split(",")) : null) : graficaHTML(k, pais, titulo);
+      // Si el marcador está dentro de una sección plegable, su resumen de una línea se llena con el cambio en 10 años
+      const r = el.closest("details.seccion")?.querySelector("summary [data-auto]");
+      if (r) r.textContent = historia === "tendencias" ? resumenTendencias(k, paises ? new Set(paises.split(",")) : null) : resumen(k, pais);
     };
     if (H()) return pintar();
     window.Paleta.cargar("data/historia.js", () => !!window.HISTORIA).then(pintar).catch(() => { el.innerHTML = ""; });
@@ -69,5 +89,8 @@
 
   // Marcador para insertar en cualquier panel
   const marca = (tipo, k, extra = {}) => `<div data-historia="${tipo}" data-k="${k}"${Object.entries(extra).map(([a, v]) => ` data-${a}="${String(v).replace(/"/g, "&quot;")}"`).join("")}></div>`;
-  window.Historia = { marca };
+  // Datos crudos para la comparación lado a lado (js/comparar.js)
+  const serie = (k, id) => H()?.productos?.[k]?.[id] ?? null;
+  const cargar = () => H() ? Promise.resolve() : window.Paleta.cargar("data/historia.js", () => !!window.HISTORIA);
+  window.Historia = { marca, serie, cargar, cambio, anios: () => H()?.anios ?? [] };
 })();

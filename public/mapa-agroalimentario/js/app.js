@@ -21,6 +21,7 @@
     nivel: "estatal",      // "estatal" | "municipal"
     municipio: null,       // CVEGEO seleccionado
     metricaMun: "produccion",
+    mercado: null,         // país comprador (M49) abierto en la pestaña Exportar (vista por mercado de destino)
     escenarios: {} // por producto
   };
   const escenario = () => (estado.escenarios[estado.producto] ??= {
@@ -210,7 +211,7 @@
     const tip = f => `<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)}${f.estimado ? " (est.)" : ""}<br>
         Demanda local: ${fmtT(f.demanda)}<br>Autosuficiencia: ${f.autosuf >= 10 ? f.autosuf.toFixed(0) + "×" : pct(f.autosuf)}<br>
         Abastece a ${fmtP(f.personas)} personas`;
-    const clicEntidad = id => { estado.entidad = id; estado.municipio = null; activarTab("entidad"); render(); abrirHoja(); };
+    const clicEntidad = id => { estado.entidad = id; estado.municipio = null; if (document.querySelector(".tab.activo")?.dataset.tab !== "exportar") activarTab("entidad"); render(); abrirHoja(); };
     const geo = window.GEO_SUB?.MX;
     if (!geo) Paleta.geoRegiones("MX").then(() => { if (estado.region === "mx" && estado.nivel === "estatal") dibujarMapa(); }).catch(() => {});
     const conPrecios = document.getElementById("verRed").checked && Precios.disponible(res.clave);
@@ -247,6 +248,14 @@
     dibujarLeyenda();
   }
 
+  // ---------- Secciones plegables y utilidades de los paneles ----------
+  const S = (id, html, resumen, op) => Seccion.envolver(id, html, resumen, op);
+  const AUTO = '<span data-auto>Cargando la serie…</span>';   // js/historia.js lo llena al cargar la serie
+  const pctFino = s => (s < 0.01 || s > 0.99) && s < 1 ? (s * 100).toFixed(1) + "%" : pct(s);
+  const barras = obj => Object.entries(obj ?? {}).map(([pais, s]) =>
+    `<div class="barra-h"><span class="n">${pais}</span><span class="b"><i style="width:${s * 100}%"></i></span><span class="x">${pctFino(s)}</span></div>`).join("");
+  const usd = v => v >= 1e9 ? `US$${(v / 1e9).toFixed(2)} mil M` : v >= 1e6 ? `US$${fmt(v / 1e6)} M` : `US$${fmt(v / 1e3)} mil`;
+
   // ---------- Panel: Balance nacional ----------
   function renderBalance() {
     const n = res.nacional, p = res.producto;
@@ -258,10 +267,8 @@
          Se usa el consumo per cápita de referencia y la exportación del modelo se limita al excedente.</div>` : "") + notaConsumo(res);
     const fuente = (p.fuente ? `<span class="tag ok">Producción: ${p.fuente}</span> ` : `<span class="tag def">Producción preliminar</span> `) +
       (p.fuenteComercio ? `<span class="tag ok">Comercio: ${p.fuenteComercio}</span> ` : `<span class="tag def">Comercio preliminar</span> `);
-    const pctFino = s => (s < 0.01 || s > 0.99) && s < 1 ? (s * 100).toFixed(1) + "%" : pct(s);
-    const barras = obj => Object.entries(obj).map(([pais, s]) =>
-      `<div class="barra-h"><span class="n">${pais}</span><span class="b"><i style="width:${s * 100}%"></i></span><span class="x">${pctFino(s)}</span></div>`).join("");
-    const usd = v => v >= 1e9 ? `US$${(v / 1e9).toFixed(2)} mil M` : v >= 1e6 ? `US$${fmt(v / 1e6)} M` : `US$${fmt(v / 1e3)} mil`;
+    const primero = obj => Object.entries(obj ?? {}).sort((a, b) => b[1] - a[1])[0];
+    const origen1 = primero(p.origenes);
     document.getElementById("tab-balance").innerHTML = `
       <h2>${p.nombre}</h2>
       <p class="sub">${fuente}${p.consumoOficial ? `<span class="tag ok">Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion}</span> ` : ""}${p.tipo}
@@ -279,17 +286,12 @@
           (población: ${fmtP(n.pobTotal)}); después de exportar alcanza para <b>${fmtP(n.personasTrasExport)}</b>.</div></div>
       </div>
       ${nota}
-      ${Precios.balanceHTML(res)}
-      ${window.Sequia ? Sequia.balanceHTML(res.clave, res.producto.nombre) : ""}
-      ${window.Acceso ? Acceso.html(res.clave) : ""}
-      ${window.PreciosEUA ? PreciosEUA.mexicoHTML(res.clave) : ""}
-      ${window.Historia && res.clave !== "arandano" ? Historia.marca("pais", res.clave, { pais: "484", titulo: "México en diez años (FAOSTAT)" }) : ""}
-      ${Estacionalidad.balanceHTML(res, escenario())}
-      <h3>Destino de las exportaciones (por volumen)</h3>
-      ${barras(p.destinos)}
-      ${p.origenes && Object.keys(p.origenes).length ? `<h3>Origen de las importaciones</h3>${barras(p.origenes)}` : ""}
-      ${p.fracciones ? `<p class="sub">Fracciones arancelarias (SA): ${p.fracciones.join(", ")}</p>` : ""}
-      <h3>Principales entidades productoras</h3>
+      ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}
+      ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
+      ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
+      ${origen1 ? S("importaciones", `<h3>Origen de las importaciones</h3>${barras(p.origenes)}`, `Primer origen: ${origen1[0]}, ${pctFino(origen1[1])} del volumen importado`) : ""}
+      ${S("entidades", `<h3>Principales entidades productoras</h3>
       <table>
         <tr><th>Entidad</th><th class="num">Producción</th><th class="num">Abastece a</th><th class="num">Veces su población</th></tr>
         ${top.map(f => `<tr class="clic" data-id="${f.id}"><td>${f.nombre}${f.estimado ? ' <span class="est">(est.)</span>' : ""}</td>
@@ -297,8 +299,9 @@
           <td class="num">${etiqueta(f.autosuf)}</td></tr>`).join("")}
       </table>
       <p class="sub" style="margin-top:10px">${n.entidadesAutosuf} de 32 entidades cubren su propia demanda.
-      Excedente sin mercado asignado (industria, merma o sub-registro): ${fmtT(n.excedenteSinMercado)}.</p>
-      ${Municipal.topHTML(res, escenario())}`;
+      Excedente sin mercado asignado (industria, merma o sub-registro): ${fmtT(n.excedenteSinMercado)}.</p>`,
+        `${top[0].nombre}: ${pct(top[0].prod / (n.produccion || 1))} de la producción · ${n.entidadesAutosuf} de 32 entidades se autoabastecen`, { abierta: true })}
+      ${S("municipios", Municipal.topHTML(res, escenario()), Municipal.topResumen(res, escenario()))}`;
     enlazarFilas("#tab-balance");
     const esc_ = document.getElementById("sEscalon");
     if (esc_) esc_.onchange = () => { escenario().escalonamiento = +esc_.value; renderBalance(); };
@@ -306,6 +309,73 @@
       cambiarNivel("municipal");
       seleccionarMunicipio(tr.dataset.cve, true);
     });
+  }
+
+  // ---------- Panel: Exportar (comercio exterior de México) ----------
+  function renderExportar() {
+    if (estado.mercado && window.Mercado) return renderMercado();
+    const n = res.nacional, p = res.producto, k = res.clave;
+    const f = res.filas.find(x => x.id === estado.entidad);
+    const destino1 = Object.entries(p.destinos ?? {}).sort((a, b) => b[1] - a[1])[0];
+    const secUSA = window.PreciosEUA ? PreciosEUA.seccionesExportar(k, PreciosEUA.volumenMexico(k), "Exportación a EE. UU.: por dónde y cuándo cruza") : [];
+    const opp = window.Latam ? Latam.oportunidadesMundo(k) : { html: "" };
+    const tarifa = escenario().tarifa;
+    const cont = document.getElementById("tab-exportar");
+    cont.innerHTML = `
+      <h2>Exportar: ${p.nombre}</h2>
+      <p class="sub">${p.fuenteComercio ? `<span class="tag ok">Comercio: ${p.fuenteComercio}</span>` : `<span class="tag def">Comercio preliminar</span>`}
+        ${p.fracciones ? ` Fracciones arancelarias (SA): ${p.fracciones.join(", ")}` : ""}</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v">${fmtT(p.exportacion)}</div><div class="l">Exportación ${p.fuenteComercio ? "oficial" : "(preliminar)"}${p.valorExportUSD ? ` · ${usd(p.valorExportUSD)}` : ""}</div></div>
+        <div class="kpi"><div class="v">${n.produccion > 0 ? pct(Math.min(1, p.exportacion / n.produccion)) : "—"}</div><div class="l">de la producción nacional se exporta</div></div>
+        ${destino1 ? `<div class="kpi destacado"><div class="v">${pctFino(destino1[1])} va a ${destino1[0]}</div>
+          <div class="l">${p.valorExportUSD && p.exportacion ? `<span>Precio medio de exportación: US$${(p.valorExportUSD / p.exportacion / 1000).toFixed(2)} el kg.</span> ` : ""}<span>Importación: ${fmtT(n.importacionReportada)}${p.valorImportUSD ? ` · ${usd(p.valorImportUSD)}` : ""}.</span></div></div>` : ""}
+      </div>
+      ${window.Mercado ? Mercado.selectorHTML() : ""}
+      ${destino1 ? S("destinos", `<h3>Destino de las exportaciones (por volumen)</h3>${barras(p.destinos)}`,
+        `Primer destino: ${destino1[0]}, ${pctFino(destino1[1])} del volumen`, { abierta: true }) : ""}
+      ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
+      ${window.PreciosEUA && f?.prod > 0 ? S("neto", PreciosEUA.netoHTML(k, f, p.precioRural, tarifa, res.filas), PreciosEUA.netoResumen(k, f, p.precioRural, tarifa)) : ""}
+      ${window.Acceso ? S("acceso", Acceso.html(k), Acceso.resumen(k)) : ""}
+      ${opp.html ? S("oportunidades", opp.html, opp.resumen) : ""}
+      ${window.PreciosUE ? S("europa", PreciosUE.html(k), PreciosUE.resumen(k)) : ""}`;
+    cont.querySelectorAll("tr.clic[data-id]").forEach(tr => tr.onclick = () => {
+      estado.entidad = tr.dataset.id; estado.municipio = null; render();
+    });
+    enlazarMercados(cont);
+  }
+
+  // Enlaces a la vista por mercado de destino (tabla "Dónde puede vender México", selector de país comprador)
+  function enlazarMercados(cont) {
+    cont.querySelectorAll("[data-mercado]").forEach(el => el.onclick = e => { e.preventDefault(); abrirMercado(el.dataset.mercado); });
+    const sel = cont.querySelector("select.selector-mercado");
+    if (sel) sel.onchange = () => { if (sel.value) abrirMercado(sel.value); };
+  }
+  function abrirMercado(id) {
+    estado.mercado = id;
+    // En Mundo y Latinoamérica el país comprador se resalta en el mapa con sus rutas de comercio
+    if ((estado.region === "latam" || estado.region === "global") && Latam.datos().paises[id]) { estado.pais = id; dibujarMapa(); renderPaisLatam(); }
+    activarTab("exportar"); abrirHoja();
+    renderMercado();
+    guardarURL();
+  }
+  function renderMercado() {
+    const cont = document.getElementById("tab-exportar");
+    if (!estado.mercado || !window.Mercado) return;
+    Mercado.pintar(cont, estado.mercado, estado.producto, {
+      volver: () => { estado.mercado = null; renderExportarActual(); guardarURL(); },
+      producto: k => { estado.producto = k; render(); },   // sigue en la vista del mercado, con otro producto
+      mercado: id => abrirMercado(id)
+    });
+  }
+  // Pestaña Exportar de la vista activa
+  function renderExportarActual() {
+    if (estado.mercado && window.Mercado) return renderMercado();
+    const cont = document.getElementById("tab-exportar");
+    if (estado.region === "mx") return renderExportar();
+    if (estado.region === "sub") cont.innerHTML = Subnacional.exportarHTML(Subnacional.calcular(estado.producto));
+    else cont.innerHTML = Latam.exportarHTML(Latam.calcular(estado.producto));
+    enlazarMercados(cont);
   }
 
   function cambiarNivel(nivel) {
@@ -377,7 +447,8 @@
       ${envia.length ? `<h3>A dónde envía su excedente (modelo)</h3>
         ${envia.slice(0, 8).map(fl => barra(fl.destino.nombre, fl.t, f.envia)).join("")}` : ""}
       ${window.Sequia && f.prod > 0 ? Sequia.entidadHTML(res.clave, f.id, f.nombre) : ""}
-      ${window.PreciosEUA && f.prod > 0 ? PreciosEUA.netoHTML(res.clave, f, res.producto.precioRural, escenario().tarifa) : ""}
+      ${window.PreciosEUA && f.prod > 0 && PreciosEUA.netoResumen(res.clave, f, res.producto.precioRural, escenario().tarifa)
+        ? `<p class="sub"><a href="#" data-ir-tab="exportar">Si ${f.nombre} exporta a EE. UU.: ${PreciosEUA.netoResumen(res.clave, f, res.producto.precioRural, escenario().tarifa).split(": ")[1]} → Exportar</a></p>` : ""}
       ${Precios.entidadHTML(res, f.id)}
       <div class="ctrl">
         <label>Escenario: variación de producción en ${f.abr} <b id="lblFactor">${pctVar(esc.factorProd[f.id] ?? 1)}</b></label>
@@ -398,6 +469,7 @@
     };
     document.getElementById("rngFactor").onchange = () => renderEntidad();
     document.querySelectorAll("#tab-entidad tr.clic").forEach(tr => tr.onclick = () => seleccionarProducto(tr.dataset.prod));
+    document.querySelectorAll("#tab-entidad [data-ir-tab]").forEach(a => a.onclick = e => { e.preventDefault(); activarTab(a.dataset.irTab); });
   }
 
   function renderMunicipio() {
@@ -666,7 +738,7 @@
     recalcular();
     indicadores = Resumen.indicadores(estado.escenarios);
     renderLista(); renderResumen();
-    dibujarMapa(); renderBalance(); renderEntidad(); renderSimulador();
+    dibujarMapa(); renderBalance(); renderExportar(); renderEntidad(); renderSimulador();
     guardarURL();
   }
 
@@ -703,6 +775,7 @@
     bal.querySelectorAll("tr.clic[data-pais]").forEach(tr => tr.onclick = () => {
       estado.pais = tr.dataset.pais; activarTab("entidad"); dibujarMapa(); renderPaisLatam();
     });
+    renderExportarActual();
     dibujarMapa();
     renderPaisLatam();
   }
@@ -733,6 +806,7 @@
     bal.querySelectorAll("tr.clic[data-region]").forEach(tr => tr.onclick = () => {
       estado.regionSub = tr.dataset.region; activarTab("entidad"); dibujarMapa(); renderRegionSub();
     });
+    renderExportarActual();
     dibujarMapa();
     renderRegionSub();
   }
@@ -821,25 +895,37 @@
   // #v=mx|latam|global|<código de país>&p=<producto>&m=<métrica>&s=<entidad, país o región seleccionada>&t=<pestaña>
   const idiomaInicial = new URLSearchParams(location.hash.slice(1)).get("l");   // idioma.js se carga después
   let urlLista = false;   // no se escribe el #hash hasta haber leído el del enlace recibido
+  const enRecorrido = () => new URLSearchParams(location.hash.slice(1)).has("tour");
   function guardarURL() {
-    if (!urlLista) return;
+    if (!urlLista || enRecorrido()) return;
     const tab = document.querySelector(".tab.activo")?.dataset.tab;
     const v = estado.region === "sub" ? estado.paisSub : estado.region;
     const sel = estado.region === "sub" ? estado.regionSub : estado.region === "mx" ? estado.entidad : estado.pais;
     const m = estado.region === "sub" ? estado.metricaSub : estado.region === "mx" ? null : estado.metricaLatam;
     const q = new URLSearchParams({ v, p: estado.producto });
     if (m) q.set("m", m);
+    if (estado.region === "mx" && estado.nivel === "municipal") { q.set("n", "mun"); if (estado.metricaMun !== "produccion") q.set("mm", estado.metricaMun); }
     if (sel) q.set("s", sel);
     if (tab && tab !== "resumen") q.set("t", tab);
+    if (estado.mercado && tab === "exportar") q.set("mc", estado.mercado);
     if (window.Idioma ? Idioma.activo() : idiomaInicial === "en") q.set("l", "en");
+    // La comparación abierta también viaja en el enlace (antes de que cargue js/comparar.js se conserva la del enlace recibido)
+    const cmp = window.Comparar ? Comparar.actual() : new URLSearchParams(location.hash.slice(1)).get("cmp");
+    if (cmp) q.set("cmp", cmp);
     try { history.replaceState(null, "", "#" + q.toString()); } catch (e) { /* vista previa sin historial */ }
   }
   function aplicarURL() {
     urlLista = true;
     const q = new URLSearchParams(location.hash.slice(1));
+    if (q.has("tour")) { render(); return true; }   // el recorrido (js/recorrido.js) pone cada vista
+    return aplicarVista(q);
+  }
+  // Pone la vista descrita por un enlace directo (v, p, m, s, t, mc, n, mm), venga de donde venga
+  function aplicarVista(q) {
     const v = q.get("v");
     if (!v) return false;
     if (q.get("p")) estado.producto = q.get("p");
+    estado.mercado = q.get("mc") || null;
     const tab = q.get("t");
     if (v === "latam" || v === "global") {
       if (q.get("m")) { estado.metricaLatam = q.get("m"); document.getElementById("metricaLatam").value = q.get("m"); }
@@ -854,9 +940,15 @@
       if (q.get("s")) { estado.regionSub = q.get("s"); dibujarMapa(); renderRegionSub(); }
     } else {
       if (q.get("s")) estado.entidad = q.get("s");
-      render();
+      estado.municipio = null;
+      estado.metricaMun = q.get("mm") || "produccion";
+      document.getElementById("metricaMun").value = estado.metricaMun;
+      cambiarNivel(q.get("n") === "mun" && Municipal.disponible() ? "municipal" : "estatal");
+      if (estado.region !== "mx") { document.querySelector("input[name=region][value=mx]").checked = true; cambiarRegion("mx"); }
+      else render();
     }
     if (tab) activarTab(tab);
+    if (estado.mercado) renderMercado();
     guardarURL();
     return true;
   }
@@ -903,6 +995,14 @@
     dibujarMapa();
   };
 
+  // Menú "⋯" de la cabecera en pantallas angostas (en escritorio los botones se ven en línea)
+  const acciones = document.querySelector(".acciones"), btnMas = document.getElementById("btnMas");
+  const cerrarMenu = () => { acciones.classList.remove("abierto"); btnMas.setAttribute("aria-expanded", "false"); };
+  btnMas.onclick = e => { e.stopPropagation(); const abrir = !acciones.classList.contains("abierto"); acciones.classList.toggle("abierto", abrir); btnMas.setAttribute("aria-expanded", String(abrir)); };
+  document.getElementById("menuAcciones").addEventListener("click", () => setTimeout(cerrarMenu, 0));
+  document.addEventListener("click", e => { if (!e.target.closest(".acciones")) cerrarMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarMenu(); });
+
   // Guía rápida: se muestra la primera vez y con el botón "?"
   const guia = document.getElementById("guia");
   const cerrarGuia = () => { guia.hidden = true; try { localStorage.setItem("guiaVista", "1"); } catch (e) {} };
@@ -947,4 +1047,12 @@
   actualizarAviso();
   renderFuentes();
   if (!aplicarURL()) render();
+
+  // Para el modo presentación (js/recorrido.js): ir a una vista descrita como enlace directo y volver a escribir la URL
+  window.App = {
+    irA: vista => { aplicarVista(new URLSearchParams(vista)); encuadrar(true); },
+    guardarURL, abrirHoja,
+    plegarCatalogo: plegado => { if (escenarioEl.classList.contains("sin-catalogo") !== plegado) plegar("sin-catalogo"); },
+    catalogoPlegado: () => escenarioEl.classList.contains("sin-catalogo")
+  };
 })();

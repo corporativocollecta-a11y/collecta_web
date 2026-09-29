@@ -141,13 +141,14 @@
     return `<svg class="chispa" viewBox="0 0 64 20" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8"/></svg>`;
   }
 
+  const barra = (n, v, max, txt) => `<div class="barra-h"><span class="n">${n}</span><span class="b"><i style="width:${Math.min(100, v / max * 100)}%"></i></span><span class="x">${txt}</span></div>`;
+  const S = (id, html, resumen, op) => window.Seccion ? window.Seccion.envolver(id, html, resumen, op) : html;
+  const AUTO = '<span data-auto>Cargando la serie…</span>';   // el módulo de historia lo llena al cargar
+
   function productoHTML(R, producto) {
     const { T, mx, orden } = R;
     const anio = L().anio;
-    const exportadores = [...R.filas].filter(f => f.exp > 0).sort((a, b) => b.expUSD - a.expUSD).slice(0, 6);
-    const importadores = [...R.filas].filter(f => f.imp > 0).sort((a, b) => b.imp - a.imp).slice(0, 5);
     const deficit = R.filas.filter(f => f.auto < 1 && f.pob > 1e6).sort((a, b) => a.auto - b.auto);
-    const barra = (n, v, max, txt) => `<div class="barra-h"><span class="n">${n}</span><span class="b"><i style="width:${Math.min(100, v / max * 100)}%"></i></span><span class="x">${txt}</span></div>`;
     const siap = producto.fuente && producto.nacional && !L().productos[R.k].nombre ? `<p class="sub">En México la FAO reporta ${fmtT(mx?.prod ?? 0)} en ${anio}; el SIAP registra ${fmtT(producto.nacional)} en ${window.PRODUCCION_SIAP?.anio ?? ""}. Para comparar países se usa FAOSTAT en todos.</p>` : "";
     return `
       <h2>${nombreProd(R.k)} en ${TX().zona}</h2>
@@ -162,22 +163,55 @@
           ${orden[0].id !== "484" ? `El líder es <b>${orden[0].nombre}</b> con ${pct(orden[0].prod / T.prod)}.` : `Le sigue <b>${orden[1]?.nombre ?? "—"}</b> con ${pct((orden[1]?.prod ?? 0) / T.prod)}.`}</div></div>` : ""}
       </div>
       ${siap}
-      <h3>Principales productores</h3>
+      ${S("productores", `<h3>Principales productores</h3>
       <table>
         <tr><th>País</th><th class="num">Producción</th><th class="num">% total</th><th class="num">Autosuf.</th><th>5 años</th></tr>
         ${orden.slice(0, 10).map(f => `<tr class="clic${f.id === "484" ? " resaltado" : ""}" data-pais="${f.id}"><td>${f.nombre}</td><td class="num">${fmtT(f.prod)}</td>
           <td class="num">${pct(f.prod / T.prod)}</td><td class="num">${etiqueta(f.auto)}</td><td>${chispa(f.serie, producto.color)}</td></tr>`).join("")}
-      </table>
-      ${exportadores.length ? `<h3>Quién exporta (valor)</h3>${exportadores.map(f => barra(f.nombre, f.expUSD, exportadores[0].expUSD, usd(f.expUSD))).join("")}` : ""}
-      ${importadores.length ? `<h3>Quién importa (volumen)</h3>${importadores.map(f => barra(f.nombre, f.imp, importadores[0].imp, fmtT(f.imp))).join("")}` : ""}
-      ${rutasHTML(R.k)}
-      ${oportunidadesHTML(R)}
-      ${window.PreciosUE ? PreciosUE.html(R.k) : ""}
-      ${window.Acceso ? Acceso.html(R.k) : ""}
-      ${window.Historia ? Historia.marca("tendencias", R.k, esGlobal() ? {} : { paises: R.filas.map(f => f.id).join(",") }) : ""}
+      </table>`, `Líder: ${orden[0].nombre}, ${pct(orden[0].prod / T.prod)} del total` + (mx ? ` · México, lugar ${mx.lugar}` : ""), { abierta: true })}
+      ${window.Historia ? S("historia", `<h3>Quién crece y quién cae</h3>${Historia.marca("tendencias", R.k, esGlobal() ? {} : { paises: R.filas.map(f => f.id).join(",") })}`, AUTO) : ""}
       ${deficit.length ? `<div class="nota">No cubren su consumo aparente: <b>${deficit.slice(0, 6).map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>${deficit.length > 6 ? ` y ${deficit.length - 6} más` : ""}.
         ${mx && mx.auto > 1.2 ? `México tiene excedente (${mx.auto.toFixed(1)}×): una oportunidad de abasto.` : ""}</div>` : ""}
       <p class="sub">Disponibilidad aparente = producción − exportación + importación; incluye mermas y usos industriales. Países con menos de 1 millón de habitantes no se listan como deficitarios.</p>`;
+  }
+
+  // Pestaña Exportar: comercio exterior del producto en la región o el mundo
+  function exportarHTML(R) {
+    const { T, mx } = R;
+    const exportadores = [...R.filas].filter(f => f.exp > 0).sort((a, b) => b.expUSD - a.expUSD).slice(0, 6);
+    const importadores = [...R.filas].filter(f => f.imp > 0).sort((a, b) => b.imp - a.imp).slice(0, 5);
+    const lista = flujos(R.k);
+    const opp = R.opp ? Object.entries(R.opp).sort((a, b) => b[1].libreUSD - a[1].libreUSD) : [];
+    return `
+      <h2>Exportar: ${nombreProd(R.k)}</h2>
+      <p class="sub"><span class="tag ok">FAOSTAT ${L().anio}</span> ${TX().etiqueta}</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v">${usd(T.expUSD)}</div><div class="l">Exportación ${TX().adj} (${fmtT(T.exp)})</div></div>
+        <div class="kpi"><div class="v">${T.exp > 0 ? "US$" + (T.expUSD / T.exp).toFixed(2) : "—"}</div><div class="l">Precio medio de exportación por kg</div></div>
+        ${mx ? `<div class="kpi destacado"><div class="v">México: ${usd(mx.expUSD)} · ${pct(mx.expUSD / (T.expUSD || 1))} ${TX().de}</div>
+          <div class="l">Exporta ${fmtT(mx.exp)}${mx.exp > 0 ? ` a US$${(mx.expUSD / mx.exp).toFixed(2)} el kg` : ""}${mx.imp > 0 ? ` e importa ${fmtT(mx.imp)}` : ""}.</div></div>` : ""}
+      </div>
+      ${window.Mercado ? Mercado.selectorHTML() : ""}
+      ${S("oportunidades", oportunidadesHTML(R), opp.length ? `Mayor compra fuera de México: ${nombrePais(L().paises[opp[0][0]])}, ${usd(opp[0][1].libreUSD)}` : "", { abierta: true })}
+      ${lista.length ? S("rutas", rutasHTML(R.k), `Mayor ruta: ${nombreNodo(lista[0][0])} → ${nombreNodo(lista[0][1])}, ${fmtT(lista[0][2])}`) : ""}
+      ${exportadores.length ? S("exportadores", `<h3>Quién exporta (valor)</h3>${exportadores.map(f => barra(f.nombre, f.expUSD, exportadores[0].expUSD, usd(f.expUSD))).join("")}`,
+        `Primer exportador: ${exportadores[0].nombre}, ${pct(exportadores[0].expUSD / (T.expUSD || 1))} del valor`) : ""}
+      ${importadores.length ? S("importadores", `<h3>Quién importa (volumen)</h3>${importadores.map(f => barra(f.nombre, f.imp, importadores[0].imp, fmtT(f.imp))).join("")}`,
+        `Primer comprador: ${importadores[0].nombre}, ${fmtT(importadores[0].imp)}`) : ""}
+      ${window.PreciosUE ? S("europa", PreciosUE.html(R.k), PreciosUE.resumen(R.k)) : ""}
+      ${window.Acceso ? S("acceso", Acceso.html(R.k), Acceso.resumen(R.k)) : ""}`;
+  }
+
+  // Oportunidades de México en el mundo sin cambiar la vista activa (pestaña Exportar de México)
+  function oportunidadesMundo(k) {
+    const antes = fuente;
+    fuente = "global";
+    try {
+      if (!disponible(k) || !C()) return { html: "", resumen: "" };
+      const R = calcular(k);
+      const top = R.opp ? Object.entries(R.opp).sort((a, b) => b[1].libreUSD - a[1].libreUSD) : [];
+      return { html: oportunidadesHTML(R), resumen: top.length ? `Mayor compra fuera de México: ${nombrePais(L().paises[top[0][0]])}, ${usd(top[0][1].libreUSD)}` : "" };
+    } finally { fuente = antes; }
   }
 
   function paisHTML(id, productoActual) {
@@ -241,7 +275,7 @@
           ? `<div><b>${ranking[1] ? ranking[1][0] : "—"}</b><span>segundo país con más liderazgos (${ranking[1] ? ranking[1][1] : 0})</span></div>`
           : `<div><b>${ranking[0] ? ranking[0][0] : "—"}</b><span>país con más liderazgos (${ranking[0] ? ranking[0][1] : 0} productos)</span></div>`}
       </div>
-      <table class="tabla-resumen">
+      <div class="desplaza"><table class="tabla-resumen">
         <thead><tr><th>Producto</th><th class="num">Total</th><th>Líder</th><th class="num">México</th><th class="num">Exporta US$</th></tr></thead>
         <tbody>${[...ind].sort((a, b) => b.expUSD - a.expUSD).map(x => `
           <tr class="clic" data-prod="${x.k}">
@@ -250,7 +284,7 @@
             <td class="num"><span class="tag ${x.mxLugar === 1 ? "exc" : x.mxLugar <= 3 ? "ok" : "def"}">#${x.mxLugar ?? "—"} · ${pct(x.mxShare)}</span></td>
             <td class="num">${x.expUSD * 1000 >= 1e9 ? (x.expUSD / 1e6).toFixed(2) + " mil M" : fmt(x.expUSD / 1000) + " M"}</td>
           </tr>`).join("")}</tbody>
-      </table>
+      </table></div>
       <div class="hallazgos">
         <span class="etq">Lo que muestran los datos</span>
         <p class="hallazgo"><span>México es el primer productor ${TX().de} en <b>${primero.map(x => x.nombre.split(" ")[0].toLowerCase()).join(", ")}</b>.</span></p>
@@ -325,12 +359,12 @@
     const fila = id => R.filas.find(f => f.id === id);
     return `
       <h3>Dónde puede vender México <span class="tag ok">FAOSTAT ${C().anio}</span></h3>
-      <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México. Precio = valor ÷ volumen importado.</p>
-      <table>
+      <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México. Precio = valor ÷ volumen importado. Toca un país para ver su mercado.</p>
+      <div class="desplaza"><table>
         <tr><th>País</th><th class="num">Compra fuera de México</th><th class="num">US$/kg</th><th class="num">De México</th><th>Hoy le vende</th>${window.Acceso ? "<th>Acceso</th>" : ""}</tr>
-        ${top.map(([id, o]) => `<tr class="clic" data-pais="${id}"><td>${fila(id).nombre}</td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
+        ${top.map(([id, o]) => `<tr class="clic" data-mercado="${id}"><td><span class="enlace-mercado">${fila(id).nombre} →</span></td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
           <td class="num">${o.precio.toFixed(2)}</td><td class="num">${o.parteMX > 0.005 ? pct(o.parteMX) : "—"}</td><td>${o.principal ? nombreNodo(o.principal) : "—"}</td>${window.Acceso ? `<td>${(c => c ? Acceso.etiqueta(c) : '<span class="est">—</span>')(Acceso.celda(R.k, L().paises[id]?.iso))}</td>` : ""}</tr>`).join("")}
-      </table>
+      </table></div>
       <p class="sub">Ojo: Países Bajos, Bélgica y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: no considera aranceles, requisitos fitosanitarios ni acceso sanitario para producto mexicano. Elige <i>Oportunidad para México</i> en el menú de color del mapa para verlo por país.</p>`;
   }
 
@@ -386,5 +420,5 @@
     usar: r => { fuente = r === "global" ? "global" : "latam"; },
     datos: () => L(), claves: () => Object.keys(L()?.productos ?? {}).filter(k => meta(k)),
     nombre: nombreProd, disponible, calcular, crearCapa, leyendaHTML, productoHTML, paisHTML, indicadores, resumenHTML, METRICAS,
-    comercioDisponible: () => !!C(), crearCapaComercio, rutasHTML, sociosHTML, destinoRegional };
+    comercioDisponible: () => !!C(), crearCapaComercio, rutasHTML, sociosHTML, destinoRegional, exportarHTML, oportunidadesMundo, nombrePais };
 })();

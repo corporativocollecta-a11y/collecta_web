@@ -149,6 +149,9 @@
     `<span class="tag ${r < 2 ? "ok" : "exc"}">${r >= 10 ? r.toFixed(0) : r.toFixed(1)}×</span>`;
   const barra = (n, v, max, txt) => `<div class="barra-h"><span class="n">${n}</span><span class="b"><i style="width:${Math.min(100, v / (max || 1) * 100)}%"></i></span><span class="x">${txt}</span></div>`;
 
+  const S = (id, html, resumen, op) => window.Seccion ? window.Seccion.envolver(id, html, resumen, op) : html;
+  const AUTO = '<span data-auto>Cargando la serie…</span>';   // el módulo de historia lo llena al cargar
+
   function productoHTML(R) {
     const { P, C } = R;
     const fuente = P.fuenteProduccion === "FAOSTAT" ? `FAOSTAT ${P.anioProduccion} (sin dato oficial por ${reg()})` : `${D().fuenteCorta}`;
@@ -171,23 +174,50 @@
       </div>
       ${P.nota ? `<div class="nota">${P.nota}</div>` : ""}
       ${R.ajustado ? `<div class="nota" style="border-left-color:var(--transporte)">Sus proveedores reportan haberle vendido más de lo que ${D().pais} registra como importación (${fmtT(C.imp)}); se usa la cifra mayor.</div>` : ""}
-      ${C?.origenes?.length ? `<h3>De dónde importa (volumen)</h3>${C.origenes.map(o => barra(pais(o[0], o[1]), o[2], C.origenes[0][2], fmtT(o[2]))).join("")}` : ""}
-      ${C?.destinos?.length ? `<h3>A dónde exporta (valor)</h3>${C.destinos.map(o => barra(pais(o[0], o[1]), o[3], C.destinos[0][3], usd(o[3]))).join("")}` : ""}
-      ${R.orden.length ? `<h3>Principales ${regs()} ${D().femenino ? "productoras" : "productores"}</h3>
+      ${R.orden.length ? S("regiones", `<h3>Principales ${regs()} ${D().femenino ? "productoras" : "productores"}</h3>
       <table>
         <tr><th>${Reg()}</th><th class="num">Producción</th><th class="num">% nacional</th><th class="num">Autosuf.</th></tr>
         ${R.orden.slice(0, 10).map(f => `<tr class="clic" data-region="${f.id}"><td>${f.nombre}${f.estimado ? ' <span class="est">(est.)</span>' : ""}</td>
           <td class="num">${fmtT(f.prod)}</td><td class="num">${pct(f.prod / P.nacional)}</td><td class="num">${etiqueta(f.auto)}</td></tr>`).join("")}
       </table>
-      <p class="sub">${publicados} de ${conProd} ${regs()} con cifra oficial publicada. ${D().metodo}</p>` :
+      <p class="sub">${publicados} de ${conProd} ${regs()} con cifra oficial publicada. ${D().metodo}</p>`,
+        `${R.orden[0].nombre}: ${pct(R.orden[0].prod / P.nacional)} de la producción nacional`, { abierta: true }) :
       `<div class="nota">${D().pais} casi no produce este producto: su consumo depende de importaciones.</div>`}
-      ${recibe.length ? `<h3>${Regs()} que más importan (estimado)</h3>${recibe.map(f => barra(f.nombre, f.imp, recibe[0].imp, fmtT(f.imp))).join("")}
-        <p class="sub">Estimación: la importación se reparte entre ${regs()} según su déficit (demanda − producción propia).</p>` : ""}
+      ${recibe.length ? S("reparto", `<h3>${Regs()} que más importan (estimado)</h3>${recibe.map(f => barra(f.nombre, f.imp, recibe[0].imp, fmtT(f.imp))).join("")}
+        <p class="sub">Estimación: la importación se reparte entre ${regs()} según su déficit (demanda − producción propia).</p>`,
+        `Más importado: ${recibe[0].nombre}, ${fmtT(recibe[0].imp)}`) : ""}
       ${deficit.length ? `<div class="nota">${Regs()} grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
       <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>
-      ${D().codigo === "US" && window.PreciosEUA ? window.PreciosEUA.panelHTML(R.k) : ""}
-      ${window.PreciosUE ? PreciosUE.html(R.k, D().codigo === "GR" ? "EL" : D().codigo) : ""}
-      ${window.Historia ? Historia.marca("pais", R.k, { pais: D().m49, titulo: `${D().pais} en diez años` }) : ""}`;
+      ${D().codigo === "US" && window.PreciosEUA ? S("mayoreo", window.PreciosEUA.panelHTML(R.k), window.PreciosEUA.panelResumen(R.k)) : ""}
+      ${window.Historia ? S("historia", `<h3>${D().pais} en diez años</h3>${Historia.marca("pais", R.k, { pais: D().m49, titulo: "" })}`, AUTO) : ""}`;
+  }
+
+  // Pestaña Exportar: comercio exterior del país en este producto y lo que significa para México
+  function exportarHTML(R) {
+    const { C } = R;
+    const d = D(), ue = d.codigo === "GR" ? "EL" : d.codigo;
+    const secUSA = d.codigo === "US" && window.PreciosEUA
+      ? window.PreciosEUA.seccionesExportar(R.k, window.PreciosEUA.volumenPais(R.k), "Lo que cruza de México").map(([id, h, r]) => S(id, h, r)).join("") : "";
+    const acceso = window.Acceso?.celda(R.k, d.codigo);
+    return `
+      <h2>Comercio exterior: ${nombreProd(R.k)} en ${d.pais}</h2>
+      <p class="sub">${C ? `<span class="tag ok">FAOSTAT ${d.anioComercio}</span>` : ""} Qué compra y vende ${d.pais}, cuánto le vende México y en qué condiciones.</p>
+      ${C ? `<div class="kpis">
+        <div class="kpi"><div class="v">${fmtT(R.imp)}</div><div class="l">Importación · ${usd(C.impUSD)} · ${pct(R.impConsumo)} de su consumo</div></div>
+        <div class="kpi"><div class="v">${fmtT(C.exp)}</div><div class="l">Exportación · ${usd(C.expUSD)}</div></div>
+        <div class="kpi destacado"><div class="v">${R.desdeMX > 0 ? `México le vende ${fmtT(R.desdeMX)}` : "México no le vende"}</div>
+          <div class="l">${R.desdeMX > 0 ? `${usd(C.desdeMX[1])}, ${pct(R.mxConsumo)} de su consumo y ${pct(R.imp > 0 ? Math.min(1, R.desdeMX / R.imp) : 0)} de lo que importa.` : `Matriz bilateral de FAOSTAT ${d.anioComercio}.`}</div></div>
+      </div>` : `<div class="nota">Sin datos de comercio de FAOSTAT para este producto: el balance supone que lo producido se consume en el país.</div>`}
+      ${C?.origenes?.length ? S("origenes", `<h3>De dónde importa (volumen)</h3>${C.origenes.map(o => barra(pais(o[0], o[1]), o[2], C.origenes[0][2], fmtT(o[2]))).join("")}`,
+        `Primer proveedor: ${pais(C.origenes[0][0], C.origenes[0][1])}, ${pct(C.origenes[0][2] / (C.origenes.reduce((a, o) => a + o[2], 0) || 1))} del volumen`, { abierta: true }) : ""}
+      ${C?.destinos?.length ? S("destinos", `<h3>A dónde exporta (valor)</h3>${C.destinos.map(o => barra(pais(o[0], o[1]), o[3], C.destinos[0][3], usd(o[3]))).join("")}`,
+        `Primer destino: ${pais(C.destinos[0][0], C.destinos[0][1])}, ${usd(C.destinos[0][3])}`) : ""}
+      ${acceso ? S("acceso", `<h3>Acceso de México a este mercado</h3>${window.Acceso.mercadoHTML(R.k, d.codigo)}
+        <p class="sub">Acceso fitosanitario y arancel para producto fresco de origen México. No incluye límites de residuos ni normas de comercialización.</p>`,
+        window.Acceso.resumenMercado(R.k, d.codigo)) : ""}
+      ${secUSA}
+      ${window.PreciosUE ? S("europa", PreciosUE.html(R.k, ue), PreciosUE.resumen(R.k, ue)) : ""}
+      ${window.Mercado && d.m49 ? `<p class="sub"><a href="#" class="enlace-mercado" data-mercado="${d.m49}">Ver el mercado de ${d.pais} como comprador: qué importa y a quién le compra →</a></p>` : ""}`;
   }
 
   function regionHTML(id) {
@@ -242,7 +272,7 @@
         <div><b>${usd(imp)}</b><span>importa</span></div>
         <div><b>${autos.length} de ${ind.length}</b><span>productos en que es autosuficiente</span></div>
       </div>
-      <table class="tabla-resumen">
+      <div class="desplaza"><table class="tabla-resumen">
         <thead><tr><th>Producto</th><th class="num">Producción</th><th>${Reg()} líder</th><th class="num">Autosuf.</th><th class="num">Importado</th>${conMX ? '<th class="num">De México</th>' : ""}</tr></thead>
         <tbody>${orden.map(x => `
           <tr class="clic" data-prod="${x.k}">
@@ -252,7 +282,7 @@
             <td class="num">${x.impConsumo > 0.005 ? pct(x.impConsumo) : "—"}</td>
             ${conMX ? `<td class="num">${x.mxConsumo > 0.005 ? pct(x.mxConsumo) : "—"}</td>` : ""}
           </tr>`).join("")}</tbody>
-      </table>
+      </table></div>
       <div class="hallazgos">
         <span class="etq">Lo que muestran los datos</span>
         ${dependientes.length ? `<p class="hallazgo"><span>${d.pais} importa más de la mitad de lo que consume en <b>${dependientes.map(x => x.nombre.split(" (")[0].toLowerCase()).join(", ")}</b>.</span></p>` : ""}
@@ -262,5 +292,5 @@
       </div>`;
   }
 
-  window.Subnacional = { confianza, confianzaHTML, unReg, meta, paises, usar, datos: D, disponible, claves, nombre: nombreProd, calcular, crearCapa, leyendaHTML, productoHTML, regionHTML, indicadores, resumenHTML };
+  window.Subnacional = { exportarHTML, confianza, confianzaHTML, unReg, meta, paises, usar, datos: D, disponible, claves, nombre: nombreProd, calcular, crearCapa, leyendaHTML, productoHTML, regionHTML, indicadores, resumenHTML };
 })();

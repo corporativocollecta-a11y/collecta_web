@@ -155,5 +155,13 @@
     return html;
   }
 
-  window.Precios = { consumidor, disponible: clave => !!datos(clave), crearCapa, descomposicion, balanceHTML, entidadHTML };
+  // Resumen de una línea de la cadena de precios
+  function resumen(res) {
+    const x = descomposicion(res);
+    if (!x) return "";
+    const c = consumidor(res.clave);
+    return `Productor ${mxn(x.rural)} · mayoreo ${mxn(x.mayoreo)}` + (c ? ` · consumidor ${mxn(c.precio)} el kg` : " el kg");
+  }
+
+  window.Precios = { resumen, consumidor, disponible: clave => !!datos(clave), crearCapa, descomposicion, balanceHTML, entidadHTML };
 })();

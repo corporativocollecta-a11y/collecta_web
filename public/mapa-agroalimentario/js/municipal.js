@@ -202,5 +202,13 @@
       grandes señalan potencial de mejora (tecnificación, riego, asistencia técnica).</p>`;
   }
 
-  window.Municipal = { crear, topHTML, detalleHTML, cargarGeo, nombreMun, disponible: () => !!window.PRODUCCION_MUNICIPAL };
+  // Resumen de una línea de la tabla de municipios
+  function topResumen(res, esc) {
+    if (!window.PRODUCCION_MUNICIPAL?.productos?.[res.clave]) return "";
+    const n = Object.keys(datos(res.clave, esc, res.pc).filas).length;
+    const top10 = ranking(res, esc, 10).reduce((s, f) => s + f.share, 0);
+    return `${fmt(n)} municipios producen; los 10 primeros suman ${pct(top10)}`;
+  }
+
+  window.Municipal = { crear, topHTML, topResumen, detalleHTML, cargarGeo, nombreMun, disponible: () => !!window.PRODUCCION_MUNICIPAL };
 })();

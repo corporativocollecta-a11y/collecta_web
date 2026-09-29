@@ -89,13 +89,14 @@
   const originales = new WeakMap();
   function traducirNodo(n) {
     if (n.nodeType === 3) {
-      if (n.parentElement?.closest("script,style")) return;
+      if (n.parentElement?.closest("script,style,[translate=no]")) return;
       const orig = originales.get(n) ?? n.nodeValue;
       const en = traducir(orig);
       if (en != null && en !== n.nodeValue) { originales.set(n, orig); n.nodeValue = en; }
       return;
     }
     if (n.nodeType !== 1) return;
+    if (n.closest?.("[translate=no]")) return;   // p. ej. la tarjeta del modo presentación, que ya trae su texto en inglés
     ["placeholder", "title", "aria-label"].forEach(a => {
       const v = n.getAttribute?.(a);
       if (!v) return;
@@ -107,11 +108,13 @@
     while ((x = w.nextNode())) if (x !== n) traducirNodo(x);
   }
   // Una sola reescritura por nodo: se evita el ciclo observador → cambio → observador
+  // En una pestaña oculta el navegador no ejecuta requestAnimationFrame: ahí se usa un temporizador
+  const siguienteCuadro = f => document.hidden ? setTimeout(f, 16) : requestAnimationFrame(f);
   let pendiente = new Set(), programado = false;
   const obs = new MutationObserver(ms => {
     if (!activo) return;
     ms.forEach(m => { if (m.type === "characterData") pendiente.add(m.target); m.addedNodes.forEach(n => pendiente.add(n)); });
-    if (!programado) { programado = true; requestAnimationFrame(() => { programado = false; const p = pendiente; pendiente = new Set(); obs.disconnect(); p.forEach(traducirNodo); conectar(); }); }
+    if (!programado) { programado = true; siguienteCuadro(() => { programado = false; const p = pendiente; pendiente = new Set(); obs.disconnect(); p.forEach(traducirNodo); conectar(); }); }
   });
   const conectar = () => obs.observe(document.body, { childList: true, subtree: true, characterData: true });
 

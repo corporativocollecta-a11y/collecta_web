@@ -59,5 +59,7 @@
   const nivel = cve => S()?.municipios?.[cve]?.[0] ?? 0;
   const ESCALA = NIVELES.map((t, i) => [i, COLORES[i], t]);
 
-  window.Sequia = { disponible: () => !!S(), exposicion, balanceHTML, entidadHTML, nivel, ESCALA, NIVELES, fecha: () => S()?.fecha };
+  const resumen = clave => { const x = exposicion(clave); return x ? `${pct(x.conSequia / x.total)} de la producción está en municipios con sequía moderada o peor` : ""; };
+
+  window.Sequia = { resumen, disponible: () => !!S(), exposicion, balanceHTML, entidadHTML, nivel, ESCALA, NIVELES, fecha: () => S()?.fecha };
 })();

@@ -32,5 +32,33 @@
       <p class="sub">Acceso fitosanitario y arancel para producto fresco de origen México. "Abierto" en UE, Japón y Corea significa que no figura entre los productos prohibidos ni con requisitos especiales. No incluye límites de residuos de plaguicidas, normas de comercialización ni registro de huertos. Los protocolos cambian: verificar antes de embarcar.</p>`;
   }
 
-  window.Acceso = { html, celda, etiqueta, mercadoDe };
+  // Resumen de una línea (nombres en español: la versión en inglés los traduce al pintar)
+  function resumen(k) {
+    const P = A()?.productos?.[k];
+    if (!P) return "";
+    const est = Object.entries(A().mercados).filter(([m]) => P[m]).map(([m, info]) => [info.nombre, P[m].estado]);
+    const abiertos = est.filter(x => x[1] === "abierto").length, cond = est.filter(x => x[1] === "con_condiciones").length;
+    const cerrados = est.filter(x => x[1] === "cerrado").map(x => `<b>${x[0]}</b>`);
+    const base = abiertos && cond ? `Abierto en ${abiertos} y con condiciones en ${cond} de ${est.length} mercados`
+      : abiertos ? `Abierto en ${abiertos} de ${est.length} mercados` : cond ? `Con condiciones en ${cond} de ${est.length} mercados` : `Sin acceso abierto en los ${est.length} mercados`;
+    return base + (cerrados.length && (abiertos || cond) ? ` · cerrado en ${cerrados.join(", ")}` : "");
+  }
+
+  // Situación de un solo mercado (vista por país y mercado de destino); iso = código ISO2 del país comprador
+  function mercadoHTML(k, iso) {
+    const m = mercadoDe(iso), e = celda(k, iso);
+    if (!e) return "";
+    return `<div class="acceso-mercado">${etiqueta(e)} <b>${nombreMercado(A().mercados[m])}</b> · arancel ${arancel(e) ?? "—"}
+      <br><span class="est">${req(e)}</span> <a href="${e.url}" target="_blank" rel="noopener">fuente</a></div>`;
+  }
+
+  // Resumen de un solo mercado: situación y arancel (en inglés se usan los campos *_en)
+  function resumenMercado(k, iso) {
+    const e = celda(k, iso);
+    if (!e) return "";
+    const est = { abierto: ["Abierto", "Open"], con_condiciones: ["Con condiciones", "With conditions"], cerrado: ["Cerrado", "Closed"] }[e.estado] ?? ["Sin dato", "No data"];
+    return `${est[en() ? 1 : 0]} · ${en() ? "tariff" : "arancel"} ${arancel(e) ?? "—"}`;
+  }
+
+  window.Acceso = { html, celda, etiqueta, mercadoDe, resumen, resumenMercado, mercadoHTML, estado: (k, iso) => celda(k, iso)?.estado ?? null };
 })();

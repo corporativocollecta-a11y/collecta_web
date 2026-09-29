@@ -24,5 +24,16 @@
       <p class="sub">Mediana ${U().anio} del precio en empacadora (lo que recibe el productor al empacar), semanal, todas las variedades sin orgánicos (en jitomate incluye cherry); ${U().usdPorEur} US$ por euro (Reserva Federal).${mx ? ` México en la frontera con EE. UU.: US$${mx.toFixed(2)}/kg (USDA, FOB). No incluye flete a Europa, aranceles ni certificaciones.` : ""}</p>`;
   }
 
-  window.PreciosUE = { html };
+  // Resumen de una línea: país con el precio más alto (o el país de la vista) frente a México en la frontera
+  function resumen(k, soloPais) {
+    const d = U()?.productos?.[k];
+    if (!d) return "";
+    const filas = Object.entries(d).filter(([p]) => !soloPais || p === soloPais).sort((a, b) => b[1][1] - a[1][1]);
+    if (!filas.length) return "";
+    const mx = window.PRECIOS_EUA?.productos?.[k]?.frontera?.precio;
+    const [p, [, usd]] = filas[0];
+    return `${soloPais ? "Productor en " : "Más alto: "}${nombre(p)}, US$${usd.toFixed(2)} el kg` + (mx ? ` · México en la frontera, US$${mx.toFixed(2)}` : "");
+  }
+
+  window.PreciosUE = { html, resumen };
 })();

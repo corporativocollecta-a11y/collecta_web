@@ -101,5 +101,15 @@
       ${efecto}`;
   }
 
-  window.Estacionalidad = { balanceHTML };
+  // Resumen de una línea: mes de mayor cosecha y mes más caro del mayoreo
+  function resumen(res) {
+    const prod = res.producto.produccionMensual;
+    if (!prod) return "";
+    const may = window.PRECIOS_SNIIM?.productos?.[res.clave]?.mensual ?? null;
+    const iPico = prod.indexOf(Math.max(...prod));
+    const iMax = may ? may.indexOf(Math.max(...may.filter(x => x != null))) : -1;
+    return `Mayor cosecha en ${MES_L[iPico]}` + (iMax >= 0 ? ` · mayoreo más caro en ${MES_L[iMax]}` : "");
+  }
+
+  window.Estacionalidad = { balanceHTML, resumen };
 })();
