@@ -27,7 +27,9 @@
   };
   const disponible = k => !!L()?.productos?.[k];
   // Nombre en la vista regional (FAOSTAT puede agrupar varios productos, p. ej. berries)
-  const nombreProd = k => L()?.productos?.[k]?.nombre ?? window.PRODUCTOS[k]?.nombre ?? k;
+  // Catálogo: productos de la vista México más los que solo existen en vistas internacionales (data/productos_paises.js)
+  const meta = k => window.PRODUCTOS[k] ?? window.PRODUCTOS_PAISES?.[k];
+  const nombreProd = k => L()?.productos?.[k]?.nombre ?? meta(k)?.nombre ?? k;
 
   function calcular(k) {
     const P = L().productos[k], paises = L().paises;
@@ -180,9 +182,9 @@
 
   function paisHTML(id, productoActual) {
     const pa = L().paises[id];
-    const filas = Object.keys(L().productos).filter(k => window.PRODUCTOS[k]).map(k => {
+    const filas = Object.keys(L().productos).filter(k => meta(k)).map(k => {
       const R = calcular(k), f = R.filas.find(x => x.id === id);
-      return f && { ...f, k, nombre: nombreProd(k), color: window.PRODUCTOS[k].color, share: f.prod / R.T.prod };
+      return f && { ...f, k, nombre: nombreProd(k), color: meta(k).color, share: f.prod / R.T.prod };
     }).filter(Boolean);
     const expTot = filas.reduce((s, f) => s + f.expUSD, 0);
     const lider = filas.filter(f => f.lugar === 1).map(f => f.nombre.toLowerCase());
@@ -209,8 +211,8 @@
 
   // Indicadores para la lista de productos y el resumen regional
   function indicadores() {
-    return Object.keys(L().productos).filter(k => window.PRODUCTOS[k]).map(k => {
-      const R = calcular(k), p = window.PRODUCTOS[k];
+    return Object.keys(L().productos).filter(k => meta(k)).map(k => {
+      const R = calcular(k), p = meta(k);
       return {
         k, nombre: nombreProd(k), tipo: p.tipo, color: p.color, prod: R.T.prod, auto: R.T.prod / (R.T.disp || 1),
         alProductor: null, meta: `${fmtT(R.T.prod)} · MX #${R.mx?.lugar ?? "—"}`,
@@ -382,7 +384,7 @@
 
   window.Latam = {
     usar: r => { fuente = r === "global" ? "global" : "latam"; },
-    datos: () => L(), claves: () => Object.keys(L()?.productos ?? {}).filter(k => window.PRODUCTOS[k]),
+    datos: () => L(), claves: () => Object.keys(L()?.productos ?? {}).filter(k => meta(k)),
     nombre: nombreProd, disponible, calcular, crearCapa, leyendaHTML, productoHTML, paisHTML, indicadores, resumenHTML, METRICAS,
     comercioDisponible: () => !!C(), crearCapaComercio, rutasHTML, sociosHTML, destinoRegional };
 })();

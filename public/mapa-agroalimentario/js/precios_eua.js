@@ -35,6 +35,34 @@
       </svg>
       <p class="sub">Embarques semanales que el USDA registra en los cruces con México (reporte National Shipping Point Trends, 1,000 cwt = 45.4 t). No cubre todos los pasos: suele sumar entre 70% y 90% de lo que México reporta exportar a EE. UU.</p>`;
   }
+  // Cadena frontera → ciudad: precio FOB en el cruce + flete en camión (US$ por carga ÷ kg por carga) contra el mayoreo
+  // de cada ciudad. Solo si frontera y mayoreo cotizan la misma mercancía.
+  function rutasCadena(k) {
+    const d = datos(k), f = d?.frontera, F = E()?.fletes;
+    if (!d?.precio || !f?.precio || !F || f.mercancia !== d.mercancia) return [];
+    return Object.entries(d.mercados ?? {}).map(([ciudad, [mayoreo]]) => {
+      const opciones = Object.entries(f.cruces).map(([cruce, [fob]]) => {
+        const r = F.rutas[cruce]?.[ciudad];
+        return r ? { cruce, fob, fleteCarga: r[0], flete: r[0] / F.cargaKg } : null;
+      }).filter(Boolean).map(o => ({ ...o, llega: o.fob + o.flete })).sort((a, b) => a.llega - b.llega);
+      return opciones.length ? { ciudad, mayoreo, ...opciones[0] } : null;
+    }).filter(Boolean).sort((a, b) => (b.mayoreo - b.llega) - (a.mayoreo - a.llega));
+  }
+  function cadenaHTML(k) {
+    const rutas = rutasCadena(k);
+    if (!rutas.length) return "";
+    const F = E().fletes;
+    return `
+      <h3>De la frontera a cada ciudad <span class="tag ok">USDA ${E().anio}</span></h3>
+      <table>
+        <tr><th>Ciudad</th><th class="num">Frontera</th><th class="num">Flete</th><th class="num">Llega en</th><th class="num">Mayoreo</th><th class="num">Diferencia (% del mayoreo)</th></tr>
+        ${rutas.map(r => `<tr><td>${E().mercados[r.ciudad].nombre}<br><span class="est">desde ${E().cruces[r.cruce].nombre.split(",")[0]}</span></td>
+          <td class="num">${usd(r.fob)}</td><td class="num">${usd(r.flete)}</td><td class="num">${usd(r.llega)}</td><td class="num">${usd(r.mayoreo)}</td>
+          <td class="num">${r.mayoreo - r.llega >= 0 ? "+" : ""}${pct((r.mayoreo - r.llega) / r.mayoreo)}</td></tr>`).join("")}
+      </table>
+      <p class="sub">US$/kg. Flete = tarifa mediana ${E().anio} por camión refrigerado del cruce a la ciudad (USDA National Truck Rate Report) ÷ ${Math.round(F.cargaKg).toLocaleString("es-MX")} kg por carga (40,000 lb). Se elige el cruce que deja el producto más barato en cada ciudad. La diferencia cubre descarga, merma, financiamiento y el margen del importador y del mayorista. Referencia: ${datos(k).mercancia}.</p>`;
+  }
+
   // Calendario comercial: de dónde viene lo que se vende en EE. UU. cada mes y a qué precio
   function calendarioHTML(k) {
     const c = E()?.calendario?.[k];
@@ -129,7 +157,7 @@
       ${opciones.length > 1 ? opciones.map(o => `<div class="ruta"><span>${o.nombre}</span><span class="x">${Math.round(o.km).toLocaleString("es-MX")} km</span><span class="x">${mxn(o.neto)}/kg</span></div>`).join("") : ""}
       <p class="sub">Referencia: ${f.mercancia}, ${f.empaque}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.</p>`;
   }
-  const mexicoHTML = k => calendarioHTML(k) + competenciaHTML(k) + volumenHTML(E()?.mexico?.[k], "Exportación a EE. UU.: por dónde y cuándo cruza");
+  const mexicoHTML = k => calendarioHTML(k) + competenciaHTML(k) + cadenaHTML(k) + volumenHTML(E()?.mexico?.[k], "Exportación a EE. UU.: por dónde y cuándo cruza");
 
   // Precio relativo a la mediana nacional: barato (lima) → caro (naranja)
   const colorRel = r => { const t = window.Paleta.tokens(); return r < 0.9 ? t.exc : r <= 1.1 ? t.neutro : t.def; };
@@ -151,6 +179,11 @@
           Origen mexicano: ${pct(mx)} de las cotizaciones<br><span style="opacity:.7">${d.mercancia}, ${d.empaque}</span>`).addTo(grupo);
       });
       const f = d.frontera;
+      rutasCadena(k).forEach(r => {
+        const a = E().cruces[r.cruce], b = E().mercados[r.ciudad];
+        window.Paleta.ruta(grupo, [[a.lat, a.lon], [(a.lat + b.lat) / 2 + 2, (a.lon + b.lon) / 2], [b.lat, b.lon]], t.importa, 1.2,
+          `${a.nombre.split(",")[0]} → ${b.nombre}<br>Flete: <b>US$${Math.round(r.fleteCarga).toLocaleString("es-MX")}</b> por camión (${usd(r.flete)}/kg)<br>Llega en ${usd(r.llega)}/kg · mayoreo ${usd(r.mayoreo)}/kg`);
+      });
       Object.entries(E().cruces).forEach(([id, c]) => {
         const v = f?.cruces?.[id];
         const tCruce = d.volumen?.cruces?.[id];
@@ -197,7 +230,7 @@
 
   function panelHTML(k) {
     const d = datos(k);
-    const vol = calendarioHTML(k) + competenciaHTML(k) + volumenHTML(d?.volumen, "Lo que cruza de México");
+    const vol = calendarioHTML(k) + competenciaHTML(k) + cadenaHTML(k) + volumenHTML(d?.volumen, "Lo que cruza de México");
     if (!d?.precio) return vol;
     const f = d.frontera;
     const ciudades = Object.entries(d.mercados).sort((a, b) => a[1][0] - b[1][0]);

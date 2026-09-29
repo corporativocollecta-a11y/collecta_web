@@ -177,7 +177,7 @@
       capaLatam.dibujar(R, estado.metricaLatam, estado.pais, id => { estado.pais = id; activarTab("entidad"); dibujarMapa(); renderPaisLatam(); abrirHoja(); }, verVolumen());
       capaLatam.mostrar();
       if (Latam.comercioDisponible() && document.getElementById("verRutas").checked) {
-        capaComercio.dibujar(estado.producto, window.PRODUCTOS[estado.producto].color, estado.pais);
+        capaComercio.dibujar(estado.producto, Subnacional.meta(estado.producto).color, estado.pais);
         capaComercio.mostrar();
       } else capaComercio.ocultar();
       document.getElementById("leyenda").innerHTML = Latam.leyendaHTML(R, estado.metricaLatam, Latam.nombre(estado.producto), verVolumen());
@@ -610,7 +610,7 @@
     if (estado.region === "sub") {
       const R = Subnacional.calcular(estado.producto), d = Subnacional.datos();
       ojo = `${d.pais} · ${d.fuenteCorta}`;
-      titulo = Subnacional.nombre(estado.producto);
+      titulo = Subnacional.nombre(estado.producto) + ` <small class="confianza">${Subnacional.confianzaHTML(estado.producto)}</small>`;
       kpis = [[fmtT(R.P.nacional), "producción"], [R.pc.toFixed(1) + " kg", "consumo por persona al año"],
         [R.C ? pct(R.impConsumo) : "—", "de lo que consume es importado"]];
     } else if (estado.region !== "mx") {
@@ -699,7 +699,7 @@
     cont.innerHTML = Latam.resumenHTML(indicadores);
     cont.querySelectorAll("tr.clic[data-prod]").forEach(tr => tr.onclick = () => seleccionarProducto(tr.dataset.prod, true));
     const bal = document.getElementById("tab-balance");
-    bal.innerHTML = Latam.productoHTML(R, window.PRODUCTOS[estado.producto]);
+    bal.innerHTML = Latam.productoHTML(R, Subnacional.meta(estado.producto));
     bal.querySelectorAll("tr.clic[data-pais]").forEach(tr => tr.onclick = () => {
       estado.pais = tr.dataset.pais; activarTab("entidad"); dibujarMapa(); renderPaisLatam();
     });
@@ -934,7 +934,9 @@
   const selectorPais = document.getElementById("paisSub");
   // México más los países con vista por regiones
   document.getElementById("lema").textContent = `Del campo a la mesa · ${Subnacional.paises().length + 1} países`;
-  Subnacional.paises().forEach(p => selectorPais.insertAdjacentHTML("beforeend", `<option value="${p.codigo}">${p.nombre}</option>`));
+  // En el selector se marca el país cuya producción regional es mayormente estimada
+  Subnacional.paises().forEach(p => selectorPais.insertAdjacentHTML("beforeend",
+    `<option value="${p.codigo}">${p.nombre}${Subnacional.confianza(null, p.codigo).nivel === "estimado" ? " (estimado)" : ""}</option>`));
   selectorPais.onchange = () => {
     if (selectorPais.value) { estado.paisSub = selectorPais.value; cambiarRegion("sub"); }
     else { document.querySelector("input[name=region][value=mx]").checked = true; cambiarRegion("mx"); }

@@ -1127,5 +1127,21 @@ window.TRADUCCION_EN = {
 "fuente": "source",
 "Acceso fitosanitario y arancel para producto fresco de origen @. \"Abierto\" en UE, @ y Corea significa que no figura entre los productos prohibidos ni con requisitos especiales. No incluye límites de residuos de plaguicidas, normas de comercialización ni registro de huertos. Los protocolos cambian: verificar antes de embarcar.": "Phytosanitary access and tariff for fresh produce of @ origin. \"Open\" in the EU, @ and Korea means it is not listed as prohibited or with special requirements. Excludes pesticide residue limits, marketing standards and orchard registration. Protocols change: verify before shipping.",
 ": USDA APHIS ACIR y USITC HTS (@); CFIA AIRS y CBSA (@); Reglamento (UE) #/# y EU Access#Markets; DEFRA y UK Trade Tariff (@); MAFF y Aduana de @; GACC y arancel de @ #; APQA y arancel de Corea. Consulta: @ de #": ": USDA APHIS ACIR and USITC HTS (@); CFIA AIRS and CBSA (@); Regulation (EU) #/# and EU Access#Markets; DEFRA and UK Trade Tariff (@); MAFF and Japan Customs (@); GACC and @ tariff #; APQA and Korea tariff. Checked: @ #",
-"Unión Europea": "European Union"
+"Unión Europea": "European Union",
+"@ (estimado)": "@ (estimated)",
+"Dato oficial por región": "Official regional data",
+"Dato mixto: oficial y estimado": "Mixed data: official and estimated",
+"Dato estimado por región": "Estimated regional data",
+"De la frontera a cada ciudad": "From the border to each city",
+"Llega en": "Delivered at",
+"Flete": "Freight",
+"Frontera": "Border",
+"Mayoreo": "Wholesale",
+"Ciudad": "City",
+"Diferencia (% del mayoreo)": "Difference (% of wholesale)",
+"desde Nogales": "from Nogales",
+"desde McAllen": "from McAllen",
+"US$/kg. Flete = tarifa mediana # por camión refrigerado del cruce a la ciudad (USDA National Truck Rate Report) ÷ # kg por carga (# lb). Se elige el cruce que deja el producto más barato en cada ciudad. La diferencia cubre descarga, merma, financiamiento y el margen del importador y del mayorista. Referencia: @.": "US$/kg. Freight = # median reefer truck rate from the crossing to the city (USDA National Truck Rate Report) ÷ # kg per load (# lb). The crossing that delivers the product cheapest to each city is used. The difference covers unloading, shrink, financing and the importer's and wholesaler's margin. Reference: @.",
+"Reparto según la superficie de @ en conjunto (arveja, @, @, chile pimiento, @, @, @, repollo y @) de cada departamento en el mapa de uso de la tierra # del MAGA.": "Allocated by the combined area of @ (peas, @, @, bell pepper, @, @, @, cabbage and @) in each department on MAGA's # land-use map.",
+"Otros cultivos": "Other crops"
 };

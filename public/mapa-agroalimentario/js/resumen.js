@@ -38,7 +38,7 @@
     const q = quitarAcentos(filtro.trim());
     const visibles = ind.filter(x => (tipo === "todos" || x.tipo === tipo) && (!q || quitarAcentos(x.nombre).includes(q)));
     if (!visibles.length) return `<p class="sin-resultados">No hay productos que coincidan con “${filtro}”.</p>`;
-    const grupos = [["Hortaliza", "Hortalizas"], ["Fruta", "Frutas"]];
+    const grupos = [["Hortaliza", "Hortalizas"], ["Fruta", "Frutas"], ["Otro", "Otros cultivos"]];
     return grupos.map(([t, titulo]) => {
       const items = visibles.filter(x => x.tipo === t).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
       if (!items.length) return "";

@@ -242,6 +242,7 @@ tr.resaltado td:first-child { font-weight: 600; }
 }
 .titular .etq { color: var(--productor); }
 .titular h2 { font-size: 40px; line-height: 1; margin: 4px 0 10px; }
+.titular .confianza { font-size: 12px; vertical-align: middle; pointer-events: auto; }
 .kpis-grandes { display: flex; gap: 22px; }
 .kpis-grandes div { display: grid; gap: 3px; flex: 0 1 136px; min-width: 0; align-content: start; }
 .kpis-grandes b { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }

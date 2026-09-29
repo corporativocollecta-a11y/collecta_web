@@ -26,6 +26,9 @@
     "limón persa": "Persian lime", "limón amarillo": "lemon", "calabaza amarilla": "yellow squash", "lechuga iceberg": "iceberg lettuce",
     "lechuga romana": "romaine", "durazno": "peach", "nectarina": "nectarine", "arándano": "blueberry", "frambuesa": "raspberry",
     "melón chino": "cantaloupe", "melón gota de miel": "honeydew",
+    "Ciruela": "Plum", "Coco": "Coconut", "Ajo": "Garlic", "Ejote": "Green bean", "Chile seco": "Dried chili",
+    "Café": "Coffee", "Cacao": "Cocoa", "Café verde (oro)": "Green coffee", "Cacao en grano": "Cocoa beans",
+    "Mandarina y clementina": "Mandarin and clementine",
   };
   const MESES_EN = {
     enero: "January", febrero: "February", marzo: "March", abril: "April", mayo: "May", junio: "June", julio: "July",
@@ -124,7 +127,9 @@
     } catch (e) { /* vista previa sin historial */ }
     const b = document.getElementById("btnIdioma");
     if (b) b.textContent = activo ? "ES" : "EN";
-    if (activo) { obs.disconnect(); traducirNodo(document.body); conectar(); }
+    // Las plantillas (≈130 kB) se cargan la primera vez que se pide el inglés
+    if (activo) window.Paleta.cargar("data/traduccion_en.js", () => !!window.TRADUCCION_EN)
+      .then(() => { obs.disconnect(); traducirNodo(document.body); conectar(); });
     else location.reload();   // volver al español: el texto original se pinta de nuevo
   }
 

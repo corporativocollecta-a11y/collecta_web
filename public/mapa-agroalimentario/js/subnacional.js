@@ -32,6 +32,21 @@
   // Ubicación de un país de origen (vista mundial de FAOSTAT)
   const coordPais = m49 => window.GLOBAL?.paises?.[m49];
 
+  // Confianza del dato: parte de las toneladas publicadas oficialmente por región (bandera 0) frente a estimadas (1)
+  function confianza(k, c = codigo) {
+    const d = window.SUBNACIONAL?.[c];
+    const lista = k ? [d?.productos?.[k]].filter(Boolean) : Object.values(d?.productos ?? {});
+    let pub = 0, tot = 0;
+    lista.forEach(P => Object.values(P.regiones).forEach(([t, e]) => { tot += t; if (e !== 1) pub += t; }));
+    const parte = tot > 0 ? pub / tot : 0;
+    return { parte, nivel: parte >= 0.9 ? "oficial" : parte >= 0.3 ? "mixto" : "estimado" };
+  }
+  const CONFIANZA = { oficial: ["Dato oficial por región", "ok"], mixto: ["Dato mixto: oficial y estimado", "alerta-tag"], estimado: ["Dato estimado por región", "def"] };
+  function confianzaHTML(k) {
+    const c = confianza(k), [t, cl] = CONFIANZA[c.nivel];
+    return `<span class="tag ${cl}" title="${Math.round(c.parte * 100)}% de las toneladas vienen publicadas por región; el resto se reparte con superficie, población u otra clave">${t}</span>`;
+  }
+
   function calcular(k) {
     const P = D().productos[k], C = P.comercio;
     const pobNac = Object.values(D().regiones).reduce((s, e) => s + (e.pob || 0), 0);
@@ -143,7 +158,7 @@
     const recibe = [...R.filas].filter(f => f.imp > 0).sort((a, b) => b.imp - a.imp).slice(0, 6);
     return `
       <h2>${nombreProd(R.k)} en ${D().pais}</h2>
-      <p class="sub"><span class="tag ok">${fuente}</span> <span class="tag ok">Población ${D().anioPoblacion}</span> ${C ? `<span class="tag ok">FAOSTAT ${D().anioComercio}</span>` : ""}</p>
+      <p class="sub">${confianzaHTML(R.k)} <span class="tag ok">${fuente}</span> <span class="tag ok">Población ${D().anioPoblacion}</span> ${C ? `<span class="tag ok">FAOSTAT ${D().anioComercio}</span>` : ""}</p>
       <div class="kpis">
         <div class="kpi"><div class="v">${fmtT(P.nacional)}</div><div class="l">Producción nacional</div></div>
         <div class="kpi"><div class="v">${fmtT(R.consumo)}</div><div class="l">Consumo aparente · ${R.pc.toFixed(1)} kg por persona</div></div>
@@ -247,5 +262,5 @@
       </div>`;
   }
 
-  window.Subnacional = { unReg, meta, paises, usar, datos: D, disponible, claves, nombre: nombreProd, calcular, crearCapa, leyendaHTML, productoHTML, regionHTML, indicadores, resumenHTML };
+  window.Subnacional = { confianza, confianzaHTML, unReg, meta, paises, usar, datos: D, disponible, claves, nombre: nombreProd, calcular, crearCapa, leyendaHTML, productoHTML, regionHTML, indicadores, resumenHTML };
 })();

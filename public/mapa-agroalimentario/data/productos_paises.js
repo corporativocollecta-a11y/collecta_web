@@ -17,5 +17,12 @@ window.PRODUCTOS_PAISES = {
   chabacano:    { nombre: "Chabacano (albaricoque)", tipo: "Fruta", color: "#f4a340" },
   granada:      { nombre: "Granada", tipo: "Fruta", color: "#be123c" },
   col:          { nombre: "Col (repollo y col china)", tipo: "Hortaliza", color: "#4d7c0f" },
-  caqui:        { nombre: "Caqui", tipo: "Fruta", color: "#ea580c" }
+  caqui:        { nombre: "Caqui", tipo: "Fruta", color: "#ea580c" },
+  ciruela:      { nombre: "Ciruela", tipo: "Fruta", color: "#7e22ce" },
+  coco:         { nombre: "Coco", tipo: "Fruta", color: "#a16207" },
+  ajo:          { nombre: "Ajo", tipo: "Hortaliza", color: "#d6d3d1" },
+  ejote:        { nombre: "Ejote", tipo: "Hortaliza", color: "#16a34a" },
+  chile_seco:   { nombre: "Chile seco", tipo: "Hortaliza", color: "#991b1b" },
+  cafe:         { nombre: "Café", tipo: "Otro", color: "#78350f" },
+  cacao:        { nombre: "Cacao", tipo: "Otro", color: "#7c2d12" }
 };

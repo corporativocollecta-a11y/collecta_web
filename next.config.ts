@@ -13,9 +13,18 @@ const nextConfig: NextConfig = {
   async headers() {
     // keep the unlisted map out of search engines
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+    // map assets: files referenced by index.html carry ?v=<content hash>, so they can be cached for a year;
+    // files the map loads later (region shapes, history) are cached for a day and revalidated in the background
+    const assets = "/mapa-agroalimentario/:dir(js|css|data|img)/:path*";
     return [
       { source: "/mapa-agroalimentario", headers: noindex },
       { source: "/mapa-agroalimentario/:path*", headers: noindex },
+      { source: assets, headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
+      {
+        source: assets,
+        has: [{ type: "query", key: "v" }],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
     ];
   },
   async redirects() {
