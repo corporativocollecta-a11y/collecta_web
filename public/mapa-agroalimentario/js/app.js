@@ -150,6 +150,8 @@
   const capaComercio = Latam.crearCapaComercio(mapa);
   const capaSub = Subnacional.crearCapa(mapa);
   const capaEUA = window.PreciosEUA ? PreciosEUA.crearCapa(mapa) : null;
+  const capaEmb = window.Embarques ? Embarques.crearCapa(mapa) : null;
+  const verEmbarques = () => capaEmb && estado.paisSub === "US" && document.getElementById("verEmbarquesEUA").checked;
   const verPreciosEUA = () => capaEUA && estado.paisSub === "US" && document.getElementById("verMercadosEUA").checked && PreciosEUA.disponible(estado.producto);
 
   function dibujarMapa() {
@@ -166,12 +168,14 @@
         verVolumen());
       capaSub.mostrar();
       document.getElementById("leyenda").innerHTML = Subnacional.leyendaHTML(estado.metricaSub, Subnacional.nombre(estado.producto), verVolumen()) +
-        (verPreciosEUA() ? capaEUA.leyendaHTML() : "");
+        (verPreciosEUA() ? capaEUA.leyendaHTML() : "") + (verEmbarques() ? capaEmb.leyendaHTML() : "");
+      if (verEmbarques()) { capaEmb.dibujar(estado.producto); capaEmb.mostrar(); } else capaEmb?.ocultar();
       if (verPreciosEUA()) { capaEUA.dibujar(estado.producto); capaEUA.mostrar(); } else capaEUA?.ocultar();
       return;
     }
     capaSub.ocultar();
     capaEUA?.ocultar();
+    capaEmb?.ocultar();
     if (estado.region !== "mx") {
       capaPrecios.ocultar(); capaMunicipal.ocultar(); capaCentrales.remove();
       const R = Latam.calcular(estado.producto);
@@ -335,6 +339,8 @@
       ${destino1 ? S("destinos", `<h3>Destino de las exportaciones (por volumen)</h3>${barras(p.destinos)}`,
         `Primer destino: ${destino1[0]}, ${pctFino(destino1[1])} del volumen`, { abierta: true }) : ""}
       ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
+      ${window.Embarques ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
+      ${window.Embarques ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}
       ${window.PreciosEUA && f?.prod > 0 ? S("neto", PreciosEUA.netoHTML(k, f, p.precioRural, tarifa, res.filas), PreciosEUA.netoResumen(k, f, p.precioRural, tarifa)) : ""}
       ${window.Acceso ? S("acceso", Acceso.html(k), Acceso.resumen(k)) : ""}
       ${opp.html ? S("oportunidades", opp.html, opp.resumen) : ""}
@@ -833,6 +839,7 @@
     const latam = region !== "mx";
     document.getElementById("ctrlSub").hidden = region !== "sub";
     document.getElementById("ctrlMercadosEUA").hidden = !(region === "sub" && estado.paisSub === "US" && window.PRECIOS_EUA);
+    document.getElementById("ctrlEmbarquesEUA").hidden = !(region === "sub" && estado.paisSub === "US" && window.Embarques);
     document.getElementById("fuenteSub").textContent = region === "sub" ? Subnacional.datos().fuenteCorta : "";
     const selector = document.getElementById("paisSub");
     selector.classList.toggle("activo", region === "sub");
@@ -1044,6 +1051,7 @@
   document.getElementById("metricaSub").onchange = e => { estado.metricaSub = e.target.value; dibujarMapa(); };
   document.getElementById("verImportSub").onchange = dibujarMapa;
   document.getElementById("verMercadosEUA").onchange = dibujarMapa;
+  document.getElementById("verEmbarquesEUA").onchange = dibujarMapa;
   actualizarAviso();
   renderFuentes();
   if (!aplicarURL()) render();

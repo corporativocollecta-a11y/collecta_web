@@ -188,6 +188,7 @@
         `Más importado: ${recibe[0].nombre}, ${fmtT(recibe[0].imp)}`) : ""}
       ${deficit.length ? `<div class="nota">${Regs()} grandes que no cubren ni la mitad de su demanda: <b>${deficit.map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>.</div>` : ""}
       <p class="sub">Demanda por ${reg()} = población ${D().anioPoblacion} × consumo aparente nacional (producción + importación − exportación).</p>
+      ${D().codigo === "US" && window.Embarques ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", R.k, "eua")}`, AUTO, { abierta: true }) : ""}
       ${D().codigo === "US" && window.PreciosEUA ? S("mayoreo", window.PreciosEUA.panelHTML(R.k), window.PreciosEUA.panelResumen(R.k)) : ""}
       ${window.Historia ? S("historia", `<h3>${D().pais} en diez años</h3>${Historia.marca("pais", R.k, { pais: D().m49, titulo: "" })}`, AUTO) : ""}`;
   }
@@ -216,6 +217,7 @@
         <p class="sub">Acceso fitosanitario y arancel para producto fresco de origen México. No incluye límites de residuos ni normas de comercialización.</p>`,
         window.Acceso.resumenMercado(R.k, d.codigo)) : ""}
       ${secUSA}
+      ${d.codigo === "US" && window.Embarques ? S("pronostico", `<h3>Pronóstico de 8 semanas <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", R.k, "eua")}`, AUTO) : ""}
       ${window.PreciosUE ? S("europa", PreciosUE.html(R.k, ue), PreciosUE.resumen(R.k, ue)) : ""}
       ${window.Mercado && d.m49 ? `<p class="sub"><a href="#" class="enlace-mercado" data-mercado="${d.m49}">Ver el mercado de ${d.pais} como comprador: qué importa y a quién le compra →</a></p>` : ""}`;
   }

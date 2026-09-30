@@ -678,3 +678,7 @@ table.compacta td { vertical-align: top; }
   .cmp-acciones, .cmp-cambiar { display: none; }
   .cmp-tabla, .cmp-graficas { break-inside: avoid; }
 }
+
+/* ---------- Embarques semanales (js/embarques.js) ---------- */
+.emb-semana { display: grid; gap: 4px; margin: 4px 0 10px; }
+.emb-semana input[type=range] { width: 100%; accent-color: var(--c-importa); }
