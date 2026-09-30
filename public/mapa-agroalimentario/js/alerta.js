@@ -42,7 +42,7 @@
       .filter(e => e.peso > 0).sort((a, b) => b.peso - a.peso);
     return { k, p, s, nivel: nivel(s), estados };
   }
-  // Color por estado para el mapa: más oferta por venir → naranja (presión a la baja del precio); menos → lima
+  // Color por estado para el mapa: más oferta por venir → naranja; menos → lima (mide oferta: en la prueba 2019–2026, scripts/backtest_alerta.py, no anticipó precios)
   function colorEstado(k, id) {
     const p = A()?.productos?.[k], reg = p?.estados?.[id];
     const t = window.Paleta.tokens();
@@ -85,7 +85,7 @@
       </table></div>
       <p class="sub">SIAP, Avance de Siembras y Cosechas, situación al ${A().corte} contra el promedio de los dos años anteriores al mismo corte (ciclos otoño-invierno y primavera-verano más perennes; riego y temporal). ${pe
         ? "En perennes la señal es la producción acumulada a la fecha."
-        : "La superficie por cosechar (sembrada − cosechada − siniestrada) es lo que falta por salir al mercado en los próximos meses: si crece mucho contra años anteriores, puede presionar el precio a la baja."} Sin señal cuando la base es muy chica (menos de ${MIN_HA} ha por cosechar o ${fmt(MIN_T)} t). Es un indicador, no un pronóstico: no considera rendimientos, clima ni demanda. En el mapa, elige <i>Oferta por venir</i> para verlo por estado.</p>`;
+        : "La superficie por cosechar (sembrada − cosechada − siniestrada) es lo que falta por salir al mercado en los próximos meses."} Sin señal cuando la base es muy chica (menos de ${MIN_HA} ha por cosechar o ${fmt(MIN_T)} t). Mide oferta, no anticipa precios: en una prueba con 2019–2026 esta señal no anticipó el precio de mayoreo en Estados Unidos. No considera rendimientos, clima ni demanda. En el mapa, elige <i>Oferta por venir</i> para verlo por estado.</p>`;
   }
   function resumen(k) {
     const R = calcular(k);
@@ -104,8 +104,8 @@
       <div class="alerta-oferta">
         <span class="etq">Alerta de oferta · SIAP al ${A().corte}</span>
         <h3>Lo que viene en los próximos meses</h3>
-        ${mas.length ? `<p class="sub"><b>Más oferta que en años anteriores</b> (posible presión a la baja del precio):</p><div class="chips-alerta">${mas.map(chip).join("")}</div>` : ""}
-        ${menos.length ? `<p class="sub"><b>Menos oferta que en años anteriores</b> (posible alza del precio o faltante):</p><div class="chips-alerta">${menos.map(chip).join("")}</div>` : ""}
+        ${mas.length ? `<p class="sub"><b>Más oferta que en años anteriores</b></p><div class="chips-alerta">${mas.map(chip).join("")}</div>` : ""}
+        ${menos.length ? `<p class="sub"><b>Menos oferta que en años anteriores</b></p><div class="chips-alerta">${menos.map(chip).join("")}</div>` : ""}
         <p class="sub">Cíclicos: superficie sembrada que falta por cosechar; perennes: producción a la fecha; contra ${base()} al mismo corte. Detalle por estado en la pestaña Producto.</p>
       </div>`;
   }
