@@ -21,6 +21,7 @@
     nivel: "estatal",      // "estatal" | "municipal"
     municipio: null,       // CVEGEO seleccionado
     metricaMun: "produccion",
+    metricaMx: "auto",     // color de los estados de México: autosuficiencia u oferta por venir (alerta SIAP)
     mercado: null,         // país comprador (M49) abierto en la pestaña Exportar (vista por mercado de destino)
     escenarios: {} // por producto
   };
@@ -219,8 +220,9 @@
     const geo = window.GEO_SUB?.MX;
     if (!geo) Paleta.geoRegiones("MX").then(() => { if (estado.region === "mx" && estado.nivel === "estatal") dibujarMapa(); }).catch(() => {});
     const conPrecios = document.getElementById("verRed").checked && Precios.disponible(res.clave);
+    const porOferta = estado.metricaMx === "oferta" && window.Alerta?.disponible(res.clave);
     if (geo) Paleta.coropletas(mapa, capaTerritorios, geo, {
-      color: id => porId[id] ? colorAutosuf(porId[id].autosuf) : null, seleccionado: estado.entidad,
+      color: id => porOferta ? Alerta.colorEstado(res.clave, id) ?? Paleta.tokens().sin : porId[id] ? colorAutosuf(porId[id].autosuf) : null, seleccionado: estado.entidad,
       tooltip: id => tip(porId[id]), clic: clicEntidad
     });
 
@@ -250,6 +252,7 @@
       }).bindTooltip(tip(f)).on("click", () => clicEntidad(f.id)).addTo(capaBurbujas);
     });
     dibujarLeyenda();
+    if (porOferta) document.getElementById("leyenda").innerHTML = Alerta.leyendaHTML(res.clave);
   }
 
   // ---------- Secciones plegables y utilidades de los paneles ----------
@@ -291,6 +294,8 @@
       </div>
       ${nota}
       ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${window.Alerta?.disponible(res.clave) ? S("alerta", `<h3>Siembras y cosechas: alerta de oferta <span class="tag ok">SIAP</span></h3>${Alerta.html(res.clave)}`, Alerta.resumen(res.clave),
+        { abierta: Math.abs(Alerta.calcular(res.clave).s ?? 0) >= 0.15 }) : ""}
       ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}
       ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
       ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
@@ -307,6 +312,9 @@
         `${top[0].nombre}: ${pct(top[0].prod / (n.produccion || 1))} de la producción · ${n.entidadesAutosuf} de 32 entidades se autoabastecen`, { abierta: true })}
       ${S("municipios", Municipal.topHTML(res, escenario()), Municipal.topResumen(res, escenario()))}`;
     enlazarFilas("#tab-balance");
+    document.querySelectorAll('#tab-balance details[data-sec="alerta"] tr.clic[data-id]').forEach(tr => tr.onclick = () => {
+      estado.entidad = tr.dataset.id; estado.metricaMx = "oferta"; document.getElementById("metricaMx").value = "oferta"; render();
+    });
     const esc_ = document.getElementById("sEscalon");
     if (esc_) esc_.onchange = () => { escenario().escalonamiento = +esc_.value; renderBalance(); };
     document.querySelectorAll("#tab-balance tr.mun").forEach(tr => tr.onclick = () => {
@@ -763,6 +771,11 @@
   function renderResumen() {
     const cont = document.getElementById("tab-resumen");
     cont.innerHTML = Resumen.panelHTML(indicadores, ordenResumen);
+    // La alerta de oferta va justo debajo de las cifras principales, antes de la tabla larga
+    if (window.Alerta) (cont.querySelector(".cifras-resumen") ?? cont.lastElementChild)?.insertAdjacentHTML("afterend", Alerta.tableroHTML());
+    cont.querySelectorAll(".chip-alerta[data-prod]").forEach(b => b.onclick = () => {
+      estado.metricaMx = "oferta"; document.getElementById("metricaMx").value = "oferta"; seleccionarProducto(b.dataset.prod, true);
+    });
     cont.querySelectorAll("tr.clic[data-prod]").forEach(tr => tr.onclick = () => seleccionarProducto(tr.dataset.prod, true));
     cont.querySelectorAll("[data-orden]").forEach(b => b.onclick = () => { ordenResumen = b.dataset.orden; renderResumen(); });
   }
@@ -911,6 +924,7 @@
     const m = estado.region === "sub" ? estado.metricaSub : estado.region === "mx" ? null : estado.metricaLatam;
     const q = new URLSearchParams({ v, p: estado.producto });
     if (m) q.set("m", m);
+    if (estado.region === "mx" && estado.nivel === "estatal" && estado.metricaMx !== "auto") q.set("me", estado.metricaMx);
     if (estado.region === "mx" && estado.nivel === "municipal") { q.set("n", "mun"); if (estado.metricaMun !== "produccion") q.set("mm", estado.metricaMun); }
     if (sel) q.set("s", sel);
     if (tab && tab !== "resumen") q.set("t", tab);
@@ -949,6 +963,8 @@
       if (q.get("s")) estado.entidad = q.get("s");
       estado.municipio = null;
       estado.metricaMun = q.get("mm") || "produccion";
+      estado.metricaMx = q.get("me") || "auto";
+      document.getElementById("metricaMx").value = estado.metricaMx;
       document.getElementById("metricaMun").value = estado.metricaMun;
       cambiarNivel(q.get("n") === "mun" && Municipal.disponible() ? "municipal" : "estatal");
       if (estado.region !== "mx") { document.querySelector("input[name=region][value=mx]").checked = true; cambiarRegion("mx"); }
@@ -1028,6 +1044,7 @@
     cambiarNivel(r.value); dibujarMapa(); renderEntidad();
   });
   document.getElementById("metricaMun").onchange = e => { estado.metricaMun = e.target.value; dibujarMapa(); };
+  document.getElementById("metricaMx").onchange = e => { estado.metricaMx = e.target.value; dibujarMapa(); };
   if (!Municipal.disponible()) document.querySelector("input[name=nivel][value=municipal]").disabled = true;
 
   document.querySelectorAll("input[name=region]").forEach(r => r.onchange = () => cambiarRegion(r.value));

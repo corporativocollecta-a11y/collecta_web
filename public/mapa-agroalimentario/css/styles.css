@@ -500,16 +500,8 @@ code { font-family: var(--dato); font-size: .92em; }
   .tabs { padding-top: 0; }
   .cifras-resumen { grid-template-columns: 1fr 1fr 1fr; }
 }
-@media (max-width: 520px) {
-  .marca p { display: none; }
-  .marca h1 { font-size: 18px; }
-  .logo { width: 38px; }
-  /* Cabecera en dos renglones: marca + idioma + menú "⋯"; región + país */
-  .cabecera { gap: 8px; }
-  .cabecera .region label { padding: 5px 9px; }
-  .selector-pais { flex: 1 1 96px; min-width: 0; }
-  .acciones { gap: 6px; }
-  .boton-icono { width: 32px; height: 32px; }
+/* Menú "⋯" de la cabecera: desde 1100 px los botones de acciones ya no caben en línea */
+@media (max-width: 1100px) {
   #btnMas { display: grid; }
   .menu-acciones {
     display: none; position: absolute; top: calc(100% + 8px); right: 0; z-index: 950; min-width: 250px; white-space: nowrap;
@@ -526,6 +518,18 @@ code { font-family: var(--dato); font-size: .92em; }
   .menu-acciones .boton-icono::after { content: attr(aria-label); }
   .menu-acciones .boton-texto::before { content: "↗"; width: 18px; text-align: center; font-size: 15px; }
   .menu-acciones .boton-icono:hover, .menu-acciones .boton-texto:hover { background: var(--papel-2); }
+}
+@media (max-width: 520px) {
+  .marca p { display: none; }
+  .marca h1 { font-size: 18px; }
+  .logo { width: 38px; }
+  /* Cabecera en dos renglones: marca + idioma + menú "⋯"; región + país */
+  .cabecera { gap: 8px; }
+  .cabecera .region label { padding: 5px 9px; }
+  .selector-pais { flex: 1 1 96px; min-width: 0; }
+  .acciones { gap: 6px; }
+  .boton-icono { width: 32px; height: 32px; }
+
   .cifras-resumen b { font-size: 18px; }
   .tab { padding-inline: 6px; font-size: 12.5px; }
 }
@@ -682,3 +686,14 @@ table.compacta td { vertical-align: top; }
 /* ---------- Embarques semanales (js/embarques.js) ---------- */
 .emb-semana { display: grid; gap: 4px; margin: 4px 0 10px; }
 .emb-semana input[type=range] { width: 100%; accent-color: var(--c-importa); }
+
+/* ---------- Alerta de oferta (js/alerta.js) ---------- */
+.alerta-oferta { margin: 0 0 18px; padding: 14px 14px 6px; border: 1px solid color-mix(in srgb, var(--acento) 35%, var(--linea)); border-radius: 12px; background: color-mix(in srgb, var(--acento) 6%, var(--papel)); }
+.alerta-oferta .etq { color: var(--acento); }
+.alerta-oferta h3 { margin: 4px 0 8px; }
+.alerta-oferta .sub { margin: 6px 0; }
+.chips-alerta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.chip-alerta { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--linea); background: var(--papel-2); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; color: var(--tinta); }
+.chip-alerta i { width: 8px; height: 8px; border-radius: 50%; }
+.chip-alerta b { font-family: var(--dato); font-weight: 500; }
+.chip-alerta:hover { border-color: var(--acento); }

@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="css/styles.css?v=6ceb3843">
+  <link rel="stylesheet" href="css/styles.css?v=d91f13d5">
 </head>
 <body>
   <header class="cabecera">
@@ -98,6 +98,10 @@
         <label><input type="radio" name="nivel" value="municipal">Municipios</label>
       </div>
       <div id="ctrlEstatal" class="grupo-capas">
+        <select id="metricaMx" aria-label="Colorear estados por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="oferta">Oferta por venir (SIAP)</option>
+        </select>
         <label class="interruptor"><input type="checkbox" id="verFlujos" checked><span></span>Flujos</label>
         <label class="interruptor"><input type="checkbox" id="verImport" checked><span></span>Importación</label>
         <label class="interruptor" title="Rutas estado de origen → central de abasto reportadas por el SNIIM"><input type="checkbox" id="verRed"><span></span>Red SNIIM</label>
@@ -235,6 +239,9 @@
   <script src="js/paleta.js?v=3eb644ca"></script>
   <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
   <script src="data/sequia.js?v=ba9098ae"></script>
+  <!-- Alerta de oferta: avance de siembras y cosechas del SIAP contra el mismo corte del año anterior (scripts/procesar_alerta_oferta.py) -->
+  <script src="data/alerta_oferta.js?v=9ccd3ee4"></script>
+  <script src="js/alerta.js?v=937e37d3"></script>
   <script src="js/sequia.js?v=8023c968"></script>
   <!-- Acceso a mercados: requisitos fitosanitarios y aranceles para México (scripts/construir_acceso.py) -->
   <script src="data/acceso.js?v=bd6cfbb5"></script>
@@ -255,7 +262,7 @@
   <script src="js/mercado.js?v=1e1cd56d"></script>
   <script src="js/subnacional.js?v=5aa7d2c6"></script>
   <script src="js/latam.js?v=d707ae81"></script>
-  <script src="js/app.js?v=8ac8bed5"></script>
+  <script src="js/app.js?v=072095fa"></script>
   <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
   <script src="js/recorrido.js?v=52b1c5ed"></script>
   <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->
