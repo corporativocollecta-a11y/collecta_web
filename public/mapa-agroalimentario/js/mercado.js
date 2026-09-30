@@ -147,7 +147,7 @@
         </table></div>
         <p class="sub">Revisión de acceso fitosanitario y arancel para producto fresco de origen México (${window.ACCESO.actualizado}). En la pestaña Exportar de cada producto está el requisito y la fuente.</p>`,
         `Abierto en ${accesoResumen.abierto}, con condiciones en ${accesoResumen.con_condiciones} y cerrado en ${accesoResumen.cerrado} productos`) : ""}
-      <p class="sub">Fuente: FAOSTAT, matriz detallada de comercio ${M().anio}, según lo que reporta ${nombre} como importador${R.espejo ? " (donde no reporta, lo que declaran sus proveedores)" : ""}. Puede diferir de la tabla "Dónde puede vender México", que usa lo que reportan los exportadores: en algunos mercados, como Canadá, el importador registra mucho más producto mexicano del que México reporta. Precio = valor ÷ volumen importado. ${R.mercadoAcceso ? "" : "Este país no está entre los 7 mercados con revisión de acceso."}</p>`;
+      <p class="sub">Fuente: FAOSTAT, matriz detallada de comercio ${M().anio}, según lo que reporta ${nombre} como importador${R.espejo ? " (donde no reporta, lo que declaran sus proveedores)" : ""}. Precio = valor ÷ volumen importado. ${R.mercadoAcceso ? "" : "Este país no está entre los 7 mercados con revisión de acceso."}</p>`;
   }
 
   function pintar(cont, id, k, cb) {

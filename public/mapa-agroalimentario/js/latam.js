@@ -56,7 +56,7 @@
   }
 
   // Oportunidad para México: lo que cada país importa y NO le compra a México (volumen y valor).
-  // La parte mexicana sale de la matriz bilateral de FAOSTAT (reportada por el exportador).
+  // La parte mexicana sale de la matriz bilateral de FAOSTAT: lo que reporta el comprador, o el exportador si el comprador no reporta.
   function oportunidades(k, filas) {
     const lista = (C()?.productos?.[k] ?? []);
     if (!lista.length) return null;
@@ -65,6 +65,10 @@
       if (o === MX) desdeMX[d] = (desdeMX[d] ?? 0) + t;
       if (!principal[d] || t > principal[d][1]) principal[d] = [o, t];
     });
+    // Donde el comprador reporta sus importaciones, se usa lo que él dice que le compra a México (data/desde_mexico.js,
+    // scripts/procesar_mercados.py): el exportador mexicano subregistra algunos destinos, como las berries en Canadá.
+    const imp = window.DESDE_MEXICO?.productos?.[k] ?? {};
+    Object.entries(imp).forEach(([d, [t, p]]) => { desdeMX[d] = t; if (p && p !== "otros") principal[d] = [p, 0]; });
     const out = {};
     let total = 0;
     filas.forEach(f => {
@@ -359,7 +363,7 @@
     const fila = id => R.filas.find(f => f.id === id);
     return `
       <h3>Dónde puede vender México <span class="tag ok">FAOSTAT ${C().anio}</span></h3>
-      <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México. Precio = valor ÷ volumen importado. Toca un país para ver su mercado.</p>
+      <p class="sub">Países que más importan y cuánto de eso <b>no</b> le compran a México, según lo que reporta cada comprador. Precio = valor ÷ volumen importado. Toca un país para ver su mercado.</p>
       <div class="desplaza"><table>
         <tr><th>País</th><th class="num">Compra fuera de México</th><th class="num">US$/kg</th><th class="num">De México</th><th>Hoy le vende</th>${window.Acceso ? "<th>Acceso</th>" : ""}</tr>
         ${top.map(([id, o]) => `<tr class="clic" data-mercado="${id}"><td><span class="enlace-mercado">${fila(id).nombre} →</span></td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
