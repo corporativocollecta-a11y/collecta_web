@@ -1,0 +1,39 @@
+# Actualización diaria del pronóstico de helada y lluvia del mapa agroalimentario (/mapa-agroalimentario).
+# Baja el pronóstico por municipio del SMN, lo cruza con la producción municipal y hace commit en main si cambió;
+# Vercel despliega el commit. El script se copia desde el proyecto del mapa con scripts/publicar_web.py.
+name: Clima SMN del mapa
+
+on:
+  schedule:
+    - cron: "15 13 * * *"   # 7:15 en la Ciudad de México; el SMN publica hacia las 12:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clima-smn
+  cancel-in-progress: false
+
+jobs:
+  clima:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pronóstico del SMN × producción municipal
+        run: python scripts/clima_smn.py --datos public/mapa-agroalimentario/data --index public/mapa-agroalimentario/index.html
+      - name: Commit si cambió
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mapa-agroalimentario/data/clima_smn.js public/mapa-agroalimentario/data/frescura.js public/mapa-agroalimentario/index.html
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Actualiza el pronóstico de helada y lluvia del mapa (SMN)"
+            git push
+          fi
