@@ -72,8 +72,17 @@ def main(desde=None):
     # por omisión, todos los años ya guardados (la historia de embarques empieza en 2021) más el anterior y el actual
     guardados = [int(r.stem.rsplit("_", 1)[1]) for r in CRUDOS.glob("export_eua_estados_*.json")]
     desde = desde or min(guardados + [hoy - 1])
+    # Se parte del archivo publicado: así, sin las descargas crudas de años viejos (p. ej. en GitHub Actions) no se
+    # pierde la historia; los años que se vuelven a pedir reemplazan sus meses
     productos = defaultdict(dict)
     ultimo = ""
+    previo = RAIZ / "data" / "origen_exportacion.js"
+    if previo.exists():
+        t = previo.read_text(encoding="utf-8")
+        P = json.JSONDecoder().raw_decode(t[t.index("{", t.index(" = ")):])[0]
+        for k, meses in P.get("productos", {}).items():
+            productos[k].update(meses)
+        ultimo = P.get("ultimo", "")
     for anio in range(desde, hoy + 1):
         for k, meses in anio_registrado(anio).items():
             for m, es in meses.items():

@@ -3,7 +3,8 @@
 # semana y frescura; luego publica en public/mapa-agroalimentario y hace commit. El código está en mapa/ (espejo del
 # proyecto que mantiene scripts/publicar_web.py). Las descargas crudas (~300 MB) viven en la caché de Actions.
 # Secreto necesario: USDA_AMS_API_KEY (clave de la API de USDA AMS Market News).
-# "Run workflow" con inicial = true baja la historia completa (USDA desde 2019, SE desde 2021, SNIIM desde 2019; ~1–2 h).
+# "Run workflow" con inicial = true baja la historia del USDA desde 2019 (el SNIIM desde 2019 lo baja solo; ~1–2 h).
+# Si una fuente secundaria se cae (Data México, SIAP, SNIIM, CNE, SMN) se conserva su versión anterior y queda una advertencia.
 name: Actualización semanal del mapa
 
 on:
@@ -44,9 +45,7 @@ jobs:
         working-directory: mapa
         env:
           USDA_AMS_API_KEY: ${{ secrets.USDA_AMS_API_KEY }}
-        run: |
-          python scripts/descargar_historia_ams.py 2019
-          python scripts/procesar_origen_exportacion.py 2021
+        run: python scripts/descargar_historia_ams.py 2019   # la historia de la SE ya viene en data/origen_exportacion.js
       - name: Actualización semanal
         working-directory: mapa
         env:
