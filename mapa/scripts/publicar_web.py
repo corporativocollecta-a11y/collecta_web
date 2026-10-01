@@ -52,7 +52,8 @@ def main():
     traidos = []
     for nombre in AUTOMATICOS:
         sitio, local = DESTINO / "data" / nombre, RAIZ / "data" / nombre
-        if generado(sitio) > generado(local):
+        # en empate (mismo día) gana el sitio: la actualización automática es la fuente principal de estos archivos
+        if generado(sitio) and generado(sitio) >= generado(local) and sitio.read_bytes() != local.read_bytes():
             shutil.copy2(sitio, local)
             traidos.append(f"{nombre} ({generado(sitio)})")
     if traidos:
