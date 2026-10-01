@@ -12,13 +12,14 @@
 
   function texto(a) {
     const sube = a.cambio > 0, c = pct(a.cambio);
+    const v = a.ref && a.ref.toLowerCase() !== (window.PRODUCTOS?.[a.k]?.nombre ?? "").toLowerCase() ? ` (${window.Paleta.usdaES(a.ref).toLowerCase()})` : "";
     switch (a.tipo) {
-      case "precio_eua": return `Precio en EE. UU. ${sube ? "subió" : "bajó"} ${c} en dos semanas (US$${a.precio.toFixed(2)} el kg)`;
-      case "precio_mx": return `Mayoreo en México ${sube ? "subió" : "bajó"} ${c} en dos semanas ($${a.precio.toFixed(2)} el kg)`;
-      case "anual_eua": return `Precio en EE. UU. ${c} ${sube ? "más alto" : "más bajo"} que hace un año`;
-      case "anual_mx": return `Mayoreo en México ${c} ${sube ? "más caro" : "más barato"} que hace un año`;
-      case "pronostico_eua": return `Pronóstico en EE. UU.: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
-      case "pronostico_mx": return `Pronóstico en México: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
+      case "precio_eua": return `Precio en EE. UU.${v} ${sube ? "subió" : "bajó"} ${c} en dos semanas (US$${a.precio.toFixed(2)} el kg)`;
+      case "precio_mx": return `Mayoreo en México${v} ${sube ? "subió" : "bajó"} ${c} en dos semanas ($${a.precio.toFixed(2)} el kg)`;
+      case "anual_eua": return `Precio en EE. UU.${v} ${c} ${sube ? "más alto" : "más bajo"} que hace un año`;
+      case "anual_mx": return `Mayoreo en México${v} ${c} ${sube ? "más caro" : "más barato"} que hace un año`;
+      case "pronostico_eua": return `Pronóstico en EE. UU.${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
+      case "pronostico_mx": return `Pronóstico en México${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
       case "embarques_mx": return `Cruzó de México ${c} ${sube ? "más" : "menos"} que hace un año (${fmt(a.t)} t en dos semanas)`;
       default: return "";
     }

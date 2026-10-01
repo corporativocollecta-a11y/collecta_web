@@ -26,7 +26,8 @@
     if (a.helada > 0.005) partes.push(`${pct(a.helada)} de la producción con helada`);
     else if (a.riesgoHelada > 0.005) partes.push(`${pct(a.riesgoHelada)} con riesgo de helada`);
     if (a.lluviaFuerte > 0.005) partes.push(`${pct(a.lluviaFuerte)} con lluvia fuerte`);
-    return partes.length ? partes.join(" · ") : "Sin heladas ni lluvias fuertes en las zonas productoras";
+    if (partes.length) return partes.join(" · ");
+    return p.municipios.length ? `Menos de 1% de la producción con helada o lluvia fuerte (${p.municipios.length} municipios con alerta)` : "Sin heladas ni lluvias fuertes en las zonas productoras";
   }
   function html(k) {
     const p = C()?.productos?.[k];

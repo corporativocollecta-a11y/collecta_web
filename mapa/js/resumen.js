@@ -86,13 +86,13 @@
       </div>
       <div class="cifras-resumen">
         <div><b>${usd(totalUSD)}</b><span>exportados en ${anio}</span></div>
-        <div><b>$${Math.round(minP.alProductor * 100)}–${Math.round(maxP.alProductor * 100)}</b><span>de cada $100 llegan al productor</span></div>
+        <div><b>$${Math.round(minP.alProductor * 100)}–${Math.round(maxP.alProductor * 100)}</b><span>de cada $100 que paga el consumidor llegan al productor, según el producto</span></div>
         <div><b>${deficit.length}</b><span>${deficit.length === 1 ? "producto no cubre" : "productos no cubren"} su consumo</span></div>
       </div>
       <div class="orden" role="group" aria-label="Ordenar tabla">${Object.entries(ORDENES).map(([k, [t]]) =>
         `<button type="button" data-orden="${k}" aria-pressed="${k === orden}">${t}</button>`).join("")}</div>
       <div class="desplaza"><table class="tabla-resumen">
-        <thead><tr><th>Producto</th><th class="num">Autosuf.</th><th class="num">Al productor</th><th class="num">Exporta US$</th><th>Cosecha</th></tr></thead>
+        <thead><tr><th>Producto</th><th class="num">Autosuf.</th><th class="num">Al productor<br><span class="est">de cada $100</span></th><th class="num">Exporta US$</th><th>Cosecha</th></tr></thead>
         <tbody>${filas.map(x => `
           <tr class="clic" data-prod="${x.k}">
             <td><span class="prod"><i style="background:${x.color}"></i>${x.nombre}</span></td>
@@ -107,7 +107,7 @@
         ${minP ? `<p class="hallazgo"><span><b>${minP.nombre}</b> es el producto donde menos llega al campo: $${Math.round(minP.alProductor * 100)} de cada $100 que paga el consumidor. En <b>${maxP.nombre}</b> llegan $${Math.round(maxP.alProductor * 100)}.</span></p>` : ""}
         ${topExp ? `<p class="hallazgo"><span><b>${topExp.nombre}</b> es el principal producto de exportación: ${usd(topExp.exportUSD)}, ${pct(topExp.exportUSD / totalUSD)} del total de estos productos.</span></p>` : ""}
         ${brechas.length ? `<p class="hallazgo"><span>En <b>${brechas.map(x => x.nombre.split(" ")[0].toLowerCase()).join(", ")}</b> la disponibilidad ${anio} quedó por debajo del consumo oficial (hasta ${pct(-brechas[0].brecha)} menos): la cosecha bajó y la exportación se mantuvo.</span></p>` : ""}
-        ${deficit.length ? `<p class="hallazgo"><span>México depende de importaciones en <b>${deficit.map(x => x.nombre.toLowerCase()).join(", ")}</b>.</span></p>` : ""}
+        ${deficit.length ? `<p class="hallazgo"><span>México importa una parte relevante de lo que consume en <b>${deficit.map(x => x.nombre.toLowerCase()).join(", ")}</b>.</span></p>` : ""}
       </div>`;
   }
 

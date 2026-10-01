@@ -191,6 +191,16 @@ def main(anio):
                 obs[(var, fecha, o, d)].append(precio)
             print(f"  {clave:9s} {var:24s} {len([k for k in obs if k[0] == var]):>7,} observaciones")
 
+        # Cotizaciones atípicas: más de 3 veces arriba o abajo de la mediana nacional de su variedad (suelen ser precio por
+        # caja o pieza capturado como kg; p. ej. mango Kent en Tijuana a $138/kg cuando las demás centrales están < $47)
+        from statistics import median
+        med_var = {v: median(p for (vv, *_), ps in obs.items() if vv == v for p in ps) for v in {k[0] for k in obs}}
+        n_antes = sum(len(ps) for ps in obs.values())
+        obs = {k: [p for p in ps if med_var[k[0]] / 3 <= p <= med_var[k[0]] * 3] for k, ps in obs.items()}
+        obs = {k: ps for k, ps in obs.items() if ps}
+        quitadas = n_antes - sum(len(ps) for ps in obs.values())
+        if quitadas:
+            print(f"  {clave:9s} {quitadas} cotizaciones atípicas descartadas (fuera de 1/3–3× la mediana de su variedad)")
         acum = {k: defaultdict(lambda: [0.0, 0]) for k in ("mercados", "origenes", "rutas", "variedades", "mes")}
         total = [0.0, 0]
         for (var, fecha, o, d), precios in obs.items():

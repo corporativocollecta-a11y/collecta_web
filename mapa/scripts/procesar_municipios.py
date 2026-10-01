@@ -180,6 +180,11 @@ def main(tol):
         encoding="utf-8",
     )
     print(f"{len(features)} municipios escritos en {salida.name} ({salida.stat().st_size / 1e6:.1f} MB)")
+    # Solo los nombres (62 kB), para las tablas que no cargan el mapa municipal (js/municipal.js nombreMun)
+    nombres = {f["properties"]["c"]: f["properties"]["n"] for f in features}
+    (RAIZ / "data" / "municipios_nombres.js").write_text(
+        "// Generado de data/municipios_geo.js (scripts/procesar_municipios.py): clave INEGI → nombre del municipio\n"
+        f"window.MUNICIPIOS_NOMBRES = {json.dumps(nombres, ensure_ascii=False, separators=(',', ':'))};\n", encoding="utf-8")
     if sin_pob:
         print(f"Sin población 2020 (municipios creados después del censo): {sin_pob}")
 

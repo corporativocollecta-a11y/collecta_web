@@ -64,7 +64,7 @@
     return _pob || {};
   }
   let _nombres = null;
-  const nombreMun = cve => (indicePob(), _nombres?.[cve]) || cve;
+  const nombreMun = cve => (indicePob(), _nombres?.[cve]) || window.MUNICIPIOS_NOMBRES?.[cve] || cve;   // nombres sin cargar el mapa municipal
 
   function crear(mapa, ctx) {
     const renderer = L.canvas({ padding: 0.3 });

@@ -9,7 +9,9 @@ Por producto, con datos de la última semana disponible:
   - pronostico_eua / pronostico_mx: el pronóstico a 8 semanas se mueve 20% o más contra el último precio, solo si su
     error histórico a 8 semanas es menor a 30%;
   - embarques_mx: lo que cruzó de México en las últimas 2 semanas contra las mismas semanas del año anterior, ±30% o
-    más (con al menos 1,000 t en alguno de los dos periodos).
+    más (con al menos 5,000 t en alguno de los dos periodos: con menos, un cambio grande es ruido).
+  En México no se alertan series del SNIIM cuyo pronóstico a 4 semanas falla más de 25% (precio que salta semana a
+  semana, p. ej. zarzamora).
 Cada alerta guarda su magnitud para ordenar; el texto lo arma js/alertas.js (así se traduce por plantillas).
 
 Entradas: data/pronostico.js, data/pronostico_sniim.js, data/embarques.js. Se corre en actualizar_semanal.py.
@@ -21,7 +23,8 @@ from datetime import date
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-CAMBIO, ANUAL, PRON, EMB, MIN_T, MAPE_MAX = 0.15, 0.30, 0.20, 0.30, 1000, 0.30
+CAMBIO, ANUAL, PRON, EMB, MIN_T, MAPE_MAX = 0.15, 0.30, 0.20, 0.30, 5000, 0.30
+RUIDO_MX = 0.25
 
 
 def leer(nombre):
@@ -41,18 +44,18 @@ def cambio_reciente(serie):
     return a / b - 1 if a and b else None
 
 
-def senales(k, mercado, serie, p50, mape8, ultimo):
+def senales(k, mercado, serie, p50, mape8, ultimo, ref=None):
     out = []
     c = cambio_reciente(serie)
     if c is not None and abs(c) >= CAMBIO:
-        out.append({"k": k, "tipo": f"precio_{mercado}", "cambio": round(c, 3), "precio": round(ultimo, 2)})
+        out.append({"k": k, "tipo": f"precio_{mercado}", "cambio": round(c, 3), "precio": round(ultimo, 2), "ref": ref})
     if len(serie) >= 56:
         a, b = prom(serie[-4:]), prom(serie[-56:-52])
         if a and b and abs(a / b - 1) >= ANUAL:
-            out.append({"k": k, "tipo": f"anual_{mercado}", "cambio": round(a / b - 1, 3), "precio": round(ultimo, 2)})
+            out.append({"k": k, "tipo": f"anual_{mercado}", "cambio": round(a / b - 1, 3), "precio": round(ultimo, 2), "ref": ref})
     fin = next((x for x in reversed(p50 or []) if x is not None), None)
     if fin and ultimo and mape8 is not None and mape8 < MAPE_MAX and abs(fin / ultimo - 1) >= PRON:
-        out.append({"k": k, "tipo": f"pronostico_{mercado}", "cambio": round(fin / ultimo - 1, 3), "precio": round(fin, 2), "error": round(mape8, 3)})
+        out.append({"k": k, "tipo": f"pronostico_{mercado}", "cambio": round(fin / ultimo - 1, 3), "precio": round(fin, 2), "error": round(mape8, 3), "ref": ref})
     return out
 
 
@@ -66,12 +69,13 @@ def main():
         serie = pr["serie"][1]
         ult = next((x for x in reversed(serie) if x is not None), None)
         if ult:
-            alertas += senales(k, "eua", serie, pr.get("p50"), pr["mape"][2] if len(pr.get("mape", [])) > 2 else None, ult)
+            # variedad de referencia (en chile, EE. UU. cotiza pimiento morrón y el SNIIM jalapeño: hay que decirlo)
+            alertas += senales(k, "eua", serie, pr.get("p50"), pr["mape"][2] if len(pr.get("mape", [])) > 2 else None, ult, (pr.get("referencia") or "").split(" · ")[0])
     S = leer("pronostico_sniim")
     for k, pr in S["productos"].items():
         ult = next((x for x in reversed(pr["serie"]) if x is not None), None)
-        if ult:
-            alertas += senales(k, "mx", pr["serie"], pr.get("p50"), pr["mape"][2], ult)
+        if ult and (pr["mape"][1] or 0) <= RUIDO_MX:
+            alertas += senales(k, "mx", pr["serie"], pr.get("p50"), pr["mape"][2], ult, pr.get("variedad"))
     E = leer("embarques")
     tipo = {o: v[3] for o, v in E["origenes"].items()}
     for k, origenes in E["productos"].items():

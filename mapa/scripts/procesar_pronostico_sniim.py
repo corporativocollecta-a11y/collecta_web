@@ -45,6 +45,8 @@ def serie_semanal(pid, desde):
                 continue
             if p > 0:
                 x = date(a, m, d)
+                if x - timedelta(days=x.weekday()) + timedelta(days=6) >= hoy:   # semana en curso: incompleta, no se usa
+                    continue
                 obs[((x - timedelta(days=x.weekday())) - ORIGEN).days // 7].append(p)
     return {i: statistics.median(v) for i, v in obs.items() if i >= 0 and len(v) >= 3}
 

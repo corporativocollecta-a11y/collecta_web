@@ -3,6 +3,21 @@
 // y utilidades comunes de dibujo: coropletas, rutas con brillo y puntos de origen.
 // ============================================================================
 (function () {
+  // Etiquetas del USDA en inglés (empaques y orígenes de importación) → español para la vista en español.
+  // En la vista en inglés se dejan como vienen.
+  const USDA_ES = [
+    [/\bcontainers with lids\b/gi, "envases con tapa"], [/\bcups with lids\b/gi, "vasos con tapa"], [/\bclamshells?\b/gi, "envases clamshell"],
+    [/\bcartons\b/gi, "cajas"], [/\bcarton\b/gi, "caja"], [/\bflats\b/gi, "charolas"], [/\bloose\b/gi, "a granel"],
+    [/\btray pack\b/gi, "en charola"], [/\b(\d+) layer\b/gi, "de $1 capas"], [/\bsacks\b/gi, "costales"], [/\bbags\b/gi, "bolsas"],
+    [/\bcrates\b/gi, "rejas"], [/\bcontainers\b/gi, "envases"], [/\bbushel\b/gi, "bushel"], [/\bbunched\b/gi, "en manojo"],
+    [/\bCentral America\b/g, "Centroamérica"], [/\bSouth America\b/g, "Sudamérica"], [/\bPeru\b/g, "Perú"], [/\bBrazil\b/g, "Brasil"],
+    [/\bMexico\b/g, "México"], [/\bCanada\b/g, "Canadá"], [/\bNetherlands\b/g, "Países Bajos"], [/\bSpain\b/g, "España"],
+    [/\bMorocco\b/g, "Marruecos"], [/\bDominican Republic\b/g, "República Dominicana"], [/\bNew Zealand\b/g, "Nueva Zelanda"],
+    [/\bSouth Africa\b/g, "Sudáfrica"], [/\bItaly\b/g, "Italia"], [/\bFrance\b/g, "Francia"], [/\bJapan\b/g, "Japón"], [/\bKorea\b/g, "Corea"],
+    [/ And /g, " y "]
+  ];
+  const usdaES = s => s == null || document.documentElement.lang === "en" ? s : USDA_ES.reduce((x, [re, r]) => x.replace(re, r), String(s));
+
   let cache = null;
   const tokens = () => {
     if (cache) return cache;
@@ -83,5 +98,5 @@
     return window.L.circleMarker([lat, lon], { radius: radio, color: t.sel, weight: 1.2, opacity: 0.8, fillColor: t.sel, fillOpacity: 0.08, interactive: false }).addTo(capa);
   }
 
-  window.Paleta = { tokens, refrescar, auto, imp, rel, cargar, geoRegiones, geoPaises, coropletas, ruta, origen, volumen };
+  window.Paleta = { usdaES, tokens, refrescar, auto, imp, rel, cargar, geoRegiones, geoPaises, coropletas, ruta, origen, volumen };
 })();

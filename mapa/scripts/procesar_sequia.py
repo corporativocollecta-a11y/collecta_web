@@ -29,7 +29,7 @@ def main(anio=2025):
     fechas = [(i, c) for i, c in enumerate(cab) if isinstance(c, datetime)]
     ultima_i, ultima = fechas[-1]
     del_anio = [i for i, c in fechas if c.year == anio]
-    salida = {"fecha": ultima.strftime("%Y-%m-%d"), "anio": anio, "cortesAnio": len(del_anio),
+    salida = {"generado": datetime.now().strftime("%Y-%m-%d"), "fecha": ultima.strftime("%Y-%m-%d"), "anio": anio, "cortesAnio": len(del_anio),
               "fuente": "CONAGUA, Monitor de Sequía de México (por municipio)", "municipios": {}}
     for r in filas:
         cve = str(r[0] or "").zfill(5)

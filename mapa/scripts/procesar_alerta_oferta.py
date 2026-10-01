@@ -62,6 +62,8 @@ def main(anio=None, mes=None):
         corte = f"{mes} de {anio}"
     else:
         mes, corte = ultimo_mes(anio)
+    t_siap = (RAIZ / "data" / "produccion_siap.js").read_text(encoding="utf-8")   # cierre agrícola por estado (t)
+    SIAP = json.JSONDecoder().raw_decode(t_siap[t_siap.index("{", t_siap.index(" = ")):])[0]["productos"]
     texto = (RAIZ / "data" / "estados.js").read_text(encoding="utf-8")
     ids = {norm(n): i for i, n in re.findall(r'id:\s*"(\d{2})"[^}]*?nombre:\s*"([^"]+)"', texto)}
     ids.setdefault("mexico", "15")
@@ -72,11 +74,33 @@ def main(anio=None, mes=None):
     productos = {}
     for k in CULTIVOS:
         por_anio = {a: {ids[e]: v for e, v in res[(k, a)].items() if e in ids} for a in anios}
-        nac = {a: [round(sum(v[j] for v in por_anio[a].values())) for j in range(4)] for a in anios}
+        # Estados con registro atípico: en algún año llevan cosechado a la fecha más de 2.5 veces lo que produjeron en todo
+        # el año según el cierre agrícola (≥ 10,000 t). Es imposible: suelen ser errores de captura del avance (calabacita
+        # en Guanajuato 2026, zanahoria en el Estado de México 2025) y dispararían una alerta nacional falsa. Se quitan del
+        # total nacional y se listan. (Comparar años del avance entre sí no sirve: cambia mucho por el calendario de reporte.)
+        # Además debe ser un PICO de un solo año (más de 3 veces el mayor de sus otros años): si un estado siempre queda
+        # arriba de su cierre (p. ej. chile en Zacatecas, por diferencias de definición entre avance y cierre) no se toca.
+        cierre = SIAP.get(k, {}).get("estados", {})
+        pico = lambda e, a, f: f(por_anio[a].get(e, [0, 0, 0, 0])) > 3 * max([f(por_anio[b].get(e, [0, 0, 0, 0])) for b in anios if b != a] + [1])
+        excluidos = {e for a in anios for e, v in por_anio[a].items()
+                     if v[3] >= 10000 and v[3] > 2.5 * cierre.get(e, 0) and pico(e, a, lambda x: x[3])}
+        # Lo mismo con la superficie por cosechar (cíclicos): más de 3 veces la superficie que corresponde a su producción
+        # anual con el rendimiento nacional del avance (p. ej. zanahoria en el Estado de México 2025: 4,348 ha sembradas
+        # y 8 cosechadas en agosto, cuando su producción anual equivale a ~900 ha)
+        if k not in PERENNES:
+            pend = lambda x: x[0] - x[1] - x[2]
+            for a in anios:
+                cos = sum(v[1] for v in por_anio[a].values()); prod = sum(v[3] for v in por_anio[a].values())
+                rend = prod / cos if cos > 0 else 0
+                for e, v in por_anio[a].items():
+                    if rend > 0 and pend(v) >= 1000 and pend(v) > 3 * cierre.get(e, 0) / rend and pico(e, a, pend):
+                        excluidos.add(e)
+        excluidos = sorted(excluidos)
+        nac = {a: [round(sum(v[j] for e, v in por_anio[a].items() if e not in excluidos)) for j in range(4)] for a in anios}
         estados = {}
         for e in set().union(*[set(por_anio[a]) for a in anios]):
             estados[e] = {a: [round(x) for x in por_anio[a].get(e, [0, 0, 0, 0])] for a in anios}
-        productos[k] = {"perenne": k in PERENNES, "nacional": nac, "estados": estados}
+        productos[k] = {"perenne": k in PERENNES, "nacional": nac, "estados": estados, "excluidos": sorted(set(excluidos))}
     salida = {"anio": anio, "mes": mes, "corte": corte, "anios": anios, "fuente": "SIAP, Avance de Siembras y Cosechas",
               "generado": date.today().isoformat(), "productos": productos}
     destino = RAIZ / "data" / "alerta_oferta.js"

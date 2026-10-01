@@ -12,6 +12,7 @@
   const estado = {
     producto: "jitomate",
     entidad: "25",
+    entidadElegida: false,   // hasta que la persona elige un estado, se usa el que más produce el producto
     region: "mx",          // "mx" | "latam"
     pais: null,            // código M49 del país seleccionado en la vista LATAM
     metricaLatam: "auto",
@@ -135,7 +136,7 @@
   });
 
   function seleccionarMunicipio(cve, enfocar = false) {
-    estado.municipio = cve; estado.entidad = cve.slice(0, 2);
+    estado.municipio = cve; estado.entidad = cve.slice(0, 2); estado.entidadElegida = true;
     activarTab("entidad"); dibujarMapa(); renderBalance(); renderEntidad();
     if (enfocar) capaMunicipal.enfocar(cve);
   }
@@ -216,7 +217,7 @@
     const tip = f => `<b>${f.nombre}</b><br>Producción: ${fmtT(f.prod)}${f.estimado ? " (est.)" : ""}<br>
         Demanda local: ${fmtT(f.demanda)}<br>Autosuficiencia: ${f.autosuf >= 10 ? f.autosuf.toFixed(0) + "×" : pct(f.autosuf)}<br>
         Abastece a ${fmtP(f.personas)} personas`;
-    const clicEntidad = id => { estado.entidad = id; estado.municipio = null; if (document.querySelector(".tab.activo")?.dataset.tab !== "exportar") activarTab("entidad"); render(); abrirHoja(); };
+    const clicEntidad = id => { estado.entidad = id; estado.entidadElegida = true; estado.municipio = null; if (document.querySelector(".tab.activo")?.dataset.tab !== "exportar") activarTab("entidad"); render(); abrirHoja(); };
     const geo = window.GEO_SUB?.MX;
     if (!geo) Paleta.geoRegiones("MX").then(() => { if (estado.region === "mx" && estado.nivel === "estatal") dibujarMapa(); }).catch(() => {});
     const conPrecios = document.getElementById("verRed").checked && Precios.disponible(res.clave);
@@ -272,8 +273,13 @@
     if (n.produccion > 0 && lider?.prod > 0) partes.push(`${fmtT(n.produccion)} al año, ${pct(lider.prod / n.produccion)} en ${lider.nombre}`);
     const exp = p.exportacion / (n.produccion || 1);
     const dest = Object.entries(p.destinos ?? {}).sort((a, b) => b[1] - a[1])[0];
-    if (p.exportacion > 0 && exp >= 0.01) partes.push(dest ? `exporta ${pct(Math.min(1, exp))}, ${pct(dest[1])} de eso a ${dest[0]}` : `exporta ${pct(Math.min(1, exp))}`);
-    partes.push(n.autosuficiencia >= 1.1 ? "produce más de lo que consume" : n.autosuficiencia >= 0.9 ? "produce lo que consume" : `importa ${pct(1 - n.autosuficiencia)} de lo que consume`);
+    if (p.exportacion > 0 && exp >= 0.01) partes.push(dest ? `exporta ${pct(Math.min(1, exp))}, ${pctFino(dest[1])} de eso a ${dest[0]}` : `exporta ${pct(Math.min(1, exp))}`);
+    // Con las cifras oficiales (las mismas del encabezado): lo que queda en el país = producción − exportación + importación
+    const disp = n.produccion - (p.exportacion ?? 0) + (p.importacion ?? 0), imp = (p.importacion ?? 0) / (disp || 1);
+    if (imp >= 0.05) partes.push(`importa ${pct(Math.min(1, imp))} de lo que consume`);
+    const cubre = disp / (n.demanda || 1);
+    partes.push(cubre < 0.9 ? `lo que queda en el país cubre ${pct(cubre)} del consumo de referencia`
+      : cubre > 1.1 ? `lo que queda en el país supera ${pct(cubre - 1)} el consumo de referencia` : "lo que queda en el país cubre su consumo");
     const al = window.Alerta?.disponible(res.clave) ? Alerta.calcular(res.clave) : null;
     if (al?.s != null) {
       const s = al.s, r = Math.round(s * 100);
@@ -311,7 +317,7 @@
           n.exportacion < p.exportacion * 0.99 ? `<br>modelo: ${fmtT(n.exportacion)} (limitada al excedente)` : ""}</div></div>
         <div class="kpi ${n.importacionModelo > n.demanda * 0.05 ? "alerta" : ""}"><div class="v">${fmtT(n.importacionReportada)}</div><div class="l">Importación ${p.fuenteComercio ? "oficial" : "(preliminar)"}${p.valorImportUSD ? ` · ${usd(p.valorImportUSD)}` : ""}<br>${n.importacionModelo > n.importacionReportada * 1.5 + 1000 ? "faltante para cubrir el consumo usado" : "necesaria según modelo"}: ${fmtT(n.importacionModelo)}</div></div>
         <div class="kpi destacado"><div class="v">${pct(n.autosuficiencia)}</div>
-          <div class="l">Autosuficiencia nacional. La producción alcanzaría para <b>${fmtP(n.personasProduccion)}</b> de personas
+          <div class="l">Producción entre consumo, antes de exportar. La producción alcanzaría para <b>${fmtP(n.personasProduccion)}</b> de personas
           (población: ${fmtP(n.pobTotal)}); después de exportar alcanza para <b>${fmtP(n.personasTrasExport)}</b>.</div></div>
       </div>
       ${nota}
@@ -324,7 +330,7 @@
       ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
       ${window.Costos?.disponible(res.clave) ? S("costos", `<h3>Costo de producción contra precio al productor <span class="tag ok">FIRA · SIAP</span></h3>${Costos.html(res.clave)}`, Costos.resumen(res.clave)) : ""}
       ${window.Siniestros?.disponible(res.clave) ? S("siniestros", `<h3>Pérdidas por siniestro en diez años <span class="tag ok">SIAP</span></h3>${Siniestros.html(res.clave)}`, Siniestros.resumen(res.clave)) : ""}
-      ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
+      ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3><p class="sub">Cifras de FAOSTAT (hasta 2024) para comparar con otros países: pueden diferir del SIAP y de la estadística de comercio 2025 que usa el resto del panel.</p>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
       ${origen1 ? S("importaciones", `<h3>Origen de las importaciones</h3>${barras(p.origenes)}`, `Primer origen: ${origen1[0]}, ${pctFino(origen1[1])} del volumen importado`) : ""}
       ${S("entidades", `<h3>Principales entidades productoras</h3>
       <table>
@@ -339,7 +345,7 @@
       ${S("municipios", Municipal.topHTML(res, escenario()), Municipal.topResumen(res, escenario()))}`;
     enlazarFilas("#tab-balance");
     document.querySelectorAll('#tab-balance details[data-sec="alerta"] tr.clic[data-id]').forEach(tr => tr.onclick = () => {
-      estado.entidad = tr.dataset.id; estado.metricaMx = "oferta"; document.getElementById("metricaMx").value = "oferta"; render();
+      estado.entidad = tr.dataset.id; estado.entidadElegida = true; estado.metricaMx = "oferta"; document.getElementById("metricaMx").value = "oferta"; render();
     });
     const esc_ = document.getElementById("sEscalon");
     if (esc_) esc_.onchange = () => { escenario().escalonamiento = +esc_.value; renderBalance(); };
@@ -375,12 +381,14 @@
       ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
       ${window.Embarques ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
       ${window.Embarques ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}
+      ${f && !estado.entidadElegida ? `<p class="sub nota-estado">Las secciones por estado muestran <b>${f.nombre}</b>, el que más produce ${p.nombre.toLowerCase()}. Toca tu estado en el mapa para verlas con el tuyo.</p>` : ""}
       ${window.PreciosEUA && f?.prod > 0 ? S("neto", PreciosEUA.netoHTML(k, f, p.precioRural, tarifa, res.filas), PreciosEUA.netoResumen(k, f, p.precioRural, tarifa)) : ""}
+      ${window.Planeador?.disponible(k) && f?.prod > 0 ? S("plan", `<h3>Planear la venta de ${f.nombre} <span class="tag ok">USDA · SNIIM · SIAP</span></h3>${Planeador.marca(k, f, tarifa)}`, `Exportar o vender en México, mes a mes, con el volumen que esperas`) : ""}
       ${window.Acceso ? S("acceso", Acceso.html(k), Acceso.resumen(k)) : ""}
       ${opp.html ? S("oportunidades", opp.html, opp.resumen) : ""}
       ${window.PreciosUE ? S("europa", PreciosUE.html(k), PreciosUE.resumen(k)) : ""}`;
     cont.querySelectorAll("tr.clic[data-id]").forEach(tr => tr.onclick = () => {
-      estado.entidad = tr.dataset.id; estado.municipio = null; render();
+      estado.entidad = tr.dataset.id; estado.entidadElegida = true; estado.municipio = null; render();
     });
     enlazarMercados(cont);
   }
@@ -433,11 +441,16 @@
     const brecha = res.pcAparente / p.consumoPC - 1;
     if (Math.abs(brecha) < 0.15) return `<p class="sub">El consumo oficial (${p.consumoPC} kg, datos ${window.CONSUMO_OFICIAL.anioDatos}) coincide con la
       disponibilidad aparente ${window.POBLACION_CONAPO?.anio ?? ""} (${res.pcAparente.toFixed(1)} kg): balance consistente.</p>`;
-    const cambioProd = p.produccionRef ? p.nacional / p.produccionRef - 1 : null;
+    // Cambio de producción con la MISMA fuente (cierre SIAP del año anterior, data/produccion_anterior.js); el Panorama a
+    // veces usa otra definición (chile: 3.22 Mt contra 2.46 Mt del cierre 2024)
+    const prev = window.PRODUCCION_ANTERIOR, prodAnt = prev?.productos?.[res.clave];
+    const cambioProd = prodAnt ? p.nacional / prodAnt - 1 : null;
+    const otraDef = prodAnt && p.produccionRef && Math.abs(p.produccionRef / prodAnt - 1) > 0.1;
     return `<div class="nota" style="border-color:#e67e22"><b>Consumo oficial vs. disponibilidad ${window.POBLACION_CONAPO?.anio ?? ""}:</b>
       el Panorama reporta ${p.consumoPC} kg por persona (datos ${window.CONSUMO_OFICIAL.anioDatos}), pero con la producción y el comercio
       ${window.POBLACION_CONAPO?.anio ?? ""} la disponibilidad interna alcanza para <b>${res.pcAparente.toFixed(1)} kg</b> (${brecha > 0 ? "+" : ""}${pct(brecha)}).
-      ${cambioProd != null ? `La producción pasó de ${fmtT(p.produccionRef)} (${window.CONSUMO_OFICIAL.anioDatos}) a ${fmtT(p.nacional)} (${cambioProd > 0 ? "+" : ""}${pct(cambioProd)}).` : ""}
+      ${cambioProd != null ? `Según el cierre del SIAP, la producción pasó de ${fmtT(prodAnt)} (${prev.anio}) a ${fmtT(p.nacional)} (${cambioProd > 0 ? "+" : ""}${pct(cambioProd)}).` : ""}
+      ${otraDef ? `Ojo: el Panorama calcula su consumo con una producción ${prev.anio} de ${fmtT(p.produccionRef)}, distinta de la del cierre del SIAP (${fmtT(prodAnt)}; otra definición del producto), así que su consumo por persona no es del todo comparable con estas cifras.` : ""}
       ${brecha < 0 ? "Con el consumo oficial, el modelo muestra un faltante que no se cubrió con importaciones: el mercado interno recibió menos producto." : "Hay más producto disponible que el consumo oficial: excedente para merma, industria o inventario."}
       Cambia la base en <i>Simulador</i>.</div>`;
   }
@@ -450,7 +463,7 @@
 
   function enlazarFilas(sel) {
     document.querySelectorAll(`${sel} tr.clic[data-id]`).forEach(tr => tr.onclick = () => {
-      estado.entidad = tr.dataset.id; estado.municipio = null; activarTab("entidad"); render();
+      estado.entidad = tr.dataset.id; estado.entidadElegida = true; estado.municipio = null; activarTab("entidad"); render();
     });
   }
 
@@ -471,6 +484,7 @@
 
     document.getElementById("tab-entidad").innerHTML = `
       <h2>${f.nombre}</h2>
+      ${!estado.entidadElegida && !estado.municipio ? `<p class="sub nota-estado">Es el estado que más produce ${res.producto.nombre.toLowerCase()}. Toca otro estado en el mapa para verlo.</p>` : ""}
       <p class="sub">Población ${fmt(f.pob)}${window.POBLACION_CONAPO ? ` (CONAPO ${window.POBLACION_CONAPO.anio})` : ""} · ${res.producto.nombre}${f.estimado ? " · producción estimada (entidad no desglosada)" : ""}</p>
       <div class="kpis">
         <div class="kpi"><div class="v">${fmtT(f.prod)}</div><div class="l">Producción${window.Siniestros?.estadoTexto(res.clave, f.id) ? `<br>${Siniestros.estadoTexto(res.clave, f.id)}` : ""}${window.Costos?.estadoTexto(res.clave, f.id) ? `<br>${Costos.estadoTexto(res.clave, f.id)}` : ""}</div></div>
@@ -580,7 +594,7 @@
         <div class="nota">Con ${esc.ruta === "directo" ? "ruta directa región → región, " : ""}${pct(reduccion)} menos intermediación mayorista${cons ? ` y ${pct(redMin)} menos margen minorista` : ""},
           el precio ${cons ? "al consumidor" : "de mayoreo"} pasaría de <b>${mxn(finalHoy)}</b> a <b>${mxn(nuevo)}/kg</b>:
           ahorro de <b>${mxn(ahorroKg)}/kg</b> (${pct(ahorroKg / finalHoy)}), ≈ <b>${mxnGrande(Math.max(0, ahorroAnual))}</b> al año
-          sobre el consumo nacional. El productor mantiene su precio; parte del ahorro podría destinarse a pagarle mejor.</div>`;
+          (el ahorro en márgenes se aplica a todo el consumo nacional; el de transporte, solo a las ${fmtT(L_.toneladasMovidas)} que se mueven entre estados). El productor mantiene su precio; parte del ahorro podría destinarse a pagarle mejor.</div>`;
     }
 
     document.getElementById("tab-simulador").innerHTML = `
@@ -672,7 +686,7 @@
         ${F.map(f => `<tr><td>${f.nombre}</td><td>${f.periodo}</td><td>${f.cada <= 1 ? "cada día" : f.cada <= 8 ? "cada semana" : f.cada <= 16 ? "cada quincena" : f.cada <= 31 ? "cada mes" : "cada año"}</td>
           <td>${f.ok ? '<span class="tag ok">Al día</span>' : '<span class="tag def">Atrasado</span>'}</td></tr>`).join("")}
       </table></div>
-      <p class="sub">"Al día" = la fuente no ha publicado nada más reciente según su calendario habitual (incluido su retraso normal de publicación). Revisado el ${g[2]} ${MES_CORTO[g[1] - 1]} ${g[0]}; se actualiza con <code>scripts/actualizar_semanal.py</code>.</p>`;
+      <p class="sub">"Al día" = la fuente no ha publicado nada más reciente según su calendario habitual (incluido su retraso normal de publicación). Revisado el ${g[2]} ${MES_CORTO[g[1] - 1]} ${g[0]}; los datos semanales se actualizan solos cada martes.</p>`;
   }
 
   // ---------- Panel: Fuentes ----------
@@ -680,8 +694,7 @@
     document.getElementById("tab-fuentes").innerHTML = `
       <h2>Fuentes y metodología</h2>
       ${frescuraHTML()}
-      <div class="nota"><b>Estado de los datos:</b> la producción por entidad y el precio medio rural provienen del SIAP (cierre agrícola municipal) cuando existe data/produccion_siap.js. Exportación, importación y países provienen de la estadística oficial de comercio exterior (INEGI/SE vía UN Comtrade). Los precios de mayoreo son del SNIIM y los precios al consumidor de PROFECO. El consumo per cápita es el del Panorama Agroalimentario del SIAP y la población, la proyección CONAPO del año analizado.
-      Todas las cifras en uso provienen de fuentes oficiales; los scripts de <code>scripts/</code> permiten actualizarlas a otro año.</div>
+      <div class="nota"><b>Estado de los datos:</b> la producción por entidad y el precio medio rural provienen del SIAP (cierre agrícola municipal). Exportación, importación y países provienen de la estadística oficial de comercio exterior (INEGI/SE vía UN Comtrade). Los precios de mayoreo son del SNIIM y los precios al consumidor de PROFECO. El consumo per cápita es el del Panorama Agroalimentario del SIAP y la población, la proyección CONAPO del año analizado. Todas las cifras en uso provienen de fuentes oficiales.</div>
       <h3>Fuentes oficiales integradas</h3>
       <ul class="fuentes">
         <li><b>SIAP – Cierre de la producción agrícola (municipal)</b>: superficie, volumen, rendimiento, precio medio rural y valor por cultivo, municipio, ciclo y modalidad. Datos abiertos: <a href="https://nube.agricultura.gob.mx/datosAbiertos/Agricola.php" target="_blank">nube.agricultura.gob.mx/datosAbiertos</a> (integrado: cierre 2025)</li>
@@ -728,7 +741,7 @@
         <li><b>Demanda</b> = población CONAPO × consumo per cápita. Por defecto se usa el <b>consumo oficial</b> del Panorama
           Agroalimentario (calculado por el SIAP con datos del año anterior). En el simulador puede cambiarse al <b>consumo aparente</b>
           del año analizado ((producción − exportación + importación) ÷ población). Cuando difieren más de 15%, el balance lo señala:
-          en frutas coinciden (±3%); en jitomate, chile y cebolla la producción 2025 cayó frente a 2024 sin que bajaran las exportaciones.</li>
+          en la mayoría de las frutas coinciden de cerca (fresa y arándano quedan por arriba del consumo oficial); en jitomate, chile y cebolla la producción 2025 cayó frente a 2024 sin que bajaran las exportaciones.</li>
         <li><b>Estacionalidad</b>: cosecha mensual (Panorama) contra precio mensual de mayoreo (SNIIM) y consumidor (PROFECO); r = correlación de Pearson
           entre % de cosecha y precio. La cobertura mensual supone exportación proporcional a la cosecha e importación pareja, y no considera almacenamiento.
           El escenario de escalonamiento acerca cada mes al promedio (8.3%) y estima el precio con la pendiente observada precio–cosecha (solo si r ≤ −0.3).</li>
@@ -801,6 +814,8 @@
     if (estado.region !== "mx") return renderLatam();
     if (!window.PRODUCTOS[estado.producto]) estado.producto = "jitomate";  // producto que solo existe en vistas por país
     recalcular();
+    // Sin estado elegido, las pestañas Entidad y Exportar muestran el estado que más produce (no siempre Sinaloa)
+    if (!estado.entidadElegida) estado.entidad = [...res.filas].sort((a, b) => b.prod - a.prod)[0]?.id ?? estado.entidad;
     indicadores = Resumen.indicadores(estado.escenarios);
     renderLista(); renderResumen();
     dibujarMapa(); renderBalance(); renderExportar(); renderEntidad(); renderSimulador();
@@ -978,7 +993,7 @@
     if (!urlLista || enRecorrido()) return;
     const tab = document.querySelector(".tab.activo")?.dataset.tab;
     const v = estado.region === "sub" ? estado.paisSub : estado.region;
-    const sel = estado.region === "sub" ? estado.regionSub : estado.region === "mx" ? estado.entidad : estado.pais;
+    const sel = estado.region === "sub" ? estado.regionSub : estado.region === "mx" ? (estado.entidadElegida ? estado.entidad : null) : estado.pais;
     const m = estado.region === "sub" ? estado.metricaSub : estado.region === "mx" ? null : estado.metricaLatam;
     const q = new URLSearchParams({ v, p: estado.producto });
     if (m) q.set("m", m);
@@ -1001,7 +1016,8 @@
   }
   // Pone la vista descrita por un enlace directo (v, p, m, s, t, mc, n, mm), venga de donde venga
   function aplicarVista(q) {
-    const v = q.get("v");
+    // el código de país se acepta en minúsculas (#v=us) aunque los datos usan mayúsculas (US)
+    const v0 = q.get("v"), v = v0 && window.SUBNACIONAL?.[v0.toUpperCase()] ? v0.toUpperCase() : v0;
     if (!v) return false;
     if (q.get("p")) estado.producto = q.get("p");
     estado.mercado = q.get("mc") || null;
@@ -1018,7 +1034,7 @@
       cambiarRegion("sub");
       if (q.get("s")) { estado.regionSub = q.get("s"); dibujarMapa(); renderRegionSub(); }
     } else {
-      if (q.get("s")) estado.entidad = q.get("s");
+      if (q.get("s")) { estado.entidad = q.get("s"); estado.entidadElegida = true; }
       estado.municipio = null;
       estado.metricaMun = q.get("mm") || "produccion";
       estado.metricaMx = q.get("me") || "auto";

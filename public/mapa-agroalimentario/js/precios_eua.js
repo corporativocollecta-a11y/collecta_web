@@ -17,8 +17,10 @@
     Calexico: "Calexico y San Luis", Varios: "Varios cruces (AZ, CA, TX)" };
 
   // Lo que cruza de México: toneladas por paso fronterizo y por mes (USDA, embarques semanales)
-  function volumenHTML(v, titulo) {
+  function volumenHTML(v, titulo, k) {
     if (!v?.total) return "";
+    const cob = cobertura(k, v);
+    const txtCob = cob ? `: este año registró ${pct(cob)} de lo que México reporta exportar a EE. UU.${cob > 1.05 ? " (más de 100%: la estadística mexicana subregistra parte de lo que cruza)" : ""}` : ".";
     const cruces = Object.entries(v.cruces);
     const maxM = Math.max(...v.mensual, 1);
     const W = 300, H = 70, bw = (W - 20) / 12;
@@ -33,7 +35,7 @@
         ${v.mensual.map((t, i) => `<rect x="${10 + i * bw + 2}" y="${H - t / maxM * (H - 6)}" width="${bw - 4}" height="${t / maxM * (H - 6)}" rx="2" fill="var(--c-importa)" opacity=".85"><title>${fmtT(t)}</title></rect>
           <text x="${10 + i * bw + bw / 2 - 3}" y="${H + 12}">${MESES[i]}</text>`).join("")}
       </svg>
-      <p class="sub">Embarques semanales que el USDA registra en los cruces con México (reporte National Shipping Point Trends, 1,000 cwt = 45.4 t). No cubre todos los pasos: suele sumar entre 70% y 90% de lo que México reporta exportar a EE. UU.</p>`;
+      <p class="sub">Embarques semanales que el USDA registra en los cruces con México (reporte National Shipping Point Trends, 1,000 cwt = 45.4 t). No cubre todos los pasos${txtCob}</p>`;
   }
   // Cadena frontera → ciudad: precio FOB en el cruce + flete en camión (US$ por carga ÷ kg por carga) contra el mayoreo
   // de cada ciudad. Solo si frontera y mayoreo cotizan la misma mercancía.
@@ -209,7 +211,8 @@
       const c = E().cruces[id];
       const km = window.Modelo.distanciaKm(entidad, c);
       const flete = km * (tarifa ?? 2.2) / 1000;   // MXN por kg (tarifa en MXN por tonelada-km)
-      return { id, nombre: c.nombre, km, fob: p * tc, flete, neto: p * tc - flete };
+      const ad = cuotaAD(k);   // antidumping vigente: lo paga el importador sobre el valor
+      return { id, nombre: c.nombre, km, fob: p * tc, flete, ad, neto: p * tc * (1 - ad) - flete };
     }).sort((a, b) => b.neto - a.neto);
   }
   const mxn = n => "$" + n.toFixed(2);
@@ -240,13 +243,13 @@
       <h3>Si ${entidad.nombre} exporta a EE. UU. <span class="tag ok">USDA ${E().anio}</span></h3>
       <div class="kpis">
         <div class="kpi destacado"><div class="v">${mxn(mejor.neto)}/kg por ${mejor.nombre.split(",")[0]}</div>
-          <div class="l">Precio en la frontera ${mxn(mejor.fob)}/kg (US$${(mejor.fob / tc).toFixed(2)} × ${tc}) menos flete de ${Math.round(mejor.km).toLocaleString("es-MX")} km (${mxn(mejor.flete)}/kg).
+          <div class="l">Precio en la frontera ${mxn(mejor.fob)}/kg (US$${(mejor.fob / tc).toFixed(2)} × ${tc})${mejor.ad ? `, menos ${(mejor.ad * 100).toFixed(2)}% de antidumping,` : ""} menos flete de ${Math.round(mejor.km).toLocaleString("es-MX")} km (${mxn(mejor.flete)}/kg).
           ${precioRural ? `Es <b>${(mejor.neto / precioRural).toFixed(1)}×</b> el precio medio rural nacional (${mxn(precioRural)}/kg, SIAP).` : ""}</div></div>
       </div>
       ${opciones.length > 1 ? opciones.map(o => `<div class="ruta"><span>${o.nombre}</span><span class="x">${Math.round(o.km).toLocaleString("es-MX")} km</span><span class="x">${mxn(o.neto)}/kg</span></div>`).join("") : ""}
       ${filas ? netoTablaHTML(k, filas, tarifa, entidad.id) : ""}
       <div data-neto-semanal data-k="${k}" data-e="${entidad.id}" data-tarifa="${tarifa ?? ""}"></div>
-      <p class="sub">Referencia: ${f.mercancia}, ${f.empaque}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.</p>`;
+      <p class="sub">Referencia: ${f.mercancia}, ${window.Paleta.usdaES(f.empaque)}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.${mejor.ad ? ` Descuenta la cuota antidumping de EE. UU. de ${(mejor.ad * 100).toFixed(2)}% sobre el valor, que paga el importador.` : ""}</p>`;
   }
   // ---------- Precio neto por semana y mejor semana para vender (data/neto_semanal.js, carga diferida) ----------
   // FOB semanal del cruce en pesos (USDA × tipo de cambio de esa semana) menos el flete del estado al cruce con la
@@ -267,6 +270,11 @@
   };
   const fechaCorta = d => `${d.getUTCDate()} ${MESL[d.getUTCMonth()]}`;
 
+  // Cuota antidumping vigente en EE. UU. para el producto, leída del arancel de data/acceso.js
+  function cuotaAD(k) {
+    const m = /antidumping\s*([\d.]+)\s*%/i.exec(window.ACCESO?.productos?.[k]?.EUA?.arancel ?? "");
+    return m ? +m[1] / 100 : 0;
+  }
   function tarifaEstado(id, tarifa) {
     const di = NS()?.diesel, x = di?.estados?.[id];
     const base = tarifa ?? 2.2;
@@ -280,13 +288,16 @@
     const cruces = Object.entries(p.cruces).filter(([c]) => E().cruces[c])
       .map(([c, s]) => ({ c, s, flete: window.Modelo.distanciaKm(entidad, E().cruces[c]) * t / 1000 }));
     const mejor = vals => vals.reduce((b, v) => v.n != null && (!b || v.n > b.n) ? v : b, null);
-    const tipico = Array.from({ length: 52 }, (_, w) => mejor(cruces.map(x => ({ c: x.c, n: x.s.tipico[w] == null ? null : x.s.tipico[w] - x.flete }))));
+    // Cuota antidumping de EE. UU. (p. ej. jitomate, 17.09% desde jul-2025): la paga el importador sobre el valor y sale
+    // del precio FOB que reporta el USDA; se descuenta en todas las semanas (es el régimen vigente para vender hoy)
+    const ad = cuotaAD(k), fob = v => v == null ? null : v * (1 - ad);
+    const tipico = Array.from({ length: 52 }, (_, w) => mejor(cruces.map(x => ({ c: x.c, n: x.s.tipico[w] == null ? null : fob(x.s.tipico[w]) - x.flete }))));
     const inicio = new Date(NS().inicio + "T00:00:00Z");
     const ultimas = Array.from({ length: 52 }, (_, i) => {
       const d = new Date(inicio); d.setUTCDate(d.getUTCDate() + 7 * i);
-      return { d, b: mejor(cruces.map(x => ({ c: x.c, n: x.s.ultimas[i] == null ? null : x.s.ultimas[i] - x.flete }))) };
+      return { d, b: mejor(cruces.map(x => ({ c: x.c, n: x.s.ultimas[i] == null ? null : fob(x.s.ultimas[i]) - x.flete }))) };
     });
-    return { tipico, ultimas, tarifa: t, diesel };
+    return { tipico, ultimas, tarifa: t, diesel, ad };
   }
   // Meses en que el estado cosecha (avance mensual del SIAP; ≥ 3% de su cosecha del año), o null si no hay dato
   function mesesCosecha(k, id) {
@@ -348,7 +359,22 @@
         ${R.diesel ? `<span>Diésel en ${entidad.nombre} (CNE, ${MESES_L[+di.mes.slice(5) - 1]} de ${di.mes.slice(0, 4)}): $${R.diesel.toFixed(2)} el litro, ${Math.abs(Math.round(pctD * 100))}% ${pctD >= 0 ? "arriba" : "abajo"} del promedio nacional de ${di.base2025 ? "2025" : ""} ($${di.base2025.toFixed(2)}).</span>` : ""}
         <span>Flete de ${R.tarifa.toFixed(2)} pesos por tonelada-km: la tarifa del simulador con el diésel como 40% del costo.</span>
         <span>${cosecha ? "La mejor ventana se busca solo en los meses en que el estado cosecha (avance mensual del SIAP)." : "Sin calendario de cosecha del estado: la ventana se busca en todo el año."}</span>
+        ${R.ad ? `<span>Descuenta la cuota antidumping de EE. UU. de ${(R.ad * 100).toFixed(2)}% sobre el precio FOB, que paga el importador.</span>` : ""}
         <span>Es un techo: el FOB incluye empaque, enfriado, agente aduanal y margen del exportador.</span></p>`;
+  }
+  // Neto típico por mes (promedio de las semanas típicas del mes, con el cruce que más deja cada semana), para el
+  // planeador de venta (js/planeador.js). Requiere data/neto_semanal.js cargado (cargarNeto).
+  function netoMensual(k, entidad, tarifa) {
+    const R = NS() && netoSemanal(k, entidad, tarifa);
+    if (!R) return null;
+    const anio = new Date().getUTCFullYear();
+    return Array.from({ length: 12 }, (_, m) => {
+      const sem = R.tipico.map((x, w) => ({ x, mes: lunesISO(anio, w + 1).getUTCMonth() })).filter(s => s.mes === m && s.x);
+      if (sem.length < 2) return null;
+      const cuenta = {};
+      sem.forEach(s => { cuenta[s.x.c] = (cuenta[s.x.c] ?? 0) + 1; });
+      return { n: sem.reduce((a, s) => a + s.x.n, 0) / sem.length, c: Object.entries(cuenta).sort((a, b) => b[1] - a[1])[0][0] };
+    });
   }
   function llenarNS(el) {
     el.dataset.lleno = "1";
@@ -360,12 +386,17 @@
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches?.("[data-neto-semanal]:not([data-lleno='1'])")) llenarNS(n); revisarNS(n); } })))
     .observe(document.body, { childList: true, subtree: true });
 
+  // Cobertura del registro del USDA: lo que cruzó según el USDA ÷ lo que México reporta exportar a EE. UU. (oficial)
+  function cobertura(k, v) {
+    const p = window.PRODUCTOS?.[k], aEUA = p?.destinos?.["Estados Unidos"];
+    return k && v?.total && p?.exportacion && aEUA ? v.total / (p.exportacion * aEUA) : null;
+  }
   // Secciones de comercio exterior para la pestaña Exportar: [id, html, resumen de una línea]
   const seccionesExportar = (k, volumen, tituloVolumen) => [
     ["calendario", calendarioHTML(k), calendarioResumen(k)],
     ["competencia", competenciaHTML(k), competenciaResumen(k)],
     ["flete", cadenaHTML(k), cadenaResumen(k)],
-    ["cruces", volumenHTML(volumen, tituloVolumen), volumenResumen(volumen)]
+    ["cruces", volumenHTML(volumen, tituloVolumen, k), volumenResumen(volumen)]
   ];
 
   // Precio relativo a la mediana nacional: barato (lima) → caro (naranja)
@@ -385,7 +416,7 @@
           pane: "markerPane", radius: 6 + 8 * Math.sqrt(n / maxN), color: t.sel, weight: 1.5,
           fillColor: colorRel(p / d.precio), fillOpacity: 0.95
         }).bindTooltip(`<b>${m.nombre}</b> · mercado terminal<br>Mayoreo: <b>${usd(p)}/kg</b> (${pct(p / d.precio)} de la mediana)<br>
-          Origen mexicano: ${pct(mx)} de las cotizaciones<br><span style="opacity:.7">${d.mercancia}, ${d.empaque}</span>`).addTo(grupo);
+          Origen mexicano: ${pct(mx)} de las cotizaciones<br><span style="opacity:.7">${d.mercancia}, ${window.Paleta.usdaES(d.empaque)}</span>`).addTo(grupo);
       });
       const f = d.frontera;
       rutasCadena(k).forEach(r => {
@@ -401,7 +432,7 @@
           icon: window.L.divIcon({ className: "cruce", iconSize: null,
             html: `<i style="--s:${tCruce ? 1 + 1.4 * Math.sqrt(tCruce / (d.volumen.total || 1)) : 1}"></i><span>${c.nombre.split(",")[0]}${v ? " · " + usd(v[0]) : ""}${tCruce ? " · " + fmtT(tCruce) : ""}</span>` })
         }).bindTooltip(`<b>Cruce ${c.nombre}</b>${tCruce ? `<br>Cruzan <b>${fmtT(tCruce)}</b> al año (${pct(tCruce / d.volumen.total)} de lo registrado)` : ""}
-          ${v ? `<br>Precio FOB del producto mexicano: <b>${usd(v[0])}/kg</b><br><span style="opacity:.7">${f.mercancia}, ${f.empaque} · ${v[1]} cotizaciones</span>` : ""}`).addTo(grupo);
+          ${v ? `<br>Precio FOB del producto mexicano: <b>${usd(v[0])}/kg</b><br><span style="opacity:.7">${f.mercancia}, ${window.Paleta.usdaES(f.empaque)} · ${v[1]} cotizaciones</span>` : ""}`).addTo(grupo);
       });
     }
     return {
@@ -453,7 +484,7 @@
           <div class="l">Precio FOB en la frontera (${Object.entries(f.cruces).map(([c, v]) => `${E().cruces[c].nombre.split(",")[0]} ${usd(v[0])}`).join(" · ")}).
           ${brecha != null ? `En los mercados terminales el producto mexicano se vende ${brecha >= 0 ? pct(brecha) + " más caro" : pct(-brecha) + " más barato"} que en la frontera: flete, merma y margen del mayorista.` : ""}</div></div>` : ""}
       </div>
-      <p class="sub">Referencia: ${d.mercancia}, ${d.empaque} (${d.kgEmpaque} kg)${f && f.empaque !== d.empaque ? `; en la frontera, ${f.mercancia}, ${f.empaque}` : ""}.</p>
+      <p class="sub">Referencia: ${d.mercancia}, ${window.Paleta.usdaES(d.empaque)} (${d.kgEmpaque} kg)${f && f.empaque !== d.empaque ? `; en la frontera, ${f.mercancia}, ${window.Paleta.usdaES(f.empaque)}` : ""}.</p>
       <h4 class="mini">Precio por ciudad</h4>
       ${ciudades.map(([id, [p, , mx]]) => `<div class="barra-h"><span class="n">${E().mercados[id].nombre}</span><span class="b"><i style="width:${p / maxP * 100}%;background:${colorRel(p / d.precio)}"></i></span><span class="x">${usd(p)}</span></div>`).join("")}
       <h4 class="mini">De dónde viene lo que se vende</h4>
@@ -473,5 +504,6 @@
   }
 
   window.PreciosEUA = { disponible, crearCapa, panelHTML, panelResumen, netoHTML, netoResumen, seccionesExportar,
+    netoMensual, cargarNeto: () => cargarNS(), tarifaEstado, cuotaAD, nombreCruce: c => NOMBRE_CRUCE[c] ?? c,
     volumenMexico: k => E()?.mexico?.[k], volumenPais: k => datos(k)?.volumen };
 })();

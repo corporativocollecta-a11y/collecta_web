@@ -16,7 +16,7 @@
   const GRUPOS = { eua: ["EE. UU.", "var(--productor)"], mx: ["México", "var(--c-importa)"], imp: ["Importación", "var(--minorista)"], mixto: ["Mixto (CA/AZ y cruces)", "var(--transporte)"] };
   const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-  const nombreOrigen = m => document.documentElement.lang === "en" && m[5] ? m[5] : m[0];
+  const nombreOrigen = m => document.documentElement.lang === "en" && m[5] ? m[5] : window.Paleta.usdaES(m[0]);
   const fecha = i => { const d = new Date(E().semanas[i] + "T12:00:00"); return `${d.getDate()} ${MES[d.getMonth()]} ${d.getFullYear()}`; };
 
   let cargando = null, semana = null;
@@ -29,7 +29,8 @@
   ]);
 
   // t de un origen en la semana i
-  const valor = (k, o, i) => { const s = E()?.productos?.[k]?.[o]; if (!s) return 0; const j = i - s[0]; return j >= 0 && j < s[1].length ? s[1][j] : 0; };
+  // las correcciones del USDA llegan como toneladas negativas: se muestran como 0
+  const valor = (k, o, i) => { const s = E()?.productos?.[k]?.[o]; if (!s) return 0; const j = i - s[0]; return j >= 0 && j < s[1].length ? Math.max(0, s[1][j] ?? 0) : 0; };
   const ultimaSemana = k => Math.max(...Object.values(E()?.productos?.[k] ?? {}).map(([i0, v]) => { let j = v.length - 1; while (j >= 0 && !v[j]) j--; return i0 + j; }), -1);
   const semanaDe = k => { const u = ultimaSemana(k); return semana != null && semana <= u ? semana : u; };
   const disponible = k => !!E()?.productos?.[k] && ultimaSemana(k) >= 0;
@@ -75,7 +76,7 @@
     // excedente anual (producción − demanda)
     const mensual = window.AVANCE_SIAP?.productos?.[k];
     const mes = +E().semanas[i].slice(5, 7) - 1;
-    const filas = window.Modelo.calcular(k, {}).filas.map(f => ({ ...f, exc: reg ? (f.id === "09" ? 0 : reg.partes[f.id] ?? 0)
+    const filas = window.Modelo.calcular(k, {}).filas.map(f => ({ ...f, exc: reg ? (f.id === "09" || !(f.prod > 0) || f.estimado ? 0 : reg.partes[f.id] ?? 0)
       : (factores ? factores[f.id] ?? 0 : 1) * (mensual ? Math.max(0, (mensual[f.id]?.[mes] ?? 0) - f.demanda / 12) : Math.max(0, f.prod - f.demanda)) }))
       .filter(f => f.exc > 0 && (!AUTORIZADOS[k] || AUTORIZADOS[k].includes(f.id)));
     if (!filas.length) return null;
@@ -197,7 +198,7 @@
         <span>Nivel reciente: ${pr.factor.toFixed(2)}× lo normal para estas semanas.</span></div>` : ""}
       <p class="sub"><span>Oferta: la misma semana en años anteriores ajustada por el nivel reciente, sin prueba de error.</span>
         <span>Precio: la misma semana en años anteriores (USDA, desde 2021) ajustada por cómo vienen las últimas cuatro semanas frente a esas mismas semanas de otros años.</span>
-        <span>Precio de referencia:</span> <span translate="no">${pr?.referencia ?? "—"}</span> <span>${p.precio?.mayoreo ? "(mayoreo en Los Ángeles, Chicago y Nueva York)." : "(FOB en la frontera)."}</span>
+        <span>Precio de referencia:</span> <span translate="no">${window.Paleta.usdaES(pr?.referencia ?? "—")}</span> <span>${p.precio?.mayoreo ? "(mayoreo en Los Ángeles, Chicago y Nueva York)." : "(FOB en la frontera)."}</span>
         <span>No anticipa heladas, plagas, cambios de aranceles ni choques de demanda.</span> <span>Calculado el ${P().generado}.</span></p>`;
   }
   function pronosticoResumen(k) {

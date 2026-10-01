@@ -23,23 +23,23 @@
 
   function resumen(k) {
     if (!disponible(k)) return "";
-    const f = filas(k).filter(x => x.margen != null && x.tipo === "abierto");
-    const g = f.length ? f : filas(k).filter(x => x.margen != null);
+    const g = filas(k).filter(x => x.margen != null);
     if (!g.length) return "";
     const pos = g.filter(x => x.margen > 0).length;
-    return `En ${pos} de ${g.length} estados con costo FIRA, el precio rural cubre el costo`;
+    return `El precio rural cubre el costo en ${pos} de ${g.length} ${g.length === 1 ? "caso" : "casos"} (estado y tipo de cultivo) con costo FIRA`;
   }
   function html(k) {
     if (!disponible(k)) return "";
     const F = filas(k);
+    const a0 = Math.min(...F.map(f => f.anio)), a1 = Math.max(...F.map(f => f.anio)), rango = a0 === a1 ? a0 : `${a0}–${a1}`;
     return `
       <div class="desplaza"><table class="compacta">
-        <tr><th>Estado</th><th>Tipo</th><th class="num">Costo $/kg</th><th class="num">Precio rural $/kg</th><th class="num">Margen</th></tr>
+        <tr><th>Estado</th><th>Tipo</th><th class="num">Costo $/kg</th><th class="num">Precio rural $/kg</th><th class="num">Margen sobre el precio</th></tr>
         ${F.map(f => `<tr class="clic" data-id="${f.id}"><td>${nombre(f.id)}</td><td>${TIPO[f.tipo]}<br><span class="est">FIRA ${f.anio} · ${f.rend} t/ha</span></td>
           <td class="num">${mxn(f.costo)}</td><td class="num">${f.rural ? mxn(f.rural) : "—"}</td>
           <td class="num">${f.margen == null ? "—" : `<span class="tag ${f.margen >= 0.15 ? "ok" : f.margen >= 0 ? "alerta-tag" : "exc"}">${pct(f.margen)}</span>`}</td></tr>`).join("")}
       </table></div>
-      <p class="sub"><span>Costo: FIRA Agrocostos, costo paramétrico por hectárea entre el rendimiento esperado, del año más reciente con dato (${Math.min(...F.map(f => f.anio))}–${Math.max(...F.map(f => f.anio))}), llevado a pesos de ${C().actualizadoA} con la inflación (${C().indice}).</span>
+      <p class="sub"><span>Costo: FIRA Agrocostos, costo paramétrico por hectárea entre el rendimiento esperado, del año más reciente con dato (${rango}), llevado a pesos de ${C().actualizadoA} con la inflación (${C().indice}).</span>
         <span>Precio: precio medio rural del SIAP 2025 en el estado (todas las calidades y destinos).</span>
         <span>FIRA advierte que son pocas observaciones y no representan al estado: sirven como orden de magnitud.</span>
         <span>La agricultura protegida (invernadero, malla) suele venderse más cara que el promedio rural, sobre todo para exportar: su margen aquí sale castigado.</span></p>`;

@@ -125,7 +125,8 @@ def main():
             cu, rend, anio = float(r["CostoUnitario"]), float(r["Rendimiento probable"]), r["Año"]
         except ValueError:
             continue
-        tipo = "protegida" if "PROTEGID" in sin_acentos(r.get("Modalidad", "")) else "abierto"
+        # más de 150 t/ha solo se logra en agricultura protegida aunque FIRA la registre como "tradicional"/"goteo"
+        tipo = "protegida" if "PROTEGID" in sin_acentos(r.get("Modalidad", "")) or float(r["Rendimiento probable"] or 0) > 150 else "abierto"
         if e and cu > 0 and rend >= 0.5:
             filas[k][(e, tipo)].append((anio, cu, rend))
     rural = precio_rural()

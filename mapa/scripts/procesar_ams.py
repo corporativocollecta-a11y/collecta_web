@@ -38,7 +38,7 @@ PRODUCTOS = {
     "pepino": ["Cucumbers"], "manzana": ["Apples"], "calabacita": ["Squash, Zucchini", "Squash, Yellow Straightneck"],
     "zanahoria": ["Carrots"], "lechuga": ["Lettuce, Iceberg", "Lettuce, Romaine"], "uva": ["Grapes"],
     "toronja": ["Grapefruit"], "pera": ["Pears"], "durazno": ["Peaches", "Nectarines"],
-    "arandano": ["Blueberries", "Raspberries"], "esparrago": ["Asparagus"], "sandia": ["Watermelons"],
+    "arandano": ["Blueberries"], "esparrago": ["Asparagus"], "sandia": ["Watermelons"],   # sin frambuesa: el empaque más cotizado era el de frambuesa y el arándano quedaba con precio ajeno
     "melon": ["Cantaloupes", "Honeydews"], "platano": ["Bananas"], "mango": ["Mangoes"], "pina": ["Pineapples"],
     "berenjena": ["Eggplant"],
 }

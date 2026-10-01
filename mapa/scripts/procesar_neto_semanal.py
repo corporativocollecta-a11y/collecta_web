@@ -184,7 +184,7 @@ def main():
     di = diesel()
     fob, refs = fob_semanal()
     hoy = date.today()
-    ult_lunes = hoy - timedelta(days=hoy.weekday())
+    ult_lunes = hoy - timedelta(days=hoy.weekday()) - timedelta(weeks=1)   # última semana completa (la en curso va a medias)
     inicio = ult_lunes - timedelta(weeks=51)
     productos = {}
     for k, cruces in fob.items():

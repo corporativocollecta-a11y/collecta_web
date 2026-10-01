@@ -105,6 +105,16 @@ def main(desde=2016, hasta=2025):
         encoding="utf-8",
     )
     print(f"-> {destino} ({destino.stat().st_size / 1e3:.0f} kB)")
+    # Producción nacional del año anterior con la MISMA fuente (cierre SIAP), para el "la producción pasó de… a…" del
+    # balance: compararla con la del Panorama (otra publicación y otra definición, p. ej. chile 3.22 Mt) exageraba caídas
+    ant = hasta - 1
+    nac = {k: sum(por_anio[ant].get(k, {}).get(e, [0, 0])[0] for e in por_anio[ant].get(k, {})) for k in CULTIVOS if por_anio[ant].get(k)}
+    destino2 = RAIZ / "data" / "produccion_anterior.js"
+    destino2.write_text(
+        f"// Generado por scripts/procesar_historia_estados.py — producción nacional SIAP (cierre agrícola) de {ant}, en toneladas\n"
+        f"window.PRODUCCION_ANTERIOR = {json.dumps({'anio': ant, 'productos': {k: round(v) for k, v in nac.items()}}, separators=(',', ':'))};\n",
+        encoding="utf-8")
+    print(f"-> {destino2}")
 
 
 if __name__ == "__main__":

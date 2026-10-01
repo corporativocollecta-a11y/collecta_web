@@ -358,7 +358,9 @@
   // Dónde puede vender México: importadores con más compra que no viene de México
   function oportunidadesHTML(R) {
     if (!R.opp) return "";
-    const top = Object.entries(R.opp).sort((a, b) => b[1].libreUSD - a[1].libreUSD).slice(0, 10);
+    // Los mercados con acceso cerrado para el producto mexicano van al final (no son oportunidad hoy)
+    const cerrado = id => window.Acceso ? Acceso.celda(R.k, L().paises[id]?.iso)?.estado === "cerrado" : false;
+    const top = Object.entries(R.opp).sort((a, b) => (cerrado(a[0]) - cerrado(b[0])) || b[1].libreUSD - a[1].libreUSD).slice(0, 10);
     if (!top.length) return "";
     const fila = id => R.filas.find(f => f.id === id);
     return `
@@ -369,7 +371,7 @@
         ${top.map(([id, o]) => `<tr class="clic" data-mercado="${id}"><td><span class="enlace-mercado">${fila(id).nombre} →</span></td><td class="num">${usd(o.libreUSD)}<br><span class="est">${fmtT(o.libreT)}</span></td>
           <td class="num">${o.precio.toFixed(2)}</td><td class="num">${o.parteMX > 0.005 ? pct(o.parteMX) : "—"}</td><td>${o.principal ? nombreNodo(o.principal) : "—"}</td>${window.Acceso ? `<td>${(c => c ? Acceso.etiqueta(c) : '<span class="est">—</span>')(Acceso.celda(R.k, L().paises[id]?.iso))}</td>` : ""}</tr>`).join("")}
       </table></div>
-      <p class="sub">Ojo: Países Bajos, Bélgica y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: no considera aranceles, requisitos fitosanitarios ni acceso sanitario para producto mexicano. Elige <i>Oportunidad para México</i> en el menú de color del mapa para verlo por país.</p>`;
+      <p class="sub">Ojo: Países Bajos, Bélgica y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: los países con acceso cerrado para el producto mexicano van al final; el arancel y los requisitos están en la columna Acceso. Elige <i>Oportunidad para México</i> en el menú de color del mapa para verlo por país.</p>`;
   }
 
   function rutasHTML(k) {

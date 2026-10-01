@@ -11,7 +11,7 @@ El sitio agrega en next.config.ts la reescritura /mapa-agroalimentario → index
 X-Robots-Tag: noindex. Publicar = commit + push del repo del sitio (Vercel despliega main).
 
 Uso:
-  python scripts/publicar_web.py [ruta del repo del sitio=C:/Users/DELL/dev/collecta_web] [ruta del reporte]
+  python scripts/publicar_web.py [ruta del repo del sitio=C:/Users/DELL/dev/collecta_web] [ruta del reporte] [--sin-traer]
 """
 import re
 import shutil
@@ -19,15 +19,19 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-SITIO = Path(sys.argv[1] if len(sys.argv) > 1 else r"C:\Users\DELL\dev\collecta_web")
-REPORTE = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+SITIO = Path(ARGS[0] if ARGS else r"C:\Users\DELL\dev\collecta_web")
+REPORTE = Path(ARGS[1]) if len(ARGS) > 1 else None
+# --sin-traer: publicar los datos del proyecto tal cual, sin traer los del sitio (cuando se corrigieron y regeneraron a
+# mano el mismo día que corrió la actualización automática)
+SIN_TRAER = "--sin-traer" in sys.argv
 RUTA = "mapa-agroalimentario"
 DESTINO = SITIO / "public" / RUTA
 NOINDEX = '<meta name="robots" content="noindex, nofollow">'
 # Archivos que también generan las actualizaciones automáticas en GitHub Actions (clima-smn.yml y
 # actualizacion-semanal.yml de collecta_web); todos llevan "generado"
 AUTOMATICOS = ("clima_smn.js", "embarques.js", "pronostico.js", "alerta_oferta.js", "origen_exportacion.js",
-               "neto_semanal.js", "pronostico_sniim.js", "alertas_precio.js")
+               "neto_semanal.js", "pronostico_sniim.js", "alertas_precio.js", "sequia.js")
 # Copia del proyecto en el sitio (collecta_web/mapa/) para que GitHub Actions corra la actualización semanal; sin
 # data/fuentes (descargas crudas, van en la caché de Actions) ni .env (la clave del USDA va como secreto)
 ESPEJO = SITIO / "mapa"
@@ -50,7 +54,7 @@ def main():
     # Lo que generan las actualizaciones automáticas en GitHub (clima diario y actualización semanal): si la copia del
     # sitio es más reciente, se trae al proyecto antes de copiar
     traidos = []
-    for nombre in AUTOMATICOS:
+    for nombre in ([] if SIN_TRAER else AUTOMATICOS):
         sitio, local = DESTINO / "data" / nombre, RAIZ / "data" / nombre
         # en empate (mismo día) gana el sitio: la actualización automática es la fuente principal de estos archivos
         if generado(sitio) and generado(sitio) >= generado(local) and sitio.read_bytes() != local.read_bytes():

@@ -58,7 +58,8 @@
     const n = res.nacional;
 
     // Cobertura mensual: cosecha del mes (menos exportación proporcional) + importación pareja vs. demanda mensual
-    const exportable = Math.max(0, n.produccion - n.exportacion);
+    // exportación oficial (la misma del encabezado y la línea ejecutiva), no la del modelo limitada al excedente
+    const exportable = Math.max(0, n.produccion - (res.producto.exportacion ?? n.exportacion));
     const cobertura = prod.map(v => (exportable * v / 100 + n.importacionReportada / 12) / (n.demanda / 12));
     const faltan = cobertura.map((c, i) => [c, i]).filter(([c]) => c < 0.9).map(([, i]) => MES_L[i]);
     const anual = cobertura.reduce((s, c) => s + c, 0) / 12;

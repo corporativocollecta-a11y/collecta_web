@@ -13,8 +13,9 @@
   const MIN_HA_ESTADO = 100;
   const MIN_T = 5000;          // producción a la fecha mínima para perennes
   const NIVELES = [
-    [0.15, "Riesgo alto de sobreoferta", "def"], [0.05, "Más oferta que en años anteriores", "alerta-tag"],
-    [-0.05, "Oferta similar", "ok"], [-0.15, "Menos oferta que en años anteriores", "ok"], [-Infinity, "Posible escasez", "exc"]
+    // Lenguaje de oferta, no de precio: la prueba 2019–2026 no encontró que la señal anticipe el precio
+    [0.15, "Mucha más oferta por venir", "def"], [0.05, "Más oferta que en años anteriores", "alerta-tag"],
+    [-0.05, "Oferta similar", "ok"], [-0.15, "Menos oferta que en años anteriores", "ok"], [-Infinity, "Mucha menos oferta por venir", "exc"]
   ];
   const nivel = s => s == null ? ["Sin señal", ""] : NIVELES.find(([u]) => s >= u).slice(1);
   let cargando = null;
@@ -52,7 +53,7 @@
     return s >= 0.15 ? t.def : s >= 0.05 ? t.med : s > -0.05 ? t.neutro : s > -0.15 ? t.auto : t.exc;
   }
   const leyendaHTML = k => `<h4>Oferta por venir vs. ${A().anio - 2}–${A().anio - 1}: ${window.PRODUCTOS?.[k]?.nombre ?? k}</h4>` +
-    [["≥ +15% (riesgo de sobreoferta)", 0.2], ["+5% a +15%", 0.1], ["Similar (±5%)", 0], ["−5% a −15%", -0.1], ["≤ −15% (posible escasez)", -0.2], ["Sin señal", null]]
+    [["+15% o más (mucha más oferta)", 0.2], ["+5% a +15%", 0.1], ["Similar (±5%)", 0], ["−5% a −15%", -0.1], ["−15% o menos (mucha menos oferta)", -0.2], ["Sin señal", null]]
       .map(([t, s]) => { const T = window.Paleta.tokens(); const c = s == null ? T.sin : s >= 0.15 ? T.def : s >= 0.05 ? T.med : s > -0.05 ? T.neutro : s > -0.15 ? T.auto : T.exc;
         return `<div class="fila"><span class="sw" style="background:${c}"></span>${t}</div>`; }).join("") +
     `<div class="fila pie">SIAP, avance al ${A().corte}</div>`;
@@ -85,7 +86,8 @@
       </table></div>
       <p class="sub">SIAP, Avance de Siembras y Cosechas, situación al ${A().corte} contra el promedio de los dos años anteriores al mismo corte (ciclos otoño-invierno y primavera-verano más perennes; riego y temporal). ${pe
         ? "En perennes la señal es la producción acumulada a la fecha."
-        : "La superficie por cosechar (sembrada − cosechada − siniestrada) es lo que falta por salir al mercado en los próximos meses."} Sin señal cuando la base es muy chica (menos de ${MIN_HA} ha por cosechar o ${fmt(MIN_T)} t). Mide oferta, no anticipa precios: en una prueba con 2019–2026 esta señal no anticipó el precio de mayoreo en Estados Unidos. No considera rendimientos, clima ni demanda. En el mapa, elige <i>Oferta por venir</i> para verlo por estado.</p>`;
+        : "La superficie por cosechar (sembrada − cosechada − siniestrada) es lo que falta por salir al mercado en los próximos meses; lo ya cosechado a la fecha puede ir arriba aunque falte menos por cosechar (la cosecha se adelantó)."} Sin señal cuando la base es muy chica (menos de ${MIN_HA} ha por cosechar o ${fmt(MIN_T)} t). Mide oferta, no anticipa precios: en una prueba con 2019–2026 esta señal no anticipó el precio de mayoreo en Estados Unidos. No considera rendimientos, clima ni demanda. En el mapa, elige <i>Oferta por venir</i> para verlo por estado.</p>
+      ${R.p.excluidos?.length ? `<p class="sub">No entran al total nacional ${R.p.excluidos.map(nombreEstado).join(", ")}: en algún año su avance registra más cosecha o superficie de la que el estado produce en todo el año (probable error de captura del SIAP).</p>` : ""}`;
   }
   function resumen(k) {
     const R = calcular(k);
