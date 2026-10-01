@@ -91,6 +91,7 @@ def tc_de(tc, s):
 def diesel():
     hoy = date.today()
     ruta = None
+    CNE.mkdir(parents=True, exist_ok=True)   # en GitHub Actions no existe la primera vez (curl -o no la crea)
     for atras in range(0, 6):
         a, m = (hoy.year, hoy.month - atras) if hoy.month - atras > 0 else (hoy.year - 1, hoy.month - atras + 12)
         r = CNE / f"precios_{MESES[m - 1].lower()}_{a}.xlsx"
@@ -99,6 +100,14 @@ def diesel():
             break
         r.unlink(missing_ok=True)
     if not ruta:
+        # La CNE a veces no responde (desde GitHub Actions, por ejemplo): se conserva el diésel de la versión anterior
+        previo = RAIZ / "data" / "neto_semanal.js"
+        if previo.exists():
+            t = previo.read_text(encoding="utf-8")
+            d = json.JSONDecoder().raw_decode(t[t.index("{", t.index(" = ")):])[0].get("diesel")
+            if d:
+                print(f"  CNE sin respuesta: se conserva el diésel de {d['mes']}")
+                return d
         raise SystemExit("No se encontró el archivo de precios de la CNE de los últimos 6 meses")
     import openpyxl
     ws = openpyxl.load_workbook(ruta, read_only=True, data_only=True)["Cuadro 1.4"]

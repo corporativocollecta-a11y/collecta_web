@@ -47,6 +47,7 @@ def consulta(cultivo, anio, mes):
     for a in args:
         cmd += ["--data-urlencode", f"xajaxargs[]={a}"]
     datos = subprocess.run(cmd, capture_output=True, check=True).stdout
+    ruta.parent.mkdir(parents=True, exist_ok=True)   # en GitHub Actions la carpeta no existe la primera vez
     ruta.write_bytes(datos)
     time.sleep(0.5)
     return datos.decode("latin-1")

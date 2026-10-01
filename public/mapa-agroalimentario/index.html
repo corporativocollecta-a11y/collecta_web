@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="css/styles.css?v=b59475a4">
+  <link rel="stylesheet" href="css/styles.css?v=4e2482d6">
 </head>
 <body>
   <header class="cabecera">
@@ -183,111 +183,111 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="data/estados.js?v=9d2dcf45"></script>
-  <script src="data/productos.js?v=fb8182f8"></script>
+  <script src="data/productos.js?v=2230a5a7"></script>
   <!-- Se genera con scripts/procesar_siap.py; si no existe, se usan los datos preliminares -->
-  <script src="data/produccion_siap.js?v=dc7323d5"></script>
+  <script src="data/produccion_siap.js?v=ab57e2b4"></script>
   <!-- Se genera con scripts/procesar_comercio.py (exportación/importación oficial) -->
-  <script src="data/comercio_oficial.js?v=983d059b"></script>
+  <script src="data/comercio_oficial.js?v=e2a8c5a3"></script>
   <!-- Consumo per cápita oficial (Panorama Agroalimentario) y población CONAPO (scripts/procesar_panorama.py) -->
-  <script src="data/consumo_oficial.js?v=39dfdb4c"></script>
+  <script src="data/consumo_oficial.js?v=28e27863"></script>
   <!-- Producción municipal SIAP (scripts/procesar_siap.py); los polígonos se cargan al elegir "Municipios" -->
-  <script src="data/produccion_municipal.js?v=ceb1227e"></script>
+  <script src="data/produccion_municipal.js?v=9a19c9f0"></script>
   <!-- Secciones plegables de los paneles (título + resumen de una línea) -->
-  <script src="js/secciones.js?v=3a72602b"></script>
-  <script src="js/modelo.js?v=0b526122"></script>
+  <script src="js/secciones.js?v=58886cf3"></script>
+  <script src="js/modelo.js?v=99fa5a8c"></script>
   <script src="js/municipal.js?v=febefa3a"></script>
   <!-- Precios de mayoreo SNIIM (scripts/procesar_sniim.py) -->
-  <script src="data/precios_sniim.js?v=350e30d4"></script>
+  <script src="data/precios_sniim.js?v=5719761c"></script>
   <!-- Precio al consumidor PROFECO QQP (scripts/procesar_profeco.py) -->
-  <script src="data/precios_consumidor.js?v=40231a08"></script>
+  <script src="data/precios_consumidor.js?v=c49670f2"></script>
   <!-- Consumo por persona de cada estado frente al nacional, ENIGH 2024 (scripts/procesar_enigh.py) -->
-  <script src="data/consumo_regional.js?v=c38ccd01"></script>
+  <script src="data/consumo_regional.js?v=6644eef5"></script>
   <!-- Helada y lluvia fuerte en los próximos días: SMN × producción municipal (scripts/procesar_clima_smn.py) -->
-  <script src="data/clima_smn.js?v=576c4d40"></script>
-  <script src="js/clima.js?v=95a94471"></script>
+  <script src="data/clima_smn.js?v=c5376154"></script>
+  <script src="js/clima.js?v=368de280"></script>
   <!-- Movimientos de precio y embarques de la semana (scripts/construir_alertas.py) -->
-  <script src="data/alertas_precio.js?v=093794b4"></script>
+  <script src="data/alertas_precio.js?v=8501c084"></script>
   <script src="js/alertas.js?v=c2e8e515"></script>
   <!-- Pérdidas por siniestro en 10 años (scripts/procesar_siniestros.py) -->
-  <script src="data/siniestros.js?v=775d3ee4"></script>
+  <script src="data/siniestros.js?v=e1c42652"></script>
   <script src="js/siniestros.js?v=1b8292c5"></script>
   <!-- Costo de producción (FIRA Agrocostos) contra precio rural (scripts/procesar_costos_fira.py) -->
-  <script src="data/costos_fira.js?v=7dbd553a"></script>
+  <script src="data/costos_fira.js?v=8848f2c4"></script>
   <script src="js/costos.js?v=067feddd"></script>
   <!-- Frescura de cada fuente (scripts/construir_frescura.py) -->
-  <script src="data/frescura.js?v=0829a10b"></script>
+  <script src="data/frescura.js?v=9f170384"></script>
   <script src="js/precios.js?v=b2efd7d8"></script>
   <!-- Pronóstico de 8 semanas del mayoreo en México (scripts/procesar_pronostico_sniim.py → data/pronostico_sniim.js, carga diferida) -->
-  <script src="js/pronostico_sniim.js?v=acaf9232"></script>
+  <script src="js/pronostico_sniim.js?v=1a5b5726"></script>
   <script src="js/estacionalidad.js?v=fd77be00"></script>
   <script src="js/resumen.js?v=931eb546"></script>
   <!-- Fase LATAM: FAOSTAT (scripts/procesar_faostat.py) -->
-  <script src="data/latam.js?v=8822ac7d"></script>
-  <script src="data/latam_comercio.js?v=e9b85a02"></script>
+  <script src="data/latam.js?v=ab5ad978"></script>
+  <script src="data/latam_comercio.js?v=62bf2324"></script>
   <!-- Fase global: FAOSTAT todos los países (procesar_faostat.py global, procesar_faostat_bilateral.py global) -->
-  <script src="data/global.js?v=130f1c59"></script>
-  <script src="data/global_comercio.js?v=cc305e21"></script>
+  <script src="data/global.js?v=409f6e5c"></script>
+  <script src="data/global_comercio.js?v=ef7386b8"></script>
   <!-- Lo que cada comprador reporta que le compra a México, para "Dónde puede vender México" (scripts/procesar_mercados.py) -->
-  <script src="data/desde_mexico.js?v=dc85cc5a"></script>
+  <script src="data/desde_mexico.js?v=f7e2e818"></script>
   <!-- Vistas por país (motor común, scripts/subnacional_comun.py): EE. UU. (procesar_usda.py), Brasil (procesar_ibge.py), Colombia (procesar_eva.py), Canadá (procesar_statcan.py), Perú (procesar_midagri.py), España (procesar_mapa_es.py), Italia (procesar_istat.py), Turquía (procesar_tuik.py), Chile (procesar_odepa.py), Polonia (procesar_gus.py), Filipinas (procesar_psa.py), Ecuador (procesar_espac.py), Japón (procesar_maff.py), Francia (procesar_agreste.py), Australia (procesar_abs.py), Países Bajos (procesar_cbs.py), Bélgica (procesar_eurostat_be.py), Portugal (procesar_ine_pt.py), Grecia (procesar_elstat.py), Nueva Zelanda (procesar_statsnz.py), Corea del Sur (procesar_kosis.py), Guatemala (procesar_maga_gt.py), Costa Rica (procesar_cenagro_cr.py), Honduras (procesar_can_hn.py) -->
-  <script src="data/productos_paises.js?v=283f8406"></script>
-  <script src="data/sub_us.js?v=2e783337"></script>
-  <script src="data/sub_br.js?v=dd82f706"></script>
-  <script src="data/sub_cl.js?v=6d9a082d"></script>
-  <script src="data/sub_ca.js?v=fc1b9dbc"></script>
-  <script src="data/sub_co.js?v=c9f3d3ae"></script>
-  <script src="data/sub_es.js?v=362a0075"></script>
-  <script src="data/sub_it.js?v=ceed3296"></script>
-  <script src="data/sub_pe.js?v=cf3ee0ec"></script>
-  <script src="data/sub_tr.js?v=0b1dffb7"></script>
-  <script src="data/sub_au.js?v=0d387f77"></script>
-  <script src="data/sub_ec.js?v=a133a6f0"></script>
-  <script src="data/sub_fr.js?v=967ae64a"></script>
-  <script src="data/sub_jp.js?v=3c097b30"></script>
-  <script src="data/sub_ph.js?v=3111e3b6"></script>
-  <script src="data/sub_pl.js?v=1c25d7fc"></script>
-  <script src="data/sub_nl.js?v=5f7524fa"></script>
-  <script src="data/sub_be.js?v=509bd3a9"></script>
-  <script src="data/sub_pt.js?v=f329dc4a"></script>
-  <script src="data/sub_gr.js?v=089713f8"></script>
-  <script src="data/sub_nz.js?v=f796bbac"></script>
-  <script src="data/sub_kr.js?v=5bc8aeff"></script>
-  <script src="data/sub_gt.js?v=0e5163a7"></script>
-  <script src="data/sub_cr.js?v=d98f88a0"></script>
-  <script src="data/sub_hn.js?v=09bf25e8"></script>
+  <script src="data/productos_paises.js?v=0b34902f"></script>
+  <script src="data/sub_us.js?v=d6107c10"></script>
+  <script src="data/sub_br.js?v=b2e67cb5"></script>
+  <script src="data/sub_cl.js?v=9d1cdca7"></script>
+  <script src="data/sub_ca.js?v=b44a61da"></script>
+  <script src="data/sub_co.js?v=28a483ec"></script>
+  <script src="data/sub_es.js?v=28cdd264"></script>
+  <script src="data/sub_it.js?v=4842fee5"></script>
+  <script src="data/sub_pe.js?v=3b438326"></script>
+  <script src="data/sub_tr.js?v=6f0c6a47"></script>
+  <script src="data/sub_au.js?v=1fbb072e"></script>
+  <script src="data/sub_ec.js?v=84fdc9f2"></script>
+  <script src="data/sub_fr.js?v=e7a1583b"></script>
+  <script src="data/sub_jp.js?v=0ec8e274"></script>
+  <script src="data/sub_ph.js?v=eb4b4093"></script>
+  <script src="data/sub_pl.js?v=5d3a976c"></script>
+  <script src="data/sub_nl.js?v=a7be0857"></script>
+  <script src="data/sub_be.js?v=a5e25c6e"></script>
+  <script src="data/sub_pt.js?v=dfb73e27"></script>
+  <script src="data/sub_gr.js?v=c5fc0b12"></script>
+  <script src="data/sub_nz.js?v=f301f024"></script>
+  <script src="data/sub_kr.js?v=2086ba15"></script>
+  <script src="data/sub_gt.js?v=4e06131e"></script>
+  <script src="data/sub_cr.js?v=e0b7f4bc"></script>
+  <script src="data/sub_hn.js?v=9782dec3"></script>
   <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
   <script src="js/paleta.js?v=3eb644ca"></script>
   <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
-  <script src="data/sequia.js?v=4519c89a"></script>
+  <script src="data/sequia.js?v=ba9098ae"></script>
   <!-- Alerta de oferta: avance de siembras y cosechas del SIAP contra el mismo corte del año anterior (scripts/procesar_alerta_oferta.py) -->
-  <script src="data/alerta_oferta.js?v=04783957"></script>
+  <script src="data/alerta_oferta.js?v=9ccd3ee4"></script>
   <script src="js/alerta.js?v=5b3611b2"></script>
   <script src="js/sequia.js?v=8023c968"></script>
   <!-- Acceso a mercados: requisitos fitosanitarios y aranceles para México (scripts/construir_acceso.py) -->
-  <script src="data/acceso.js?v=c066dbce"></script>
+  <script src="data/acceso.js?v=bd6cfbb5"></script>
   <script src="js/acceso.js?v=488986a1"></script>
   <!-- Historia de 10 años de FAOSTAT (scripts/procesar_historia.py → data/historia.js, carga diferida) -->
-  <script src="js/historia.js?v=887567cd"></script>
+  <script src="js/historia.js?v=0ea7b71c"></script>
   <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
-  <script src="data/precios_eua.js?v=d991c51a"></script>
+  <script src="data/precios_eua.js?v=e896d1ff"></script>
   <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
-  <script src="data/competencia_eua.js?v=81742e8e"></script>
-  <script src="js/precios_eua.js?v=dee2909f"></script>
+  <script src="data/competencia_eua.js?v=e44eefcb"></script>
+  <script src="js/precios_eua.js?v=76e140ef"></script>
   <!-- Embarques semanales por origen y pronóstico de 8 semanas (scripts/procesar_embarques.py, procesar_pronostico.py; carga diferida) -->
-  <script src="js/embarques.js?v=05eb5f63"></script>
+  <script src="js/embarques.js?v=69c11b63"></script>
   <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
-  <script src="data/precios_ue.js?v=5cf4eb72"></script>
+  <script src="data/precios_ue.js?v=72cf1e71"></script>
   <script src="js/precios_ue.js?v=53ad15f9"></script>
   <!-- Vista por mercado de destino: proveedores de cada país comprador (scripts/procesar_mercados.py → data/mercados.js, carga diferida) -->
-  <script src="js/mercado.js?v=8d51e20c"></script>
+  <script src="js/mercado.js?v=9e898320"></script>
   <script src="js/subnacional.js?v=5aa7d2c6"></script>
-  <script src="js/latam.js?v=ee083ae0"></script>
-  <script src="js/app.js?v=307be1c5"></script>
+  <script src="js/latam.js?v=4c9b185e"></script>
+  <script src="js/app.js?v=ef8c6919"></script>
   <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
   <script src="js/recorrido.js?v=52b1c5ed"></script>
   <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->
   <script src="js/comparar.js?v=a1c55b78"></script>
   <!-- Versión en inglés: traducción del texto ya pintado (data/traduccion_en.js) -->
-  <script src="js/idioma.js?v=143a302d"></script>
+  <script src="js/idioma.js?v=e16cfe42"></script>
 </body>
 </html>
