@@ -48,6 +48,40 @@
       return opciones.length ? { ciudad, mayoreo, ...opciones[0] } : null;
     }).filter(Boolean).sort((a, b) => (b.mayoreo - b.llega) - (a.mayoreo - a.llega));
   }
+  // La mejor ciudad cada mes: con las medianas mensuales de cada ciudad (mercadosMes), de cada cruce (crucesMes) y del
+  // flete de cada ruta en ese mes (si falta, la mediana anual de la ruta)
+  const MES_C = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+  function mejorPorMes(k) {
+    const d = datos(k), f = d?.frontera, F = E()?.fletes;
+    if (!d?.mercadosMes || !f?.crucesMes || !F || f.mercancia !== d.mercancia) return [];
+    return MES_C.map((nombre, m) => {
+      let mejor = null;
+      Object.entries(d.mercadosMes).forEach(([ciudad, serie]) => {
+        const mayoreo = serie[m];
+        if (mayoreo == null) return;
+        Object.entries(f.crucesMes).forEach(([cruce, fobs]) => {
+          const r = F.rutas[cruce]?.[ciudad];
+          if (fobs[m] == null || !r) return;
+          const llega = fobs[m] + (r[2]?.[m] ?? r[0]) / F.cargaKg;
+          const dif = (mayoreo - llega) / mayoreo;
+          if (!mejor || dif > mejor.dif) mejor = { m, nombre, ciudad, cruce, llega, mayoreo, dif };
+        });
+      });
+      return mejor;
+    }).filter(Boolean);
+  }
+  function mejorPorMesHTML(k) {
+    const filas = mejorPorMes(k);
+    if (filas.length < 3) return "";
+    const top = [...filas].sort((a, b) => b.dif - a.dif)[0];
+    return `<h4 class="mini">La mejor ciudad cada mes</h4>
+      <div class="desplaza"><table class="compacta">
+        <tr><th>Mes</th><th>Ciudad</th><th class="num">Llega en</th><th class="num">Mayoreo</th><th class="num">Diferencia</th></tr>
+        ${filas.map(r => `<tr${r === top ? ' class="resaltado"' : ""}><td>${r.nombre}</td><td>${E().mercados[r.ciudad].nombre}<br><span class="est">desde ${E().cruces[r.cruce].nombre.split(",")[0]}</span></td>
+          <td class="num">${usd(r.llega)}</td><td class="num">${usd(r.mayoreo)}</td><td class="num">${r.dif >= 0 ? "+" : ""}${pct(r.dif)}</td></tr>`).join("")}
+      </table></div>
+      <p class="sub">Medianas mensuales ${E().anio} del mismo empaque en la frontera y en cada ciudad, con el flete de ese mes. Mayor diferencia del año: ${top.nombre.toLowerCase()} en ${E().mercados[top.ciudad].nombre}.</p>`;
+  }
   function cadenaResumen(k) {
     const r = rutasCadena(k)[0];
     return r ? `Mejor destino: ${E().mercados[r.ciudad].nombre}, llega en ${usd(r.llega)} y se vende en ${usd(r.mayoreo)} el kg` : "";
@@ -69,6 +103,7 @@
           <td class="num">${usd(r.fob)}</td><td class="num">${usd(r.flete)}</td><td class="num">${usd(r.llega)}</td><td class="num">${usd(r.mayoreo)}</td>
           <td class="num">${r.mayoreo - r.llega >= 0 ? "+" : ""}${pct((r.mayoreo - r.llega) / r.mayoreo)}</td></tr>`).join("")}
       </table></div>
+      ${mejorPorMesHTML(k)}
       <p class="sub">US$/kg. Flete = tarifa mediana ${E().anio} por camión refrigerado del cruce a la ciudad (USDA National Truck Rate Report) ÷ ${Math.round(F.cargaKg).toLocaleString("es-MX")} kg por carga (40,000 lb). Se elige el cruce que deja el producto más barato en cada ciudad. La diferencia cubre descarga, merma, financiamiento y el margen del importador y del mayorista. Referencia: ${datos(k).mercancia}.</p>`;
   }
 
@@ -298,7 +333,7 @@
     return `<h4 class="mini">Por semana</h4>
       <div class="kpis">
         ${ult ? `<div class="kpi"><div class="v">$${ult.b.n.toFixed(2)}/kg</div><div class="l">semana del ${fechaCorta(ult.d)}, por ${cruceCorto(ult.b.c)}</div></div>` : ""}
-        ${mejorV ? `<div class="kpi destacado"><div class="v">${fechaCorta(desde)} – ${fechaCorta(hasta)}</div><div class="l">mejor ventana para vender: $${mejorV.m.toFixed(2)}/kg neto típico${promTemp ? `, ${Math.round((mejorV.m / promTemp - 1) * 100)}% arriba del promedio de su temporada` : ""}</div></div>` : ""}
+        ${mejorV ? `<div class="kpi destacado"><div class="v">${fechaCorta(desde)} – ${fechaCorta(hasta)}</div><div class="l">mejor ventana para vender: $${mejorV.m.toFixed(2)}/kg neto típico${promTemp ? `, ${Math.round((mejorV.m / promTemp - 1) * 100)}% arriba del promedio de su temporada` : ""}${(c => c ? `<br>costo de producir en el estado: $${c[1].toFixed(2)}/kg (FIRA ${c[2]})` : "")(window.Costos?.costoEstado(k, id))}</div></div>` : ""}
       </div>
       <svg class="estac" viewBox="0 0 ${W} ${H}" role="img" aria-label="Precio neto por semana del año">
         ${bandas}${ventana}

@@ -697,6 +697,14 @@ table.compacta td { vertical-align: top; }
 .alerta-oferta h3 { margin: 4px 0 8px; }
 .alerta-oferta .sub { margin: 6px 0; }
 .chips-alerta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+/* Movimientos de precio y embarques de la semana (js/alertas.js) */
+.lista-alertas { display: grid; gap: 6px; margin: 6px 0; }
+.fila-alerta { display: grid; grid-template-columns: minmax(90px, 30%) 1fr; gap: 8px; align-items: start; text-align: left; border: 1px solid var(--linea); background: var(--papel-2); border-radius: 8px; padding: 6px 9px; font-size: 12.5px; cursor: pointer; color: var(--tinta); line-height: 1.45; }
+.fila-alerta:hover { border-color: var(--acento); }
+.fila-alerta .prod { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.fila-alerta .prod i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.alertas-producto { display: grid; gap: 3px; margin: 0 0 8px; font-size: 12.5px; }
+@media (max-width: 520px) { .fila-alerta { grid-template-columns: 1fr; } }
 .chip-alerta { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--linea); background: var(--papel-2); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; color: var(--tinta); }
 .chip-alerta i { width: 8px; height: 8px; border-radius: 50%; }
 .chip-alerta b { font-family: var(--dato); font-weight: 500; }

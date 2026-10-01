@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="css/styles.css?v=30565d84">
+  <link rel="stylesheet" href="css/styles.css?v=4e2482d6">
 </head>
 <body>
   <header class="cabecera">
@@ -205,6 +205,15 @@
   <!-- Helada y lluvia fuerte en los próximos días: SMN × producción municipal (scripts/procesar_clima_smn.py) -->
   <script src="data/clima_smn.js?v=c5376154"></script>
   <script src="js/clima.js?v=368de280"></script>
+  <!-- Movimientos de precio y embarques de la semana (scripts/construir_alertas.py) -->
+  <script src="data/alertas_precio.js?v=8501c084"></script>
+  <script src="js/alertas.js?v=c2e8e515"></script>
+  <!-- Pérdidas por siniestro en 10 años (scripts/procesar_siniestros.py) -->
+  <script src="data/siniestros.js?v=e1c42652"></script>
+  <script src="js/siniestros.js?v=1b8292c5"></script>
+  <!-- Costo de producción (FIRA Agrocostos) contra precio rural (scripts/procesar_costos_fira.py) -->
+  <script src="data/costos_fira.js?v=8848f2c4"></script>
+  <script src="js/costos.js?v=067feddd"></script>
   <!-- Frescura de cada fuente (scripts/construir_frescura.py) -->
   <script src="data/frescura.js?v=9f170384"></script>
   <script src="js/precios.js?v=b2efd7d8"></script>
@@ -260,10 +269,10 @@
   <!-- Historia de 10 años de FAOSTAT (scripts/procesar_historia.py → data/historia.js, carga diferida) -->
   <script src="js/historia.js?v=0ea7b71c"></script>
   <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
-  <script src="data/precios_eua.js?v=756ac34e"></script>
+  <script src="data/precios_eua.js?v=e896d1ff"></script>
   <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
   <script src="data/competencia_eua.js?v=e44eefcb"></script>
-  <script src="js/precios_eua.js?v=53b6709c"></script>
+  <script src="js/precios_eua.js?v=76e140ef"></script>
   <!-- Embarques semanales por origen y pronóstico de 8 semanas (scripts/procesar_embarques.py, procesar_pronostico.py; carga diferida) -->
   <script src="js/embarques.js?v=69c11b63"></script>
   <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
@@ -273,7 +282,7 @@
   <script src="js/mercado.js?v=9e898320"></script>
   <script src="js/subnacional.js?v=5aa7d2c6"></script>
   <script src="js/latam.js?v=4c9b185e"></script>
-  <script src="js/app.js?v=23507929"></script>
+  <script src="js/app.js?v=ef8c6919"></script>
   <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
   <script src="js/recorrido.js?v=52b1c5ed"></script>
   <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->

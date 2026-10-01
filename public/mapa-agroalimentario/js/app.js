@@ -299,6 +299,7 @@
     document.getElementById("tab-balance").innerHTML = `
       <h2>${p.nombre}</h2>
       ${resumenEjecutivo(res)}
+      ${window.AlertasPrecio ? AlertasPrecio.productoHTML(res.clave) : ""}
       <p class="sub">${fuente}${p.consumoOficial ? `<span class="tag ok">Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion}</span> ` : ""}${p.tipo}
         · consumo usado: <b>${res.pc.toFixed(1)} kg/persona/año</b>
         ${escenario().consumoPC != null ? "(escenario)" : res.base === "oficial" && p.consumoOficial ? `(oficial, Panorama p. ${p.paginaPanorama})` : res.inconsistente ? "(referencia)" : "(consumo aparente " + (window.POBLACION_CONAPO?.anio ?? "") + ")"}
@@ -321,6 +322,8 @@
       ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}
       ${window.Clima?.disponible(res.clave) ? S("clima", `<h3>Helada y lluvia fuerte en los próximos días <span class="tag ok">SMN</span></h3>${Clima.html(res.clave)}`, Clima.resumen(res.clave)) : ""}
       ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
+      ${window.Costos?.disponible(res.clave) ? S("costos", `<h3>Costo de producción contra precio al productor <span class="tag ok">FIRA · SIAP</span></h3>${Costos.html(res.clave)}`, Costos.resumen(res.clave)) : ""}
+      ${window.Siniestros?.disponible(res.clave) ? S("siniestros", `<h3>Pérdidas por siniestro en diez años <span class="tag ok">SIAP</span></h3>${Siniestros.html(res.clave)}`, Siniestros.resumen(res.clave)) : ""}
       ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
       ${origen1 ? S("importaciones", `<h3>Origen de las importaciones</h3>${barras(p.origenes)}`, `Primer origen: ${origen1[0]}, ${pctFino(origen1[1])} del volumen importado`) : ""}
       ${S("entidades", `<h3>Principales entidades productoras</h3>
@@ -470,7 +473,7 @@
       <h2>${f.nombre}</h2>
       <p class="sub">Población ${fmt(f.pob)}${window.POBLACION_CONAPO ? ` (CONAPO ${window.POBLACION_CONAPO.anio})` : ""} · ${res.producto.nombre}${f.estimado ? " · producción estimada (entidad no desglosada)" : ""}</p>
       <div class="kpis">
-        <div class="kpi"><div class="v">${fmtT(f.prod)}</div><div class="l">Producción</div></div>
+        <div class="kpi"><div class="v">${fmtT(f.prod)}</div><div class="l">Producción${window.Siniestros?.estadoTexto(res.clave, f.id) ? `<br>${Siniestros.estadoTexto(res.clave, f.id)}` : ""}${window.Costos?.estadoTexto(res.clave, f.id) ? `<br>${Costos.estadoTexto(res.clave, f.id)}` : ""}</div></div>
         <div class="kpi"><div class="v">${fmtT(f.demanda)}</div><div class="l">Demanda propia${res.regional ? `<br>consume por persona ${pct(f.indiceConsumo)} del promedio nacional (ENIGH)` : ""}</div></div>
         <div class="kpi destacado"><div class="v">${f.autosuf >= 1 ? "Sí se autoabastece" : "No se autoabastece"} · ${etiqueta(f.autosuf)}</div>
           <div class="l">Su producción alcanza para <b>${fmtP(f.personas)}</b> personas: ${f.autosuf >= 1
@@ -821,6 +824,9 @@
     cont.innerHTML = Resumen.panelHTML(indicadores, ordenResumen);
     // La alerta de oferta va justo debajo de las cifras principales, antes de la tabla larga
     if (window.Alerta) (cont.querySelector(".cifras-resumen") ?? cont.lastElementChild)?.insertAdjacentHTML("afterend", Alerta.tableroHTML());
+    // Movimientos de precio y embarques de la semana (data/alertas_precio.js), arriba de la alerta de oferta
+    if (window.AlertasPrecio) (cont.querySelector(".cifras-resumen") ?? cont.lastElementChild)?.insertAdjacentHTML("afterend", AlertasPrecio.tableroHTML());
+    cont.querySelectorAll(".fila-alerta[data-prod]").forEach(b => b.onclick = () => seleccionarProducto(b.dataset.prod, true));
     cont.querySelectorAll(".chip-alerta[data-prod]").forEach(b => b.onclick = () => {
       estado.metricaMx = "oferta"; document.getElementById("metricaMx").value = "oferta"; seleccionarProducto(b.dataset.prod, true);
     });
