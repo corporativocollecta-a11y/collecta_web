@@ -1,0 +1,76 @@
+# Actualización semanal del mapa agroalimentario (/mapa-agroalimentario): embarques y precios del USDA, pronósticos
+# (USDA y SNIIM), alerta de oferta (SIAP), origen por estado (SE), precio neto (CNE, FRED), clima (SMN), alertas de la
+# semana y frescura; luego publica en public/mapa-agroalimentario y hace commit. El código está en mapa/ (espejo del
+# proyecto que mantiene scripts/publicar_web.py). Las descargas crudas (~300 MB) viven en la caché de Actions.
+# Secreto necesario: USDA_AMS_API_KEY (clave de la API de USDA AMS Market News).
+# "Run workflow" con inicial = true baja la historia completa (USDA desde 2019, SE desde 2021, SNIIM desde 2019; ~1–2 h).
+name: Actualización semanal del mapa
+
+on:
+  schedule:
+    - cron: "0 20 * * 2"   # martes 14:00 en la Ciudad de México (el USDA publica los embarques el lunes)
+  workflow_dispatch:
+    inputs:
+      inicial:
+        description: "Bajar la historia completa (primera vez o si se perdió la caché)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mapa-datos      # el mismo grupo que el clima diario: nunca hacen push a la vez
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install openpyxl
+      - name: Recuperar descargas de semanas anteriores
+        uses: actions/cache/restore@v4
+        with:
+          path: mapa/data/fuentes
+          key: mapa-fuentes-${{ github.run_id }}
+          restore-keys: mapa-fuentes-
+      - name: Historia completa (solo la primera vez)
+        if: ${{ inputs.inicial }}
+        working-directory: mapa
+        env:
+          USDA_AMS_API_KEY: ${{ secrets.USDA_AMS_API_KEY }}
+        run: |
+          python scripts/descargar_historia_ams.py 2019
+          python scripts/procesar_origen_exportacion.py 2021
+      - name: Actualización semanal
+        working-directory: mapa
+        env:
+          USDA_AMS_API_KEY: ${{ secrets.USDA_AMS_API_KEY }}
+          PYTHONIOENCODING: utf-8
+        run: python scripts/actualizar_semanal.py
+      - name: Guardar descargas para la próxima semana
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: mapa/data/fuentes
+          key: mapa-fuentes-${{ github.run_id }}
+      - name: Publicar en el sitio
+        working-directory: mapa
+        run: python scripts/publicar_web.py "$GITHUB_WORKSPACE" reporte/hallazgos-agroalimentarios.html
+      - name: Commit si cambió
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mapa-agroalimentario mapa/data scripts
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Actualización semanal del mapa agroalimentario"
+            git pull --rebase -q origin main
+            git push
+          fi

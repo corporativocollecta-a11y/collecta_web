@@ -1,0 +1,879 @@
+<title>De la Parcela al Plato · Collecta</title>
+<meta name="description" content="Hallazgos 2025 del Mapa Agroalimentario de Collecta: precio al productor, abasto, exportación, competencia, acceso a mercados y sequía en 34 frutas y hortalizas.">
+<script>
+  // Mismo tema que el mapa (clave "tema" en el navegador); oscuro por omisión
+  document.documentElement.dataset.theme = "dark";
+  try { var t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Identidad Collecta, igual que el mapa (css/styles.css): Instrument Serif para titulares y cifras, Geist para el texto,
+   Geist Mono para los datos; verde noche, lima (producción) y naranja señal (déficit, intermediación). */
+:root {
+  --suelo: #EEEBE3; --papel: #FBFAF6; --papel-2: #F3F1EA; --tinta: #0B120D; --suave: #4F5A50; --tenue: #7E877C; --linea: #DAD6CB;
+  --acento: #D9531E; --acento-suave: #FBE6DC; --productor: #4E8A2C; --transporte: #C98A1B; --intermedio: #D9531E; --minorista: #6E5AA6;
+  --def: #B23A12; --def-bg: #FBE6DC; --ok: #3E6F22; --ok-bg: #E6F1D9; --alerta: #8A5A0B; --alerta-bg: #FFF1DC;
+  --barra-fondo: #E6E2D8; --brillo: rgba(78, 138, 44, .10);
+  --bueno: var(--ok); --critico: var(--def);
+  --display: "Instrument Serif", Georgia, serif;
+  --texto: "Geist", "Segoe UI", system-ui, sans-serif;
+  --dato: "Geist Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --suelo: #0B120D; --papel: #16211A; --papel-2: #1D2A21; --tinta: #EEEBE3; --suave: #A3AB9F; --tenue: #6F7A6C; --linea: #26332A;
+    --acento: #F2703A; --acento-suave: #3A2016; --productor: #9FD36A; --transporte: #E7B653; --intermedio: #F2703A; --minorista: #A98AD6;
+    --def: #F79A70; --def-bg: #3A2016; --ok: #B7E08A; --ok-bg: #1F3319; --alerta: #F0C47A; --alerta-bg: #3A2A10;
+    --barra-fondo: #1D2A21; --brillo: rgba(159, 211, 106, .09);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --suelo: #0B120D; --papel: #16211A; --papel-2: #1D2A21; --tinta: #EEEBE3; --suave: #A3AB9F; --tenue: #6F7A6C; --linea: #26332A;
+  --acento: #F2703A; --acento-suave: #3A2016; --productor: #9FD36A; --transporte: #E7B653; --intermedio: #F2703A; --minorista: #A98AD6;
+  --def: #F79A70; --def-bg: #3A2016; --ok: #B7E08A; --ok-bg: #1F3319; --alerta: #F0C47A; --alerta-bg: #3A2A10;
+  --barra-fondo: #1D2A21; --brillo: rgba(159, 211, 106, .09);
+}
+* { box-sizing: border-box; }
+html { background: var(--suelo); }
+body { margin: 0; background: var(--suelo); color: var(--tinta); font: 400 16px/1.65 var(--texto); padding-inline: 24px; padding-block: 0 72px; -webkit-font-smoothing: antialiased; }
+.envoltura { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; letter-spacing: -0.01em; margin: 0; }
+p { margin: 0; }
+.dato, .etq, table, .num { font-family: var(--dato); font-variant-numeric: tabular-nums; }
+.etq { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--suave); }
+a { color: var(--productor); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* Barra superior con la marca (como la cabecera del mapa) */
+.barra-marca {
+  position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-inline: -24px; padding: 10px 24px; background: color-mix(in srgb, var(--suelo) 88%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--linea);
+}
+.marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--tinta); min-width: 0; }
+.marca img { width: 44px; height: auto; flex-shrink: 0; }
+.marca b { display: block; font-family: var(--display); font-weight: 400; font-size: 22px; line-height: 1.05; }
+.marca b em { color: var(--productor); }
+.marca small { display: block; font-size: 12px; color: var(--suave); }
+.acciones { display: flex; align-items: center; gap: 8px; }
+.boton-texto { font-size: 13px; font-weight: 600; text-decoration: none; color: var(--tinta); padding: 7px 13px; border-radius: 999px; border: 1px solid var(--linea); background: var(--papel-2); white-space: nowrap; }
+.boton-texto.primario { background: var(--productor); border-color: var(--productor); color: var(--suelo); }
+.boton-texto:hover { border-color: var(--productor); color: var(--productor); }
+.boton-texto.primario:hover { color: var(--suelo); filter: brightness(1.08); }
+.boton-icono { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--linea); background: var(--papel-2); display: grid; place-items: center; cursor: pointer; color: var(--tinta); padding: 0; }
+.boton-icono svg { width: 16px; height: 16px; }
+.boton-icono:hover { border-color: var(--productor); color: var(--productor); }
+
+/* Portada */
+.portada { position: relative; padding-block: 64px 40px; border-bottom: 1px solid var(--linea); display: grid; gap: 26px; isolation: isolate; }
+.portada::before { content: ""; position: absolute; inset: -40px -24px 0 30%; z-index: -1; background: radial-gradient(ellipse at 70% 30%, var(--brillo), transparent 65%); pointer-events: none; }
+.portada .etq { color: var(--productor); }
+.portada h1 { font-size: clamp(42px, 7vw, 86px); line-height: 0.98; max-width: 16ch; }
+.portada h1 em { font-style: italic; color: var(--productor); }
+.tesis { font-size: clamp(17px, 1.9vw, 19.5px); max-width: 64ch; color: var(--suave); line-height: 1.6; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--dato); font-size: 12px; color: var(--suave); }
+.meta span::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--productor); margin-right: 8px; vertical-align: 2px; }
+
+.cifras { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--linea); }
+.cifra { padding: 26px 18px 26px 0; display: grid; gap: 8px; align-content: start; }
+.cifra + .cifra { padding-left: 20px; border-left: 1px solid var(--linea); }
+.cifra b { font-family: var(--display); font-size: clamp(34px, 4vw, 48px); font-weight: 400; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cifra:first-child b { color: var(--productor); }
+.cifra:nth-child(3) b { color: var(--acento); }
+.cifra span { font-size: 14px; color: var(--suave); line-height: 1.45; }
+
+/* Secciones: número grande en la columna lateral */
+section { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 12px 48px; padding-block: 56px; border-bottom: 1px solid var(--linea); }
+section > .lado { display: grid; gap: 6px; align-content: start; position: sticky; top: 76px; }
+section > .lado .etq:first-child { font-size: 12px; color: var(--tinta); }
+section > .lado .etq b { display: block; font-family: var(--display); font-size: 56px; font-weight: 400; letter-spacing: -0.02em; line-height: 0.9; color: var(--productor); text-transform: none; margin-bottom: 6px; }
+section > .cuerpo { display: grid; gap: 22px; min-width: 0; }
+section h2 { font-size: clamp(30px, 3.4vw, 42px); line-height: 1.08; }
+.lectura { max-width: 68ch; display: grid; gap: 14px; }
+.lectura strong { font-weight: 600; }
+.nota { font-size: 13.5px; color: var(--suave); max-width: 76ch; line-height: 1.6; }
+.clave { border-left: 3px solid var(--acento); padding: 6px 0 6px 18px; font-family: var(--display); font-size: clamp(20px, 2vw, 23px); line-height: 1.35; max-width: 58ch; }
+
+/* Cadena de precio */
+.cadena { display: grid; gap: 10px; }
+.fila-cad { display: grid; grid-template-columns: 160px minmax(0, 1fr) 118px; gap: 14px; align-items: center; }
+.fila-cad .n { font-weight: 600; font-size: 14.5px; line-height: 1.2; }
+.fila-cad .n small { display: block; font-family: var(--dato); font-size: 11px; color: var(--tenue); font-weight: 400; margin-top: 2px; }
+.barra { display: flex; height: 24px; border-radius: 4px; overflow: hidden; background: var(--barra-fondo); }
+.barra i { display: block; height: 100%; }
+.barra i + i { box-shadow: inset 1px 0 0 color-mix(in srgb, var(--suelo) 60%, transparent); }
+.fila-cad .v { text-align: right; font-family: var(--dato); font-size: 12px; line-height: 1.25; color: var(--suave); }
+.fila-cad .v b { font-family: var(--display); font-size: 24px; font-weight: 400; color: var(--productor); }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--dato); font-size: 11.5px; color: var(--suave); }
+.leyenda i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+/* Tablas */
+.tabla { overflow-x: auto; border-top: 1px solid var(--tinta); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--suave); padding: 11px 10px 9px; border-bottom: 1px solid var(--linea); white-space: nowrap; }
+td { padding: 10px 10px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+td:first-child { font-family: var(--texto); font-weight: 600; font-size: 14px; }
+td:first-child, th:first-child { padding-left: 0; }
+tbody tr:hover td { background: color-mix(in srgb, var(--papel-2) 70%, transparent); }
+td.num, th.num { text-align: right; }
+td .sub { display: block; font-size: 11px; color: var(--tenue); }
+.baja { color: var(--productor); font-weight: 500; }
+.alta { color: var(--acento); font-weight: 500; }
+.chip { display: inline-block; font-size: 11px; padding: 1px 9px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
+.chip.c { color: var(--def); background: var(--def-bg); } .chip.a { color: var(--alerta); background: var(--alerta-bg); } .chip.b { color: var(--ok); background: var(--ok-bg); }
+
+/* Exportaciones */
+.exp { display: grid; gap: 7px; }
+.fila-exp { display: grid; grid-template-columns: 124px minmax(0,1fr) 96px; gap: 12px; align-items: center; font-size: 14px; }
+.fila-exp .b { height: 12px; background: var(--barra-fondo); border-radius: 3px; overflow: hidden; }
+.fila-exp .b i { display: block; height: 100%; background: var(--productor); }
+.fila-exp .x { text-align: right; font-family: var(--dato); font-size: 12.5px; }
+
+/* Estacionalidad */
+.multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 34px; }
+.multiple { display: grid; gap: 6px; padding: 16px 18px; border: 1px solid var(--linea); border-radius: 14px; background: var(--papel); }
+.multiple h3 { font-size: 26px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.multiple h3 .dato { font-size: 12px; color: var(--suave); }
+.multiple svg { width: 100%; height: auto; display: block; }
+.multiple p { font-size: 13.5px; color: var(--suave); }
+
+/* Región */
+.mini-cifras { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-block: 1px solid var(--linea); }
+.mini-cifras div { padding: 16px 14px 16px 0; display: grid; gap: 4px; }
+.mini-cifras div + div { padding-left: 16px; border-left: 1px solid var(--linea); }
+.mini-cifras b { font-family: var(--display); font-size: 34px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; }
+.mini-cifras div:first-child b { color: var(--productor); }
+.mini-cifras span { font-size: 13.5px; color: var(--suave); line-height: 1.4; }
+.subtitulo { font-size: 24px; }
+@media (max-width: 620px) { .mini-cifras { grid-template-columns: 1fr; } .mini-cifras div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--linea); } }
+
+/* Mundo: pares de barras exportación / producción */
+.pares { display: grid; gap: 10px; }
+.par { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 4px 14px; align-items: center; }
+.par .n { font-weight: 600; font-size: 14.5px; grid-row: span 2; }
+.par .b { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 10px; font-family: var(--dato); font-size: 11.5px; color: var(--suave); }
+.par .pista { display: block; }
+.par .b i { display: block; height: 10px; border-radius: 3px; min-width: 2px; }
+@media (max-width: 520px) { .par { grid-template-columns: 1fr; } .par .n { grid-row: auto; } }
+
+/* Estrategias */
+.estrategias { display: grid; gap: 0; counter-reset: e; }
+.estrategia { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 6px 18px; padding-block: 22px; border-top: 1px solid var(--linea); }
+.estrategia::before { counter-increment: e; content: counter(e, decimal-leading-zero); font-family: var(--display); font-size: 40px; line-height: 0.9; color: var(--productor); grid-row: span 3; }
+.estrategia h3 { font-size: 26px; }
+.estrategia p { max-width: 70ch; }
+.estrategia .evid { font-family: var(--dato); font-size: 12px; color: var(--suave); line-height: 1.55; }
+
+.fuentes { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 34px; font-size: 14px; }
+.fuentes div { display: grid; gap: 2px; }
+.fuentes b { font-family: var(--display); font-weight: 400; font-size: 20px; }
+.fuentes span { color: var(--suave); }
+
+/* Pie con la marca */
+.pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 32px; font-size: 13px; color: var(--suave); }
+.pie .marca b { font-size: 18px; }
+
+@media (max-width: 860px) {
+  section { grid-template-columns: 1fr; gap: 18px; padding-block: 44px; }
+  section > .lado { position: static; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+  section > .lado .etq b { display: inline; font-size: 36px; margin: 0 8px 0 0; }
+  .cifras { grid-template-columns: repeat(2, 1fr); }
+  .cifra:nth-child(3) { padding-left: 0; border-left: 0; }
+  .cifra:nth-child(n+3) { border-top: 1px solid var(--linea); }
+  .multiples, .fuentes { grid-template-columns: 1fr; }
+  /* Tablas anchas: se desplazan con la primera columna fija */
+  .tabla td:first-child, .tabla th:first-child { position: sticky; left: 0; z-index: 1; background: var(--suelo); box-shadow: 1px 0 0 var(--linea); padding-right: 10px; }
+  .tabla td:first-child { min-width: 110px; }
+}
+@media (max-width: 520px) {
+  body { padding-inline: 16px; font-size: 15.5px; }
+  .barra-marca { margin-inline: -16px; padding: 8px 16px; }
+  .marca small, .acciones .boton-texto:not(.primario) { display: none; }
+  .marca b { font-size: 19px; }
+  .portada { padding-block: 40px 30px; }
+  .cifra { padding-right: 10px; }
+  .cifra + .cifra { padding-left: 12px; }
+  .fila-cad { grid-template-columns: 1fr 96px; }
+  .fila-cad .barra { grid-column: 1 / -1; grid-row: 2; }
+  .fila-exp { grid-template-columns: 92px minmax(0,1fr) 78px; }
+  .multiple { padding: 12px 12px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .barra i { transition: flex-basis .6s ease; }
+}
+@media print {
+  :root, :root[data-theme="dark"] { color-scheme: light; --suelo: #fff; --papel: #fff; --papel-2: #F3F1EA; --tinta: #0B120D; --suave: #4F5A50; --tenue: #7E877C; --linea: #DAD6CB;
+    --acento: #D9531E; --productor: #4E8A2C; --transporte: #C98A1B; --intermedio: #D9531E; --minorista: #6E5AA6; --barra-fondo: #EEEBE3;
+    --def: #B23A12; --def-bg: #FBE6DC; --ok: #3E6F22; --ok-bg: #E6F1D9; --alerta: #8A5A0B; --alerta-bg: #FFF1DC; }
+  body { padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .barra-marca { position: static; margin: 0; padding: 0 0 8px; background: none; backdrop-filter: none; }
+  .acciones { display: none; }
+  section { break-inside: avoid-page; padding-block: 28px; }
+  section > .lado { position: static; }
+  .portada::before { display: none; }
+}
+</style>
+
+<div class="envoltura">
+
+<nav class="barra-marca" aria-label="Collecta">
+  <a class="marca" href="../index.html">
+    <img src="data:image/png;base64,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" alt="Collecta" width="44" height="27">
+    <span><b>Mapa <em>Agroalimentario</em></b><small>Collecta · Hallazgos 2025</small></span>
+  </a>
+  <div class="acciones">
+    <a class="boton-texto" href="../index.html#tour">Modo presentación</a>
+    <a class="boton-texto primario" href="../index.html">Abrir el mapa</a>
+    <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</nav>
+
+<header class="portada">
+  <span class="etq">Collecta · Mapa agroalimentario de México · Hallazgos 2025</span>
+  <h1>De cada $100 que pagas por fruta y verdura, al campo llegan <em>entre $10 y $35</em></h1>
+  <p class="tesis">Cruzamos cinco fuentes oficiales para 34 frutas y hortalizas: producción municipal del SIAP, comercio exterior de INEGI, precios de mayoreo del SNIIM, precios al consumidor de PROFECO y consumo per cápita del Panorama Agroalimentario. El resultado muestra dónde se forma el precio, cuándo falta producto y qué palancas pueden bajar el precio sin quitarle ingreso al productor. Tres secciones finales comparan a México con 34 países de América Latina y el Caribe, con 231 países del mundo y con los 50 estados de Estados Unidos, su principal cliente.</p>
+  <div class="meta"><span>Año de análisis: 2025</span><span>34 productos · 2,048 municipios productores · 43 centrales de abasto</span><span>Población CONAPO 2025: 133.4 millones</span></div>
+</header>
+
+<div class="cifras">
+  <div class="cifra"><b>$10–35</b><span>de cada $100 del precio al consumidor llegan al productor, según el producto</span></div>
+  <div class="cifra"><b>US$15.7 mil M</b><span>en exportaciones de estos 34 productos en 2025; en cada uno, 86% o más va a Estados Unidos</span></div>
+  <div class="cifra"><b>−39%</b><span>jitomate disponible por persona en 2025 frente al consumo oficial; las exportaciones casi no cambiaron</span></div>
+  <div class="cifra"><b>18–27%</b><span>menos precio al consumidor si se recortan 30% la intermediación y 30% el margen minorista</span></div>
+</div>
+
+<section id="cadena">
+  <div class="lado"><span class="etq"><b>01</b>Precio</span><span class="etq">SIAP · SNIIM · PROFECO</span></div>
+  <div class="cuerpo">
+    <h2>El productor recibe la parte más chica del precio en casi todos los productos</h2>
+    <div class="lectura">
+      <p>Cada barra es el precio que paga el consumidor, repartido entre quien participa en la cadena. El transporte, aun estimado con rutas largas vía centrales de abasto, es el tramo más pequeño: entre $2 y $5 por kilo. Lo que encarece es lo que pasa entre la parcela y el anaquel. Los productos están ordenados de mayor a menor parte para el productor.</p>
+    </div>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--productor)"></i>Productor (precio medio rural)</span>
+      <span><i style="background:var(--transporte)"></i>Transporte y merma (modelo)</span>
+      <span><i style="background:var(--intermedio)"></i>Acopio, intermediación y margen mayorista</span>
+      <span><i style="background:var(--minorista)"></i>Margen minorista</span>
+    </div>
+    <div class="cadena" id="graficaCadena" role="list"></div>
+    <p class="nota">Precio al consumidor: mediana PROFECO 2025 por kilo a granel. Mayoreo: promedio SNIIM 2025, calidad primera, 43 centrales. Productor: precio medio rural SIAP 2025. El transporte se estima con el modelo de rutas del mapa. Faltan lechuga y coliflor (PROFECO las registra por pieza), arándano, frambuesa, zarzamora, berenjena y espárrago (sin precio al consumidor en PROFECO) y nuez (PROFECO registra nuez pelada y el SIAP nuez con cáscara). En nopal, el precio al consumidor es de nopal limpio, sin espinas. Como el mayoreo es solo calidad primera y el precio rural promedia todas las calidades, el tramo de intermediación puede estar algo sobrestimado.</p>
+  </div>
+</section>
+
+<section id="canales">
+  <div class="lado"><span class="etq"><b>02</b>Canal</span><span class="etq">PROFECO 2025</span></div>
+  <div class="cuerpo">
+    <h2>El mismo kilo cuesta hasta 96% más según dónde se compre</h2>
+    <div class="lectura">
+      <p>PROFECO registra el precio por tipo de comercio. En casi todos los productos la central de abasto y el mercado público son más baratos que el supermercado. La brecha más grande está en nuez, brócoli, cebolla, papa, tomate verde y toronja, justo donde el margen minorista pesa más en la cadena. En fruta importada o de alto valor (pera, uva, durazno, manzana) casi no hay diferencia entre canales.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Central de abasto</th><th class="num">Mercado</th><th class="num">Supermercado</th><th class="num">Súper vs. canal más barato</th></tr></thead>
+        <tbody id="tablaCanales"></tbody>
+      </table>
+    </div>
+    <p class="nota">Mediana por kilo. Cerca de 90% de los registros de PROFECO son de supermercados, por lo que la mediana nacional refleja sobre todo ese canal.</p>
+  </div>
+</section>
+
+<section id="abasto">
+  <div class="lado"><span class="etq"><b>03</b>Abasto</span><span class="etq">SIAP · INEGI · Panorama</span></div>
+  <div class="cuerpo">
+    <h2>En 2025 cayó la cosecha de hortalizas, y el ajuste lo absorbió el mercado interno</h2>
+    <div class="lectura">
+      <p>Comparamos la producción municipal del SIAP de 2024 y 2025, procesada con el mismo método, y las exportaciones que México reportó para esos años. En jitomate, cebolla y pepino la cosecha bajó entre 16% y 22%, pero las exportaciones se mantuvieron o subieron. Con el comercio exterior intacto, lo que quedó para el consumo nacional se redujo.</p>
+      <p class="clave">Con la producción y el comercio de 2025, la disponibilidad de jitomate alcanza para 8.5 kg por persona, contra 14 kg de consumo oficial. En chile, 8.4 kg contra 15.7 kg; en cebolla, 6.1 kg contra 9.6 kg.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Producción 2024</th><th class="num">Producción 2025</th><th class="num">Cambio</th><th class="num">Exportación 2024 → 2025</th><th class="num">Disponible 2025 vs. consumo oficial</th></tr></thead>
+        <tbody>
+          <tr><td>Jitomate</td><td class="num">3.72 Mt</td><td class="num">3.12 Mt</td><td class="num alta">−16%</td><td class="num">2.06 → 1.99 Mt <span class="sub">−4%</span></td><td class="num">8.5 vs. 14.0 kg <span class="chip c">−39%</span></td></tr>
+          <tr><td>Chile verde</td><td class="num">2.46 Mt</td><td class="num">2.26 Mt</td><td class="num alta">−8%</td><td class="num">1.16 → 1.14 Mt <span class="sub">−2%</span></td><td class="num">8.4 vs. 15.7 kg <span class="chip c">−46%</span></td></tr>
+          <tr><td>Cebolla</td><td class="num">1.67 Mt</td><td class="num">1.35 Mt</td><td class="num alta">−19%</td><td class="num">512 → 555 mil t <span class="sub">+8%</span></td><td class="num">6.1 vs. 9.6 kg <span class="chip c">−36%</span></td></tr>
+          <tr><td>Calabacita</td><td class="num">481 mil t</td><td class="num">434 mil t</td><td class="num alta">−10%</td><td class="num">490 mil t en 2025</td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Berenjena</td><td class="num">60 mil t</td><td class="num">48 mil t</td><td class="num alta">−20%</td><td class="num">88 mil t en 2025</td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Pepino</td><td class="num">959 mil t</td><td class="num">752 mil t</td><td class="num alta">−22%</td><td class="num">880 → 892 mil t <span class="sub">+1%</span></td><td class="num">Exporta más de lo que registra producir <span class="chip a">revisar</span></td></tr>
+          <tr><td>Aguacate, limón, naranja, plátano, mango, papa, melón, papaya, toronja, lechuga, durazno, guayaba, nopal, zarzamora y nuez</td><td class="num" colspan="3">Producción estable (−2% a +5%)</td><td class="num">—</td><td class="num">Coinciden ±8% <span class="chip b">consistente</span></td></tr>
+          <tr><td>Sandía, piña y tomate verde</td><td class="num" colspan="3">Estable o al alza (piña +35%)</td><td class="num">—</td><td class="num">31% a 53% más que el consumo oficial <span class="chip b">excedente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Disponible = (producción − exportación + importación) ÷ población CONAPO 2025. El consumo oficial es del Panorama Agroalimentario 2025, calculado por el SIAP con datos de 2024. En chile el Panorama usa una definición más amplia (3.22 Mt en 2024), por lo que su brecha es en parte metodológica. En pepino, calabacita y berenjena la exportación reportada supera la producción registrada, probablemente por sub-registro de agricultura protegida y porque la fracción de calabacita incluye calabaza madura. En uva el SIAP suma uva de mesa y de vino, por lo que no se compara con el consumo de uva de mesa. En arándano, frambuesa y coliflor la disponibilidad calculada supera con mucho el consumo oficial, porque parte del comercio no se registra en su propia fracción arancelaria. Es una conclusión de balance: falta confirmarla con inventarios, mermas y consumo medido en hogares (ENIGH).</p>
+  </div>
+</section>
+
+<section id="exportacion">
+  <div class="lado"><span class="etq"><b>04</b>Mercados</span><span class="etq">INEGI/SE vía UN Comtrade</span></div>
+  <div class="cuerpo">
+    <h2>US$15.7 mil millones de exportación, casi todo hacia un solo cliente</h2>
+    <div class="lectura">
+      <p>Aguacate, jitomate y chile concentran 53% del valor exportado de estos 34 productos. Las berries (fresa, zarzamora, arándano y frambuesa) suman cerca de US$1,700 millones. En todos los productos exportadores, Estados Unidos recibe 86% o más del volumen. La producción también está concentrada: Michoacán aporta 89% de la zarzamora, 73% del aguacate, 65% de la guayaba y 60% de la fresa, Jalisco 66% de la frambuesa, Veracruz 76% de la piña, Sonora 65% de la uva, Guanajuato 63% del brócoli y Chihuahua 84% de la manzana.</p>
+    </div>
+    <div class="exp" id="graficaExport"></div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th>Estado líder</th><th class="num">10 municipios principales</th><th class="num">Hacia EE. UU.</th></tr></thead>
+        <tbody>
+          <tr><td>Zarzamora</td><td>Michoacán · 89%</td><td class="num">83%</td><td class="num">86%</td></tr>
+          <tr><td>Manzana</td><td>Chihuahua · 84%</td><td class="num">90%</td><td class="num">importa 203 mil t</td></tr>
+          <tr><td>Piña</td><td>Veracruz · 76%</td><td class="num">90%</td><td class="num">100%</td></tr>
+          <tr><td>Aguacate</td><td>Michoacán · 73%</td><td class="num">56%</td><td class="num">86%</td></tr>
+          <tr><td>Frambuesa</td><td>Jalisco · 66%</td><td class="num">80%</td><td class="num">86%</td></tr>
+          <tr><td>Uva</td><td>Sonora · 65%</td><td class="num">83%</td><td class="num">99%</td></tr>
+          <tr><td>Guayaba</td><td>Michoacán · 65%</td><td class="num">87%</td><td class="num">sin fracción propia</td></tr>
+          <tr><td>Brócoli</td><td>Guanajuato · 63%</td><td class="num">48%</td><td class="num">97%</td></tr>
+          <tr><td>Fresa</td><td>Michoacán · 60%</td><td class="num">74%</td><td class="num">100%</td></tr>
+          <tr><td>Nuez</td><td>Chihuahua · 60%</td><td class="num">50%</td><td class="num">94%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Un choque sanitario, climático o comercial en un solo estado o en un solo destino afecta a la mayor parte de la oferta. México depende de importaciones en pera (cubre 25% de su consumo), manzana (72%), durazno (89%), papa (95%) y toronja (98%); Estados Unidos es el origen principal.</p>
+  </div>
+</section>
+
+<section id="estacionalidad">
+  <div class="lado"><span class="etq"><b>05</b>Temporada</span><span class="etq">Panorama · SNIIM</span></div>
+  <div class="cuerpo">
+    <h2>En cebolla, limón, piña, aguacate y papa, el precio sube cuando baja la cosecha</h2>
+    <div class="lectura">
+      <p>Barras: porcentaje de la cosecha anual que sale cada mes. Línea: precio de mayoreo mensual. Cuando la correlación (r) es negativa y fuerte, escalonar siembras o almacenar reduce los picos de precio. En jitomate y chile el precio no sigue al volumen nacional: ahí pesan más la oferta regional de invierno y la exportación.</p>
+    </div>
+    <div class="multiples" id="multiples"></div>
+    <p class="nota">También siguen a la cosecha la berenjena (r = −0.75, la relación más fuerte), el nopal (−0.61), el aguacate (−0.56; mayo cuesta 75% más que diciembre), la papa (−0.54), la fresa (−0.49) y el melón (−0.44). Cosecha mensual del Panorama 2025 (datos 2024) y precios SNIIM 2025. En el mapa, un escenario estima que escalonar la mitad de la cosecha de cebolla reduciría la brecha entre su mes más caro y el más barato de 91% a cerca de 72%.</p>
+  </div>
+</section>
+
+<section id="rendimiento">
+  <div class="lado"><span class="etq"><b>06</b>Productividad</span><span class="etq">SIAP municipal 2025</span></div>
+  <div class="cuerpo">
+    <h2>Hay municipios que cosechan la mitad por hectárea que el promedio nacional</h2>
+    <div class="lectura">
+      <p>Con superficie cosechada y volumen por municipio calculamos el rendimiento de cada uno. Si los municipios con más de 200 ha que están por debajo de 70% del promedio llegaran a 90%, la producción crecería sin abrir tierras nuevas. En jitomate la diferencia refleja sobre todo invernadero contra cielo abierto, por lo que no es una comparación entre iguales.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Promedio nacional</th><th>Municipios con mayor brecha (t/ha)</th><th class="num">Potencial teórico</th></tr></thead>
+        <tbody>
+          <tr><td>Plátano</td><td class="num">30.6 t/ha</td><td>Atzalan, Ver. 18 · Las Margaritas, Chis. 20 · San Blas, Nay. 16</td><td class="num">+229 mil t</td></tr>
+          <tr><td>Mango</td><td class="num">11.1 t/ha</td><td>Gabriel Zamora, Mich. 6 · Tonalá, Chis. 5 · Múgica, Mich. 6</td><td class="num">+210 mil t</td></tr>
+          <tr><td>Chile verde</td><td class="num">29.9 t/ha</td><td>Calakmul, Camp. 8 · Palenque, Chis. 9 · Tatahuicapan, Ver. 6</td><td class="num">+180 mil t</td></tr>
+          <tr><td>Naranja</td><td class="num">14.3 t/ha</td><td>Montemorelos, N.L. 9 · Coxcatlán, S.L.P. 7 · Tamazunchale, S.L.P. 10</td><td class="num">+153 mil t</td></tr>
+          <tr><td>Sandía</td><td class="num">31.1 t/ha</td><td>Choix, Sin. 9 · Ahome, Sin. 5 · San Juan Evangelista, Ver. 11</td><td class="num">+126 mil t</td></tr>
+          <tr><td>Manzana</td><td class="num">14.7 t/ha</td><td>Arteaga, Coah. 8 · Canatlán, Dgo. 3 · Zacatlán, Pue. 5</td><td class="num">+119 mil t</td></tr>
+          <tr><td>Cebolla</td><td class="num">29.4 t/ha</td><td>Mexicali, B.C. 16 · San Luis Río Colorado, Son. 18 · Angostura, Sin. 19</td><td class="num">+98 mil t</td></tr>
+          <tr><td>Papaya</td><td class="num">55.5 t/ha</td><td>Tierra Blanca, Ver. 23 · Cotaxtla, Ver. 35 · Buenavista, Mich. 36</td><td class="num">+84 mil t</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Potencial teórico: toneladas adicionales si los municipios con más de 200 ha y rendimiento menor a 70% del promedio nacional llegaran a 90% de ese promedio. Las brechas también reflejan clima, variedad, riego y ciclo; cada caso requiere diagnóstico en campo. En manzana, cerrar la brecha equivaldría a más de la mitad de lo que hoy se importa. En jitomate el potencial calculado (313 mil t) no se incluye porque compara invernadero con cielo abierto.</p>
+  </div>
+</section>
+
+<section id="region">
+  <div class="lado"><span class="etq"><b>07</b>Región</span><span class="etq">FAOSTAT 2024</span></div>
+  <div class="cuerpo">
+    <h2>México es el mayor productor y exportador de la región, y casi no le vende a Latinoamérica</h2>
+    <div class="lectura">
+      <p>Comparamos 27 frutas y hortalizas en 34 países de América Latina y el Caribe con datos de la FAO. México es el primer productor regional en 14 de ellas y vende 44% de todo lo que exporta la región en estos productos. Pero 95% de sus ventas van a Estados Unidos y menos de 1% a otros países latinoamericanos.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>14 de 27</b><span>productos en que México es el primer productor regional</span></div>
+      <div><b>US$16.8 mil M</b><span>exporta México, 44% de los US$38.6 mil M de la región</span></div>
+      <div><b>5%</b><span>de la exportación regional se vende dentro de Latinoamérica</span></div>
+    </div>
+    <h3 class="subtitulo">A dónde vende cada país exportador</h3>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--intermedio)"></i>Estados Unidos</span>
+      <span><i style="background:var(--minorista)"></i>Europa</span>
+      <span><i style="background:var(--productor)"></i>Latinoamérica</span>
+      <span><i style="background:var(--transporte)"></i>Asia y Oceanía</span>
+      <span><i style="background:var(--tenue)"></i>Otros (Canadá, Medio Oriente y África)</span>
+    </div>
+    <div class="cadena" id="graficaDestinos" role="list"></div>
+    <p class="nota">Valor exportado en 2024 por destino, sumando las 27 frutas y hortalizas. Perú, Chile y Argentina reparten sus ventas entre varios mercados; México, Guatemala y Honduras dependen casi por completo de Estados Unidos.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>País</th><th>Primer productor regional en</th></tr></thead>
+        <tbody>
+          <tr><td>México (14)</td><td>chile verde y morrón 75% · pepino 75% · brócoli 67% · fresa 58% · berries 53% · toronja 51% · lechuga 48% · aguacate 38% · mango 37% · limón 36% · jitomate 32% · berenjena 30% · calabacita 25% · zanahoria 18%</td></tr>
+          <tr><td>Brasil (4)</td><td>naranja · cebolla · sandía · melón</td></tr>
+          <tr><td>Chile (3)</td><td>manzana · uva · durazno</td></tr>
+          <tr><td>Perú (2)</td><td>papa · espárrago</td></tr>
+          <tr><td>Ecuador, Costa Rica, Rep. Dominicana, Argentina</td><td>plátano · piña · papaya · pera</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">México compra fuera de la región lo que la región produce: le paga US$1,240 millones al año a Estados Unidos en estas frutas y hortalizas (manzana US$434 millones, uva 195, fresa 122, papa 119 y pera 73), frente a US$139 millones a Perú y US$51 millones a Chile. Chile encabeza la producción regional de manzana y uva, y Argentina la de pera.</p>
+      <p>Al mismo tiempo, Centroamérica y el Caribe dependen de importaciones en manzana, pera, cebolla y naranja, y México tiene excedente en cebolla, chile, jitomate y aguacate a pocos días por carretera o barco. Las rutas dentro de la región que ya existen muestran el potencial: plátano de Ecuador a Chile y Argentina, manzana de Chile a Brasil y Colombia, uva de Perú a México y aguacate de Perú a Chile.</p>
+    </div>
+    <p class="nota">Fuente: FAOSTAT (FAO), producción y comercio 2024 y matriz detallada de comercio. Las salidas de cada país se toman de lo que reporta el exportador y las llegadas desde fuera de la región, de lo que reporta el importador. FAOSTAT registra casi todo el comercio de berries en una partida genérica, por lo que arándano, frambuesa y zarzamora se agrupan como berries. Las cifras de la FAO para México difieren de las del SIAP (jitomate 2024: 4.42 frente a 3.72 millones de t); se usan solo para comparar países.</p>
+  </div>
+</section>
+
+<section id="mundo">
+  <div class="lado"><span class="etq"><b>08</b>Mundo</span><span class="etq">FAOSTAT 2024</span></div>
+  <div class="cuerpo">
+    <h2>México es el mayor exportador del mundo en estas frutas y hortalizas, con solo 2% de la producción</h2>
+    <div class="lectura">
+      <p>Con datos de la FAO para 231 países y los mismos 27 productos, México vende 12.9% de todo lo que se exporta en el mundo (US$16.8 mil millones de US$130.2 mil millones), por delante de España y Países Bajos. Lo logra con 2.1% de la producción mundial. China produce casi un tercio del volumen y exporta menos de 5%: su cosecha se queda en su mercado interno.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>#1</b><span>exportador mundial en estas 27 frutas y hortalizas</span></div>
+      <div><b>12.9%</b><span>de la exportación mundial, con 2.1% de la producción</span></div>
+      <div><b>13 de 27</b><span>productos en que México es primer o segundo exportador</span></div>
+    </div>
+    <h3 class="subtitulo">Participación en la exportación y en la producción mundiales</h3>
+    <div class="leyenda" aria-hidden="true">
+      <span><i style="background:var(--acento)"></i>% de la exportación mundial (valor)</span>
+      <span><i style="background:var(--productor)"></i>% de la producción mundial (volumen)</span>
+    </div>
+    <div class="pares" id="graficaMundo" role="list"></div>
+    <p class="nota">Los diez mayores exportadores. Países Bajos exporta 11.4% con 0.6% de la producción porque reexporta hacia el resto de Europa fruta que no cultiva, como el aguacate. La escala de producción de China (32.4%) se recorta para que las demás barras se lean.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Lugar en producción</th><th class="num">Lugar en exportación</th><th class="num">% exportación mundial</th><th>Líder exportador</th></tr></thead>
+        <tbody>
+          <tr><td>Aguacate</td><td class="num">1 · 25%</td><td class="num">1</td><td class="num">39%</td><td>México</td></tr>
+          <tr><td>Papaya</td><td class="num">5 · 8%</td><td class="num">1</td><td class="num">40%</td><td>México</td></tr>
+          <tr><td>Jitomate</td><td class="num">8 · 2%</td><td class="num">1</td><td class="num">28%</td><td>México</td></tr>
+          <tr><td>Calabacita</td><td class="num">11 · 2%</td><td class="num">2</td><td class="num">31%</td><td>España</td></tr>
+          <tr><td>Espárrago</td><td class="num">3 · 4%</td><td class="num">2</td><td class="num">25%</td><td>Perú</td></tr>
+          <tr><td>Chile verde y morrón</td><td class="num">4 · 7%</td><td class="num">2</td><td class="num">23%</td><td>España</td></tr>
+          <tr><td>Pepino</td><td class="num">6 · 1%</td><td class="num">2</td><td class="num">22%</td><td>España</td></tr>
+          <tr><td>Fresa</td><td class="num">4 · 6%</td><td class="num">2</td><td class="num">22%</td><td>España</td></tr>
+          <tr><td>Limón</td><td class="num">2 · 14%</td><td class="num">2</td><td class="num">20%</td><td>España</td></tr>
+          <tr><td>Brócoli</td><td class="num">4 · 3%</td><td class="num">2</td><td class="num">18%</td><td>España</td></tr>
+          <tr><td>Mango</td><td class="num">4 · 4%</td><td class="num">2</td><td class="num">18%</td><td>Tailandia</td></tr>
+          <tr><td>Berries</td><td class="num">1 · 16%</td><td class="num">4</td><td class="num">10%</td><td>Perú</td></tr>
+          <tr><td>Naranja</td><td class="num">3 · 7%</td><td class="num">16</td><td class="num">1%</td><td>España</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">El competidor directo de México es España: es el primer exportador en calabacita, chile, pepino, fresa, limón, brócoli, sandía y berenjena, donde México es segundo. Pero no compiten por el mismo cliente: México le vende a Estados Unidos (95% de sus ventas) y España a Europa.</p>
+      <p>México también produce mucho y exporta poco en naranja (tercer productor mundial, lugar 16 en exportación) y toronja (tercero y lugar 17). En berries es el primer productor del mundo pero el cuarto exportador, detrás de Perú, que vende arándano a Estados Unidos, Europa y Asia.</p>
+    </div>
+    <p class="nota">Fuente: FAOSTAT (FAO), producción, comercio y población 2024 para 231 países (sin agregados regionales ni el total "China", que duplicaría a China continental, Hong Kong, Macao y Taiwán). Lugar en producción con participación mundial; lugar y participación en exportación por valor. Las cifras de la FAO para México difieren de las del SIAP.</p>
+  </div>
+</section>
+
+<section id="eeuu">
+  <div class="lado"><span class="etq"><b>09</b>EE. UU.</span><span class="etq">USDA · Census · FAOSTAT</span></div>
+  <div class="cuerpo">
+    <h2>México abastece más de la mitad de lo que Estados Unidos consume en ocho frutas y hortalizas</h2>
+    <div class="lectura">
+      <p>Replicamos para Estados Unidos el análisis de México: producción por estado de USDA NASS 2025 (mercado fresco), población 2025 del Census Bureau y comercio de FAOSTAT. El resultado muestra qué tan dependiente es el principal cliente de México y en qué estados se consume lo que México exporta.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>US$15.8 mil M</b><span>le vende México a Estados Unidos en estas frutas y hortalizas</span></div>
+      <div><b>8 de 28</b><span>productos en que México abastece más de la mitad del consumo estadounidense</span></div>
+      <div><b>3.3×</b><span>el jitomate que México le vende frente a toda la producción fresca de EE. UU.</span></div>
+    </div>
+    <h3 class="subtitulo">Parte del consumo de Estados Unidos que viene de México</h3>
+    <div class="exp" id="graficaEEUU"></div>
+    <p class="nota">Consumo aparente = producción de EE. UU. + importación − exportación, solo producto fresco. Brócoli: México reporta haber vendido más de lo que EE. UU. registra como importación; se usa la cifra mayor.</p>
+    <div class="lectura">
+      <p class="clave">Estados Unidos produce solo una cuarta parte del jitomate y del chile que consume, 11% del pepino y 13% del aguacate. México cubre casi todo lo demás: vende 89% del jitomate que importa Estados Unidos, 88% de la calabacita y 84% del chile.</p>
+      <p>Florida es el estado líder en jitomate, chile, pepino y calabacita, pero su producción es pequeña frente a lo que llega de México. Por población y déficit, los estados que más reciben de México serían Texas, Nueva York, California, Illinois, Pensilvania y Ohio; en varios de ellos México cubre cerca de una quinta parte de su consumo en estos productos.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">EE. UU. produce (de su consumo)</th><th class="num">De México (del consumo)</th><th class="num">México en sus importaciones</th><th>Principal competidor</th></tr></thead>
+        <tbody>
+          <tr><td>Berries</td><td class="num">37%</td><td class="num">23%</td><td class="num">28%</td><td>Perú</td></tr>
+          <tr><td>Uva</td><td class="num">59%</td><td class="num">16%</td><td class="num">26%</td><td>Chile y Perú</td></tr>
+          <tr><td>Melón</td><td class="num">57%</td><td class="num">11%</td><td class="num">19%</td><td>Guatemala y Honduras</td></tr>
+          <tr><td>Plátano</td><td class="num">0%</td><td class="num">6%</td><td class="num">6%</td><td>Guatemala y Ecuador</td></tr>
+          <tr><td>Piña</td><td class="num">12%</td><td class="num">1%</td><td class="num">1%</td><td>Costa Rica</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">Productos en que Estados Unidos importa mucho y México tiene poca participación: son el espacio de crecimiento. En manzana, pera, durazno, papa y nuez Estados Unidos es autosuficiente y México no le vende. Producción por estado: NASS reserva por confidencialidad muchas cifras estatales de producto fresco; el resto del total nacional se reparte con la superficie del Censo Agropecuario 2022. Los estados que reciben producto mexicano son una estimación que reparte la exportación de México según el déficit de cada estado.</p>
+  </div>
+</section>
+
+<section id="frontera">
+  <div class="lado"><span class="etq"><b>10</b>Frontera</span><span class="etq">USDA AMS Market News 2025</span></div>
+  <div class="cuerpo">
+    <h2>Del cruce al mayoreo de Estados Unidos, el producto mexicano sube entre 40% y 110%</h2>
+    <div class="lectura">
+      <p>Con los reportes diarios del USDA comparamos el precio del producto mexicano al cruzar la frontera (FOB en Nogales, Texas y Otay Mesa) con el que se paga por el mismo producto de origen mexicano en 11 mercados de mayoreo de Estados Unidos, y medimos cuánto cruza, por dónde y en qué meses.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>6.6 Mt</b><span>de frutas y hortalizas mexicanas registró el USDA al cruzar en 2025</span></div>
+      <div><b>64%</b><span>cruza por Texas; 25% por Nogales y 5% por Otay Mesa</span></div>
+      <div><b>+73%</b><span>sube el jitomate saladette de la frontera (US$0.97/kg) al mayoreo (US$1.68/kg)</span></div>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Frontera (FOB)</th><th class="num">Mayoreo EE. UU., origen México</th><th class="num">Diferencia</th></tr></thead>
+        <tbody>
+          <tr><td>Lechuga iceberg</td><td class="num">US$0.60/kg</td><td class="num">US$1.65/kg</td><td class="num">+175%</td></tr>
+          <tr><td>Pepino</td><td class="num">US$0.48/kg</td><td class="num">US$1.00/kg</td><td class="num">+108%</td></tr>
+          <tr><td>Jitomate saladette</td><td class="num">US$0.97/kg</td><td class="num">US$1.68/kg</td><td class="num">+73%</td></tr>
+          <tr><td>Pimiento morrón</td><td class="num">US$2.20/kg</td><td class="num">US$3.75/kg</td><td class="num">+70%</td></tr>
+          <tr><td>Zanahoria</td><td class="num">US$0.57/kg</td><td class="num">US$0.93/kg</td><td class="num">+63%</td></tr>
+          <tr><td>Melón chino</td><td class="num">US$0.83/kg</td><td class="num">US$1.27/kg</td><td class="num">+53%</td></tr>
+          <tr><td>Limón persa</td><td class="num">US$1.27/kg</td><td class="num">US$1.82/kg</td><td class="num">+43%</td></tr>
+          <tr><td>Brócoli</td><td class="num">US$1.60/kg</td><td class="num">US$2.26/kg</td><td class="num">+41%</td></tr>
+          <tr><td>Uva</td><td class="num">US$3.30/kg</td><td class="num">US$4.23/kg</td><td class="num">+28%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">La diferencia paga flete dentro de Estados Unidos, merma y el margen del mayorista. En productos baratos y voluminosos (lechuga, pepino) el salto es mayor: quien controla la distribución del lado estadounidense se queda con una parte grande del valor.</p>
+      <p>El flete no explica la diferencia: llevar un tráiler refrigerado de Nogales a Los Ángeles cuesta US$1,550 (US$0.09/kg) y a Boston US$7,150 (US$0.39/kg). En pimiento morrón, que cruza a US$1.99/kg, el producto llega a Baltimore en US$2.33 y se vende a US$4.80: 52% del precio de mayoreo queda entre importador y mayorista.</p>
+      <p>El producto mexicano es la mitad o más de lo que se cotiza en esos mercados en aguacate (70%), mango (49%) y pepino (46%), y 42% a 43% en chile y limón. La mayoría cruza sobre todo en febrero y marzo y menos en junio y julio, cuando entra la cosecha de Estados Unidos; el aguacate llega a su máximo en septiembre y a su mínimo en mayo.</p>
+    </div>
+    <p class="nota">Fuente: USDA AMS Market News 2025, reportes diarios de 11 mercados terminales (Atlanta, Baltimore, Boston, Chicago, Columbia, Detroit, Los Ángeles, Miami, Nueva York, Filadelfia y Asheville) y de punto de embarque de Phoenix (cruces de México), reporte semanal de embarques (1,000 cwt = 45.4 t) y tarifas semanales de camión refrigerado por ruta (National Truck Rate Report; 40,000 lb por carga). Precio = punto medio del rango más frecuente, sin orgánicos, en un solo empaque por producto (el mismo en frontera y mayoreo). El volumen registrado por el USDA equivale a entre 70% y 90% de lo que México reporta exportar a EE. UU. La participación mexicana cuenta cotizaciones, no volumen.</p>
+  </div>
+</section>
+
+<section id="oportunidades">
+  <div class="lado"><span class="etq"><b>11</b>Oportunidades</span><span class="etq">FAOSTAT 2024</span></div>
+  <div class="cuerpo">
+    <h2>Fuera de Estados Unidos hay mercados de miles de millones de dólares donde México casi no vende</h2>
+    <div class="lectura">
+      <p>Para cada producto sumamos lo que cada país importa y restamos lo que ya le compra a México. El resultado es el mercado que hoy abastecen otros: el espacio para crecer.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">Compra mundial fuera de México</th><th>Mayores mercados donde México casi no vende</th></tr></thead>
+        <tbody>
+          <tr><td>Uva</td><td class="num">US$11.0 mil M</td><td>Países Bajos US$1,194 M · Alemania US$1,082 M · Reino Unido US$764 M</td></tr>
+          <tr><td>Jitomate</td><td class="num">US$8.8 mil M</td><td>Alemania US$1,728 M · Francia US$1,142 M · Reino Unido US$795 M</td></tr>
+          <tr><td>Berries</td><td class="num">US$7.5 mil M</td><td>Alemania US$820 M · Reino Unido US$449 M · España US$436 M</td></tr>
+          <tr><td>Aguacate</td><td class="num">US$6.9 mil M</td><td>Países Bajos US$1,785 M · Francia US$696 M · España US$681 M</td></tr>
+          <tr><td>Chile y pimiento</td><td class="num">US$5.4 mil M</td><td>Alemania US$1,108 M · Reino Unido US$631 M · Francia US$383 M</td></tr>
+          <tr><td>Limón</td><td class="num">US$3.8 mil M</td><td>Alemania US$434 M · Países Bajos US$379 M · Francia US$244 M</td></tr>
+          <tr><td>Fresa</td><td class="num">US$3.0 mil M</td><td>Alemania US$434 M · Reino Unido US$372 M · Francia US$204 M</td></tr>
+          <tr><td>Pepino</td><td class="num">US$3.0 mil M</td><td>Alemania US$926 M · Reino Unido US$334 M · Polonia US$132 M</td></tr>
+          <tr><td>Mango</td><td class="num">US$2.7 mil M</td><td>Países Bajos US$397 M · Reino Unido US$281 M · Alemania US$263 M</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">Alemania, Reino Unido, Francia y Países Bajos compran cada uno cientos o miles de millones de dólares en productos donde México es líder mundial, y le compran a México prácticamente nada. Canadá, socio del T-MEC y a distancia terrestre, ya le compra a México 30% de sus berries y 21% de su fresa, pero todavía compra US$531 millones de berries y US$359 millones de fresa a otros proveedores, sobre todo a Estados Unidos y Perú.</p>
+      <p>Dentro de Estados Unidos también queda espacio: en uva México tiene solo 21% de lo que ese país importa, y en berries, la mitad. En el mapa, la vista <i>Mundo</i> tiene la opción de color <i>Oportunidad para México</i> y una tabla por producto con el precio que paga cada mercado.</p>
+    </div>
+    <div class="lectura">
+      <p>En Europa, el productor local recibe más que el mexicano en la frontera con Estados Unidos en varios de estos productos: en la empacadora, el jitomate se paga 70% más (US$1.65/kg contra US$0.97), el pepino tres veces más (US$1.50 contra US$0.48), la lechuga el doble y el melón 61% más. En pimiento y uva ocurre lo contrario: el europeo cobra 27% y 41% menos, con producción de invernadero y de temporada propia.</p>
+    </div>
+    <p class="nota">Fuente: FAOSTAT 2024, comercio por país y matriz detallada de comercio (lo que cada país reporta que le compra a México; si no reporta, lo que declara México). Es un punto de partida: no considera aranceles, requisitos fitosanitarios, acceso sanitario ni la distancia. Países Bajos y Bélgica compran para reexportar a toda Europa. Precios europeos: mediana 2025 del precio en empacadora por país (Comisión Europea, Agri-food data portal), todas las variedades; no incluyen flete a Europa ni aranceles.</p>
+  </div>
+</section>
+
+<section id="calendario">
+  <div class="lado"><span class="etq"><b>12</b>Temporadas</span><span class="etq">USDA · UN Comtrade 2025</span></div>
+  <div class="cuerpo">
+    <h2>Perú, Guatemala y Chile llenan en Estados Unidos los meses en que México no vende</h2>
+    <div class="lectura">
+      <p>Con las importaciones mensuales de Estados Unidos por país de origen y los embarques semanales del USDA vemos quién abastece cada mes y cuándo sube el precio. Donde México es fuerte todo el año (jitomate, chile, aguacate, pepino) lo que cambia es el precio; donde es débil, un competidor ocupa la temporada.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Producto</th><th class="num">México en las importaciones de EE. UU.</th><th>Principal competidor</th><th>Su temporada fuerte</th></tr></thead>
+        <tbody>
+          <tr><td>Arándano</td><td class="num">18%</td><td>Perú (49%)</td><td>septiembre a diciembre</td></tr>
+          <tr><td>Uva</td><td class="num">20%</td><td>Perú (48%)</td><td>diciembre a febrero</td></tr>
+          <tr><td>Melón</td><td class="num">18%</td><td>Guatemala (62%)</td><td>diciembre, marzo y abril</td></tr>
+          <tr><td>Espárrago</td><td class="num">62%</td><td>Perú (35%)</td><td>mayo a enero</td></tr>
+          <tr><td>Aguacate</td><td class="num">83%</td><td>Perú</td><td>mayo a agosto</td></tr>
+          <tr><td>Brócoli</td><td class="num">63%</td><td>Canadá (34%)</td><td>julio a octubre</td></tr>
+          <tr><td>Piña</td><td class="num">5%</td><td>Costa Rica (86%)</td><td>todo el año</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">Los meses de mejor precio en el mayoreo de Estados Unidos: jitomate en noviembre a enero (US$2.0/kg contra US$1.72 de mediana), aguacate en enero a marzo (hasta US$6.26/kg contra US$4.59), fresa en octubre y noviembre (el doble de la mediana), mango en octubre a diciembre y limón en marzo a mayo. Son las ventanas donde conviene tener producto.</p>
+    </div>
+    <p class="nota">Fuentes: UN Comtrade, importaciones mensuales de EE. UU. por país (reporte de EE. UU., 2025); USDA AMS Market News, embarques semanales por procedencia y precios diarios de mayoreo en 11 mercados terminales. Temporada fuerte = meses con al menos la mitad del volumen del mes más alto del competidor. Mejores meses = precio mensual al menos 5% arriba de la mediana del año.</p>
+  </div>
+</section>
+
+<section id="acceso">
+  <div class="lado"><span class="etq"><b>13</b>Acceso</span><span class="etq">Autoridades sanitarias y aduanas · sep 2026</span></div>
+  <div class="cuerpo">
+    <h2>Norteamérica y Europa están abiertas; China, Japón y Corea siguen casi cerradas al producto mexicano</h2>
+    <div class="lectura">
+      <p>Revisamos, para 29 frutas y hortalizas frescas, si el producto mexicano puede entrar a siete mercados, con qué requisito principal y con qué arancel, en las fuentes oficiales de cada país.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>Mercado</th><th class="num">Abierto</th><th class="num">Con condiciones</th><th class="num">Cerrado</th><th>Arancel para México</th></tr></thead>
+        <tbody>
+          <tr><td>Estados Unidos</td><td class="num">20</td><td class="num">9</td><td class="num">0</td><td>0% (T-MEC); el jitomate paga una cuota antidumping de 17.09%</td></tr>
+          <tr><td>Canadá</td><td class="num">27</td><td class="num">1</td><td class="num">1</td><td>0% (T-MEC)</td></tr>
+          <tr><td>Unión Europea</td><td class="num">19</td><td class="num">9</td><td class="num">1</td><td>0% en la mayoría (TLCUEM); melón 8.8% y uva de mesa 14.1% sin preferencia</td></tr>
+          <tr><td>Reino Unido</td><td class="num">23</td><td class="num">5</td><td class="num">1</td><td>0% en la mayoría (acuerdo con México)</td></tr>
+          <tr><td>Japón</td><td class="num">15</td><td class="num">9</td><td class="num">5</td><td>Acuerdo con México; piña 17%</td></tr>
+          <tr><td>China</td><td class="num">0</td><td class="num">5</td><td class="num">23</td><td>Nación más favorecida (sin tratado); aguacate 7%</td></tr>
+          <tr><td>Corea del Sur</td><td class="num">7</td><td class="num">3</td><td class="num">19</td><td>Tasa básica, sin tratado: jitomate 45%, pimiento 50%, limón persa 50%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lectura">
+      <p class="clave">China solo acepta de México aguacate Hass, uva, zarzamora y frambuesa, y arándano, cada uno con protocolo de huertos y empacadoras registradas; ninguna hortaliza tiene acceso. Corea cierra las frutas hospederas de mosca de la fruta y solo abrió aguacate Hass de Michoacán, uva de Sonora y, desde agosto de 2026, limón persa. Japón cierra papa, berenjena, tomate verde, guayaba y papaya.</p>
+      <p>En Estados Unidos todo entra, pero nueve productos piden condiciones: aguacate Hass solo de Michoacán y Jalisco, cítricos y mango de zonas libres de mosca o con tratamiento, guayaba irradiada, brócoli con declaración o fumigación. La Unión Europea y el Reino Unido prohíben la papa.</p>
+    </div>
+    <p class="nota">Fuentes: USDA APHIS ACIR y USITC HTS; CFIA AIRS y CBSA; Reglamento (UE) 2019/2072 y Access2Markets; DEFRA y UK Trade Tariff; MAFF y Aduana de Japón; GACC y arancel de China 2026; APQA y arancel de Corea. "Abierto" en la UE, Japón y Corea significa que el producto no aparece entre los prohibidos ni con requisitos especiales. No incluye límites de residuos de plaguicidas, normas de comercialización ni registro de huertos. Consulta: septiembre de 2026. En el mapa, cada casilla trae su fuente.</p>
+  </div>
+</section>
+
+<section id="sequia">
+  <div class="lado"><span class="etq"><b>14</b>Riesgo</span><span class="etq">CONAGUA · SIAP</span></div>
+  <div class="cuerpo">
+    <h2>La mitad del espárrago y una cuarta parte del limón, la cebolla y el plátano se cultivan hoy en zonas con sequía</h2>
+    <div class="lectura">
+      <p>Cruzamos el Monitor de Sequía de CONAGUA, municipio por municipio, con la producción municipal del SIAP: qué parte de la cosecha de cada producto está en municipios con sequía moderada o peor.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>52%</b><span>del espárrago, casi todo en Sonora (49% de la producción nacional)</span></div>
+      <div><b>24–25%</b><span>del limón, la cebolla y el plátano</span></div>
+      <div><b>10%</b><span>del aguacate (11% en Michoacán)</span></div>
+    </div>
+    <div class="lectura">
+      <p>Le siguen el mango (21%), la uva (19%), la papa (18%) y el chile (15%). La fresa, la frambuesa y el arándano están prácticamente fuera de zonas con sequía. La sequía no pega igual a todos: los cultivos de riego resisten mejor en el corto plazo, pero dependen de presas y acuíferos.</p>
+    </div>
+    <p class="nota">Fuente: CONAGUA / Servicio Meteorológico Nacional, Monitor de Sequía de México por municipio, corte del 15 de septiembre de 2026; SIAP, producción municipal 2025. En el mapa: vista de municipios, color "Sequía hoy", y la parte de la producción en sequía en las pestañas Producto y Entidad.</p>
+  </div>
+</section>
+
+<section id="estrategias">
+  <div class="lado"><span class="etq"><b>15</b>Propuestas</span><span class="etq">En orden de prioridad</span></div>
+  <div class="cuerpo">
+    <h2>Siete líneas de acción que salen de los datos</h2>
+    <div class="estrategias">
+      <div class="estrategia">
+        <h3>Canales cortos y acopio consolidado</h3>
+        <p>Centros de acopio regionales, compra directa a cooperativas y venta en mercados públicos o sobre ruedas. Es la palanca más grande: la intermediación y el margen minorista suman más que productor y transporte juntos en todos los productos analizados.</p>
+        <p class="evid">Evidencia: recortar 30% ambos márgenes bajaría el precio al consumidor entre 18% (jitomate) y 27% (durazno), manteniendo el precio al productor.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Alerta temprana del abasto interno</h3>
+        <p>Un tablero mensual que compare cosecha, exportación y precio en jitomate, chile y cebolla, para detectar cuándo la exportación deja corto al mercado nacional y actuar con compras públicas o acuerdos de abasto.</p>
+        <p class="evid">Evidencia: en 2025 la disponibilidad de jitomate cayó 39% frente al consumo oficial con exportaciones casi iguales.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Escalonar cosechas y almacenar donde el precio sigue a la temporada</h3>
+        <p>Calendarios de siembra escalonada, frigoríficos para papa y cebolla, oferta de piña fuera de temporada y conservación o procesamiento de mango en su pico de junio y julio.</p>
+        <p class="evid">Evidencia: correlación cosecha–precio de −0.69 en cebolla, −0.64 en limón, −0.62 en piña, −0.56 en aguacate y −0.54 en papa; el mango cuesta el doble en enero que en junio.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Productividad en municipios rezagados</h3>
+        <p>Asistencia técnica, riego y renovación de huertas en los municipios de la sección 06, empezando por plátano, mango, chile, naranja, sandía y manzana.</p>
+        <p class="evid">Evidencia: potencial teórico de más de 1 millón de toneladas adicionales en seis productos sin nuevas tierras.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Sustituir importaciones de fruta templada y papa</h3>
+        <p>Frigoríficos, variedades y renovación de huertas para manzana, pera y durazno en Chihuahua, Coahuila, Durango, Puebla y Zacatecas; semilla certificada y almacenamiento para papa.</p>
+        <p class="evid">Evidencia: se importan al año 203 mil t de manzana, 189 mil t de papa fresca, 56 mil t de pera y 36 mil t de durazno; la pera cubre solo 25% de su consumo.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Diversificar destinos, temporadas y regiones</h3>
+        <p>Abrir mercados en Asia y Europa para aguacate, berries, nuez y hortalizas; negociar protocolos con China, Japón y Corea, que hoy cierran la mayoría de los productos; ocupar en Estados Unidos las temporadas que hoy llenan Perú, Guatemala y Chile, y promover nuevas zonas productoras fuera de los estados que concentran la oferta y de las zonas con sequía.</p>
+        <p class="evid">Evidencia: México es el primer exportador mundial en estos productos, pero 95% de sus ventas van a Estados Unidos y menos de 1% a Latinoamérica, mientras España, su competidor directo, vende a toda Europa; dentro de EE. UU. aún hay espacio en uva, melón y plátano, donde México tiene 6% a 21% de las importaciones, y en berries, donde tiene la mitad (FAOSTAT); 86% a 100% del volumen de cada producto va a ese país; un solo estado aporta 60% o más en zarzamora, manzana, piña, aguacate, frambuesa, uva, guayaba, brócoli, fresa y nuez.</p>
+      </div>
+      <div class="estrategia">
+        <h3>Integración comercial latinoamericana</h3>
+        <p>Acuerdos de abasto regional: comprar manzana, pera y uva a Chile, Argentina y Perú en lugar de Estados Unidos, y ofrecer a Centroamérica y el Caribe las hortalizas en que México tiene excedente, con logística terrestre y fitosanitaria compartida.</p>
+        <p class="evid">Evidencia: solo 5% de la exportación regional se queda en Latinoamérica; México paga US$1,240 millones a Estados Unidos en estas frutas y hortalizas y US$190 millones a Perú y Chile juntos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="adenda-2026">
+  <div class="lado"><span class="etq"><b>16</b>Adenda 2026</span><span class="etq">SE · USDA · SNIIM · ENIGH · SMN</span></div>
+  <div class="cuerpo">
+    <h2>Con datos semanales y mensuales: de dónde sale de verdad lo que se exporta y qué tanto se puede anticipar el precio</h2>
+    <div class="lectura">
+      <p>En octubre de 2026 sumamos al mapa el registro mensual de exportaciones por estado de la Secretaría de Economía, el precio semanal en la frontera convertido a pesos, el diésel por estado, la historia semanal del mayoreo desde 2019, el consumo de los hogares por estado de la ENIGH 2024 y el pronóstico del clima por municipio. Antes de usar cada dato lo probamos contra lo que de verdad pasó.</p>
+    </div>
+    <div class="mini-cifras">
+      <div><b>94%</b><span>del reparto por estado de lo exportado a EE. UU. se acierta con el registro del mismo mes del año anterior; la estimación con la cosecha del SIAP acertaba 62%</span></div>
+      <div><b>3.3×</b><span>el precio típico: el jitomate mexicano llegó a $73.7 el kg en el cruce de Texas a fines de abril de 2026, contra $22 normales en esa semana</span></div>
+      <div><b>Sin relación</b><span>entre la alerta de siembras del SIAP y el precio de mayoreo en EE. UU. de las siguientes 16 semanas (1,124 casos, 2019–2026)</span></div>
+    </div>
+    <div class="lectura">
+      <p class="clave">Lo que se exporta no sale de donde más se cosecha. Baja California registra 44% de la cebolla, 45% de la lechuga y 30% de la fresa que México vende a Estados Unidos, aunque su producción es menor que la de otros estados. Veracruz registra 43% del limón exportado (limón persa), mientras Michoacán, el mayor productor de limón, vende casi todo el suyo en el mercado nacional.</p>
+      <p>Lo que reportan los compradores también cambia la lectura. Canadá registra que 30% de las berries y 21% de la fresa que importa vienen de México, cifras que la estadística mexicana casi no registraba. En Estados Unidos, México tiene la mitad de las berries importadas según el propio Estados Unidos, no 27%. Canadá deja de ser un mercado "donde México casi no vende" y pasa a ser uno donde ya tiene presencia y todavía hay US$531 millones de berries que compra a otros proveedores.</p>
+      <p>Vender en la semana correcta pesa más que el flete. Para el jitomate de Sinaloa, la mejor ventana de cuatro semanas (del 5 de enero al 1 de febrero) deja un neto típico de $24.59 por kg, 48% arriba del promedio de su temporada. El diésel casi no mueve la cuenta: en agosto de 2026 el promedio nacional fue de $27.02 por litro, 3% más que en 2025, y entre estados va de $26.17 (Baja California) a $28.16 (Quintana Roo).</p>
+      <p>El precio de mayoreo en México se puede anticipar solo a grandes rasgos. Con la historia semanal del SNIIM desde 2019, el pronóstico de 32 productos se equivoca en promedio 8.5% a cuatro semanas y 11% a ocho. La estacionalidad ayuda en 18 productos, sobre todo en limón (22% de error a ocho semanas contra 40% si se supone que el precio no cambia), chile, mango y aguacate. En cambio, que se haya sembrado más o menos que otros años no anticipó el precio en Estados Unidos, por eso la alerta de siembras se presenta como medida de oferta y no entra al pronóstico.</p>
+      <p>El consumo no es igual en todo el país. Según la ENIGH 2024, una persona en Tlaxcala compra 1.5 veces el jitomate del promedio nacional y una en Chihuahua, 0.4 veces; en tomate verde, el Estado de México compra 2.5 veces el promedio y Coahuila, 0.4. Con estos índices el mapa reparte la demanda nacional entre estados sin cambiar el total; mide lo que compran los hogares, no restaurantes ni industria.</p>
+      <p>El clima se puede seguir casi en tiempo real. Por ejemplo, el pronóstico del SMN del 30 de septiembre de 2026 marcaba lluvia fuerte (25 mm o más en un día) en municipios que producen 65% de la papa del país, sobre todo en Sonora y Sinaloa.</p>
+    </div>
+    <p class="nota">Fuentes: Secretaría de Economía, comercio exterior por entidad federativa (Data México), 2021 a julio de 2026; FAOSTAT, matriz detallada de comercio 2024 según el país importador; USDA AMS Market News, precio FOB semanal en los cruces (reportes 2402 y 2403) y embarques semanales; Reserva Federal (FRED, DEXMXUS); CNE, precios promedio mensuales de diésel por estado; SNIIM, precio frecuente semanal 2019–2026; SIAP, avance de siembras y cosechas 2018–2026; INEGI, ENIGH 2024 (nueva serie); SMN (CONAGUA), pronóstico por municipio. La SE asigna cada exportación al estado del domicilio del exportador, no al de la huerta. Detalle de las pruebas en <code>analisis/</code> del proyecto.</p>
+  </div>
+</section>
+
+<section id="fuentes">
+  <div class="lado"><span class="etq"><b>17</b>Método</span><span class="etq">Fuentes oficiales</span></div>
+  <div class="cuerpo">
+    <h2>Fuentes y límites</h2>
+    <div class="fuentes">
+      <div><b>Producción</b><span>SIAP/DGSIAP, Cierre de la producción agrícola municipal 2024 y 2025.</span></div>
+      <div><b>Comercio exterior</b><span>Estadística de México (INEGI/SE) reportada a UN Comtrade, 2024–2025, producto fresco.</span></div>
+      <div><b>Mayoreo</b><span>SNIIM, Secretaría de Economía: 53 variedades, 43 centrales, unas 267 mil observaciones, 2025.</span></div>
+      <div><b>Consumidor</b><span>PROFECO, Quién es Quién en los Precios 2025: unos 600 mil registros.</span></div>
+      <div><b>Consumo y estacionalidad</b><span>SIAP, Panorama Agroalimentario 2025 (datos 2024).</span></div>
+      <div><b>Población</b><span>CONAPO, proyección 2025; Censo 2020 (INEGI) para municipios.</span></div>
+      <div><b>Estados Unidos</b><span>USDA NASS 2025 (producción por estado, mercado fresco), Censo Agropecuario 2022 de USDA, Census Bureau 2025 (población).</span></div>
+      <div><b>Precios y frontera de EE. UU.</b><span>USDA AMS Market News 2025: 11 mercados terminales, punto de embarque de Phoenix (cruces de México) y embarques semanales por cruce.</span></div>
+      <div><b>Competencia y acceso</b><span>UN Comtrade (importaciones mensuales de EE. UU., 2025); requisitos y aranceles de USDA APHIS, CFIA, UE, DEFRA, MAFF, GACC y APQA (septiembre de 2026).</span></div>
+      <div><b>Europa y riesgo</b><span>Comisión Europea, precios en empacadora 2025; CONAGUA, Monitor de Sequía por municipio (septiembre de 2026); USDA, tarifas de camión refrigerado 2025.</span></div>
+      <div><b>Latinoamérica y mundo</b><span>FAOSTAT (FAO) 2024: producción, comercio, población y matriz detallada de comercio de 34 países de la región y 231 del mundo.</span></div>
+      <div><b>Adenda 2026</b><span>Secretaría de Economía (exportación por estado y mes, Data México); SNIIM semanal 2019–2026; USDA AMS frontera semanal; CNE (diésel por estado); FRED (tipo de cambio); INEGI, ENIGH 2024; SMN (pronóstico por municipio).</span></div>
+    </div>
+    <p class="nota">Límites: el consumo oficial es de 2024 y el resto de 2025; zanahoria no tiene ficha en el Panorama; tomate verde, nopal, coliflor y guayaba no tienen fracción arancelaria propia; el comercio de frambuesa y zarzamora se estima repartiendo su fracción compartida según su producción; el comercio considera solo producto fresco; la intermediación puede estar sobrestimada por diferencias de calidad; la muestra de PROFECO es mayoritariamente de supermercados; los flujos entre estados del mapa son estimaciones de un modelo de distancia mínima, no registros. Los ahorros del escenario son un techo: suponen que todo el recorte llega al consumidor.</p>
+  </div>
+</section>
+
+<footer class="pie">
+  <a class="marca" href="../index.html">
+    <img src="data:image/png;base64,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" alt="Collecta" width="44" height="27">
+    <span><b>Mapa <em>Agroalimentario</em></b><small>Collecta · collectaproduce.com</small></span>
+  </a>
+  <span>Cifras de fuentes oficiales, 2024–2025 · <a href="../index.html">Abrir el mapa</a> · <a href="../index.html#tour">Modo presentación</a></span>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  // Tema claro u oscuro (se comparte con el mapa en el mismo sitio)
+  document.getElementById("btnTema").onclick = function () {
+    var raiz = document.documentElement;
+    var oscuro = raiz.dataset.theme ? raiz.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    raiz.dataset.theme = oscuro ? "light" : "dark";
+    try { localStorage.setItem("tema", raiz.dataset.theme); } catch (e) {}
+  };
+  var mxn = function (n) { return "$" + n.toFixed(2); };
+  // [nombre, productor, transporte, intermediación, minorista, precio final]  MXN/kg, 2025
+  var cadena = [
+    ["Jitomate", 9.49, 3.38, 6.10, 7.93, 26.90], ["Pepino", 7.90, 3.08, 5.93, 8.09, 25.00],
+    ["Aguacate", 21.34, 2.71, 40.72, 9.23, 74.00], ["Papa", 8.53, 4.68, 5.32, 11.47, 30.00],
+    ["Chile verde y morrón", 11.78, 3.78, 17.74, 9.60, 42.90], ["Cebolla", 7.15, 3.24, 3.59, 12.92, 26.90],
+    ["Manzana", 11.13, 4.23, 28.15, 2.39, 45.90], ["Limón", 7.41, 2.06, 5.93, 18.60, 34.00],
+    ["Plátano", 4.44, 2.96, 10.74, 6.76, 24.90], ["Naranja", 5.90, 2.15, 10.58, 16.27, 34.90],
+    ["Brócoli", 7.61, 1.97, 16.03, 24.29, 49.90], ["Fresa", 24.36, 2.70, 45.15, 95.19, 167.40],
+    ["Mango", 6.24, 2.43, 27.18, 8.05, 43.90], ["Tomate verde", 6.29, 2.01, 9.62, 19.58, 37.50],
+    ["Calabacita", 6.73, 3.39, 9.46, 15.32, 34.90], ["Zanahoria", 4.29, 1.70, 6.09, 2.82, 14.90],
+    ["Sandía", 5.56, 1.51, 5.79, 6.04, 18.90], ["Melón", 6.47, 2.25, 10.42, 14.86, 34.00],
+    ["Papaya", 7.22, 2.34, 13.82, 15.52, 38.90], ["Piña", 6.03, 2.33, 24.70, 0, 33.06],
+    ["Uva", 26.52, 6.21, 45.61, 11.66, 90.00], ["Toronja", 5.26, 2.10, 14.92, 16.62, 38.90],
+    ["Pera", 6.70, 3.01, 42.29, 8.00, 60.00], ["Durazno", 11.96, 2.86, 60.93, 22.75, 98.50],
+    ["Guayaba", 7.78, 1.91, 18.25, 27.06, 55.00], ["Nopal", 4.51, 2.17, 12.44, 24.78, 43.90]
+  ];
+  cadena.sort(function (a, b) { return b[1] / b[5] - a[1] / a[5]; });
+  var colores = ["var(--productor)", "var(--transporte)", "var(--intermedio)", "var(--minorista)"];
+  var nombres = ["Productor", "Transporte", "Intermediación", "Minorista"];
+  document.getElementById("graficaCadena").innerHTML = cadena.map(function (f) {
+    var partes = f.slice(1, 5).map(function (v, i) {
+      return '<i style="flex:0 0 ' + (v / f[5] * 100).toFixed(2) + '%;background:' + colores[i] + '" title="' + nombres[i] + ': ' + mxn(v) + '/kg"></i>';
+    }).join("");
+    return '<div class="fila-cad" role="listitem"><span class="n">' + f[0] + '<small>' + mxn(f[5]) + '/kg al consumidor</small></span>' +
+      '<span class="barra" role="img" aria-label="' + f[0] + ': productor ' + mxn(f[1]) + ', transporte ' + mxn(f[2]) + ', intermediación ' + mxn(f[3]) + ', minorista ' + mxn(f[4]) + '">' + partes + '</span>' +
+      '<span class="v"><b>$' + Math.round(f[1] / f[5] * 100) + '</b> de $100<br>al productor</span></div>';
+  }).join("");
+
+  // Destinos de exportación 2024 (FAOSTAT): [país, miles de millones USD, % EE. UU., % Europa, % Latinoamérica, % Asia, % otros]
+  var destinos = [["México", 16.79, 95.2, 0.3, 0.8, 1.2, 2.5], ["Perú", 6.20, 44.3, 36.1, 7.6, 10.2, 1.8],
+    ["Ecuador", 3.65, 18.6, 47.2, 8.0, 8.5, 17.6], ["Chile", 3.00, 37.4, 23.8, 21.6, 14.1, 3.1],
+    ["Costa Rica", 2.66, 44.1, 49.3, 0.5, 0.5, 5.5], ["Colombia", 1.69, 25.4, 71.7, 0.2, 2.3, 0.4],
+    ["Guatemala", 1.66, 88.6, 5.0, 5.5, 0.3, 0.5], ["Brasil", 1.09, 8.2, 80.8, 6.8, 1.9, 2.2],
+    ["Argentina", 0.50, 20.3, 25.2, 51.9, 0.0, 2.6], ["Honduras", 0.43, 91.1, 5.6, 2.4, 0.4, 0.6]];
+  var coloresDest = ["var(--intermedio)", "var(--minorista)", "var(--productor)", "var(--transporte)", "var(--tenue)"];
+  var nombresDest = ["Estados Unidos", "Europa", "Latinoamérica", "Asia y Oceanía", "Otros"];
+  document.getElementById("graficaDestinos").innerHTML = destinos.map(function (d) {
+    var partes = d.slice(2).map(function (v, i) {
+      return '<i style="flex:0 0 ' + v + '%;background:' + coloresDest[i] + '" title="' + nombresDest[i] + ': ' + v + '%"></i>';
+    }).join("");
+    return '<div class="fila-cad" role="listitem"><span class="n">' + d[0] + '<small>US$' + d[1].toFixed(2) + ' mil M exportados</small></span>' +
+      '<span class="barra" role="img" aria-label="' + d[0] + ': Estados Unidos ' + d[2] + '%, Europa ' + d[3] + '%, Latinoamérica ' + d[4] + '%">' + partes + '</span>' +
+      '<span class="v"><b style="color:var(--productor)">' + Math.round(d[4]) + '%</b> a<br>Latinoamérica</span></div>';
+  }).join("");
+
+  // Mundo 2024 (FAOSTAT): [país, % exportación mundial (valor), % producción mundial (volumen)]
+  var mundo = [["México", 12.9, 2.1], ["España", 11.6, 1.5], ["Países Bajos", 11.4, 0.6], ["Estados Unidos", 6.5, 3.4],
+    ["Perú", 4.8, 0.9], ["China", 4.6, 32.4], ["Italia", 3.1, 1.5], ["Francia", 3.1, 1.1], ["Ecuador", 2.8, 0.6], ["Sudáfrica", 2.7, 0.7]];
+  var tope = 14; // escala común; la producción de China se recorta
+  document.getElementById("graficaMundo").innerHTML = mundo.map(function (m) {
+    var ancho = function (v) { return Math.min(100, v / tope * 100).toFixed(1) + "%"; };
+    return '<div class="par" role="listitem"><span class="n">' + m[0] + '</span>' +
+      '<span class="b"><span class="pista"><i style="width:' + ancho(m[1]) + ';background:var(--acento)"></i></span>' + m[1].toFixed(1) + '% exporta</span>' +
+      '<span class="b"><span class="pista"><i style="width:' + ancho(m[2]) + ';background:var(--productor)"></i></span>' + m[2].toFixed(1) + '% produce' + (m[2] > tope ? ' ▸' : '') + '</span></div>';
+  }).join("");
+
+  // EE. UU.: % del consumo aparente que viene de México (USDA NASS 2025, FAOSTAT 2024)
+  var eeuu = [["Aguacate", 77], ["Jitomate", 75], ["Chile y morrón", 71], ["Mango", 68], ["Espárrago", 67], ["Pepino", 66],
+    ["Calabacita", 66], ["Berenjena", 50], ["Brócoli", 46], ["Limón", 44], ["Sandía", 31], ["Berries", 23], ["Cebolla", 17], ["Fresa", 16]];
+  document.getElementById("graficaEEUU").innerHTML = eeuu.map(function (e) {
+    return '<div class="fila-exp"><span>' + e[0] + '</span><span class="b"><i style="width:' + e[1] + '%;background:' +
+      (e[1] >= 50 ? "var(--intermedio)" : "var(--productor)") + '"></i></span><span class="x">' + e[1] + '%</span></div>';
+  }).join("");
+
+  // Canales PROFECO: [producto, central, mercado, supermercado]
+  var canales = [["Nuez", 280, 340, 549], ["Brócoli", 30, 30, 52.5], ["Guayaba", 40, 40, 57.9], ["Nopal", 38.5, 40, 43.9], ["Cebolla", 15.99, 20, 26.9], ["Papa", 19, 25, 30.9], ["Tomate verde", 25, 25, 39.8],
+    ["Toronja", 26, 30, 38.9], ["Calabacita", 25, 28, 36.9], ["Naranja", 25, 25, 36.8], ["Fresa", 121.15, 120, 174.01],
+    ["Jitomate", 19, 24, 26.9], ["Melón", 25, 28, 34.8], ["Papaya", 29, 30, 39.9], ["Limón", 25, 28, 34.9], ["Piña", 24, 29.9, 32.6],
+    ["Sandía", 14, 18, 18.9], ["Plátano", 20, 22, 24.9], ["Mango", 35, 45, 44], ["Chile verde y morrón", 35, 45, 43.9],
+    ["Aguacate", 65.5, 75, 72.5], ["Pepino", 23, 25, 25], ["Durazno", 98, 90, 98.5], ["Uva", 89, 100, 89.9],
+    ["Manzana", 45, 60, 44.9], ["Pera", 60, 68.5, 59.9], ["Zanahoria", 15, 20, 14.9]];
+  canales.sort(function (a, b) { return (b[3] / Math.min(b[1], b[2]) - 1) - (a[3] / Math.min(a[1], a[2]) - 1); });
+  document.getElementById("tablaCanales").innerHTML = canales.map(function (c) {
+    var min = Math.min(c[1], c[2], c[3]), max = Math.max(c[1], c[2], c[3]);
+    var celda = function (v) { return '<td class="num' + (v === min ? ' baja' : v === max ? ' alta' : '') + '">' + mxn(v) + '</td>'; };
+    var brecha = c[3] / Math.min(c[1], c[2]) - 1;
+    return '<tr><td>' + c[0] + '</td>' + celda(c[1]) + celda(c[2]) + celda(c[3]) + '<td class="num">' + (brecha > 0 ? '+' : '') + Math.round(brecha * 100) + '%</td></tr>';
+  }).join("");
+
+  // Exportaciones 2025, millones de USD
+  var exp = [["Aguacate", 3966], ["Jitomate", 2650], ["Chile", 1783], ["Pepino", 754], ["Limón", 732], ["Fresa", 688], ["Mango", 621],
+    ["Calabacita", 461], ["Nuez", 439], ["Zarzamora (est.)", 429], ["Uva", 379], ["Lechuga", 370], ["Brócoli", 363], ["Cebolla", 344],
+    ["Arándano", 325], ["Plátano", 274], ["Frambuesa (est.)", 259], ["Sandía", 224], ["Espárrago", 174], ["Papaya", 132],
+    ["Berenjena", 99], ["Zanahoria", 93], ["Melón", 85], ["Piña", 59], ["Naranja", 30], ["Toronja", 3], ["Manzana", 1], ["Papa", 0.6]];
+  document.getElementById("graficaExport").innerHTML = exp.map(function (e) {
+    return '<div class="fila-exp"><span>' + e[0] + '</span><span class="b"><i style="width:' + (e[1] / exp[0][1] * 100).toFixed(2) + '%"></i></span><span class="x">' +
+      (e[1] >= 1000 ? "US$" + (e[1] / 1000).toFixed(2) + " mil M" : e[1] >= 1 ? "US$" + Math.round(e[1]) + " M" : "< US$1 M") + '</span></div>';
+  }).join("");
+
+  // Estacionalidad: cosecha % (Panorama) y mayoreo mensual (SNIIM)
+  var meses = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  var series = [
+    ["Cebolla", -0.69, [3.7,5.6,8.5,8.8,12.8,8.5,10.8,10.8,9.5,8.1,6.8,6.1], [18.7,14.52,11.45,10.17,9.79,10.2,11.45,13.27,15.78,17.72,18.42,17.58], "Precio mínimo en mayo, el mes de mayor cosecha; enero cuesta casi el doble."],
+    ["Limón", -0.64, [6.4,7.1,6.9,5.4,7.4,8.6,9.1,10.1,9.8,12.5,8.7,8], [13.04,16.86,22.7,22.5,20.12,15.62,13.23,13.31,13.42,12.36,11.79,12.31], "Marzo y abril, con poca cosecha, son los meses más caros."],
+    ["Piña", -0.62, [5.9,13.8,8,8.9,13.3,12.6,8.8,13.6,4.3,5.5,3,2.3], [31.32,30.31,30.25,31.02,31.9,32.06,32.2,32.44,36.78,37.86,36.12,33.72], "De septiembre a diciembre sale 15% de la cosecha y el precio llega a su máximo del año."],
+    ["Mango", -0.19, [2.2,5.7,7.3,9.7,15.1,19.7,20.3,12.7,5.5,0.9,0.2,0.7], [49.09,41.86,37.63,29.12,24.49,23.75,47.58,44.91,29.72,33.57,35.98,38.53], "Dos tercios de la cosecha salen de mayo a agosto; conservar o procesar ese excedente estabiliza el año."]
+  ];
+  var css = getComputedStyle(document.documentElement);
+  document.getElementById("multiples").innerHTML = series.map(function (s) {
+    var W = 320, H = 132, base = 104, top = 10, bw = W / 12;
+    var maxP = Math.max.apply(null, s[2]);
+    var lo = Math.min.apply(null, s[3]), hi = Math.max.apply(null, s[3]);
+    var y = function (v) { return base - 6 - (v - lo) / (hi - lo) * (base - top - 12); };
+    var barras = s[2].map(function (v, i) {
+      var h = v / maxP * (base - top);
+      return '<rect x="' + (i * bw + 3) + '" y="' + (base - h) + '" width="' + (bw - 6) + '" height="' + h + '" rx="1.5" fill="var(--productor)" fill-opacity="0.22"><title>' + v + '% de la cosecha</title></rect>';
+    }).join("");
+    var pts = s[3].map(function (v, i) { return ((i + 0.5) * bw) + "," + y(v); }).join(" ");
+    var iMax = s[3].indexOf(hi), iMin = s[3].indexOf(lo);
+    var etiquetas = meses.map(function (m, i) { return '<text x="' + ((i + 0.5) * bw) + '" y="' + (base + 16) + '" text-anchor="middle" font-size="10" fill="var(--tenue)" font-family="Geist Mono, monospace">' + m + '</text>'; }).join("");
+    var marca = function (i, v, col) { return '<circle cx="' + ((i + 0.5) * bw) + '" cy="' + y(v) + '" r="3.5" fill="' + col + '"/><text x="' + Math.min(W - 4, Math.max(4, (i + 0.5) * bw)) + '" y="' + (y(v) - 8) + '" text-anchor="' + (i > 9 ? 'end' : i < 2 ? 'start' : 'middle') + '" font-size="10.5" fill="var(--tinta)" font-family="Geist Mono, monospace">$' + v.toFixed(0) + '</text>'; };
+    return '<div class="multiple"><h3>' + s[0] + '<span class="dato">r = ' + s[1].toFixed(2) + '</span></h3>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + s[0] + ': cosecha mensual y precio de mayoreo">' + barras +
+      '<polyline points="' + pts + '" fill="none" stroke="var(--intermedio)" stroke-width="2"/>' + marca(iMax, hi, "var(--intermedio)") + marca(iMin, lo, "var(--productor)") +
+      '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="var(--linea)"/>' + etiquetas + '</svg><p>' + s[4] + '</p></div>';
+  }).join("");
+})();
+</script>

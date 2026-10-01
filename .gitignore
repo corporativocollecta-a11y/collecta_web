@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mapa agroalimentario: descargas crudas (caché de GitHub Actions) y claves locales
+/mapa/data/fuentes/
+/mapa/.env
+__pycache__/

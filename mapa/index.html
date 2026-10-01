@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa Agroalimentario</title>
+  <script>
+    // Tema guardado antes de pintar, para evitar parpadeo; oscuro por omisión (vista de presentación)
+    document.documentElement.dataset.theme = "dark";
+    try {
+      const l = new URLSearchParams(location.hash.slice(1)).get("l") || localStorage.getItem("idioma");
+      if (l === "en") document.documentElement.lang = "en";
+    } catch (e) {}
+    try { const t = localStorage.getItem("tema"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca">
+      <img class="logo" src="img/isotipo-color.png" alt="Collecta" width="44" height="27">
+      <div>
+        <h1>Mapa <em>Agroalimentario</em></h1>
+        <p id="lema">Del campo a la mesa · 16 países</p>
+      </div>
+    </div>
+    <div class="segmentado region" role="radiogroup" aria-label="Región">
+      <label><input type="radio" name="region" value="mx" checked>México</label>
+      <label><input type="radio" name="region" value="latam">Latinoamérica</label>
+      <label><input type="radio" name="region" value="global">Mundo</label>
+    </div>
+    <select id="paisSub" class="selector-pais" aria-label="Ver un país por regiones">
+      <option value="">Ver país…</option>
+    </select>
+    <div class="aviso" title="Fuentes oficiales integradas">Cargando fuentes…</div>
+    <nav class="acciones" aria-label="Acciones">
+      <!-- En pantallas angostas estas opciones se agrupan en el menú "⋯" -->
+      <div class="menu-acciones" id="menuAcciones">
+        <a class="boton-texto" href="https://claude.ai/artifact/AEdv1SihS4c8QHg84TNuUF" target="_blank" rel="noopener">Reporte 2025</a>
+        <button class="boton-icono" id="btnRecorrido" type="button" aria-label="Modo presentación" title="Modo presentación">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5h17v11h-17zM12 16v4M8 20h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 8.2v4.6l4-2.3z" fill="currentColor"/></svg>
+        </button>
+        <button class="boton-icono" id="btnComparar" type="button" aria-label="Comparar lado a lado" title="Comparar lado a lado">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6.5v14H4zM13.5 5H20v14h-6.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6.5 15.5v-3M8.5 15.5v-6M16 15.5v-5M18 15.5v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnFicha" type="button" aria-label="Descargar ficha en PDF" title="Descargar ficha en PDF">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnEnlace" type="button" aria-label="Copiar enlace a esta vista" title="Copiar enlace a esta vista">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="boton-icono" id="btnAyuda" type="button" aria-label="Cómo usar el mapa" title="Cómo usar el mapa">?</button>
+        <button class="boton-icono" id="btnTema" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button class="boton-icono" id="btnIdioma" type="button" aria-label="English / Español" title="English / Español">EN</button>
+      <button class="boton-icono" id="btnMas" type="button" aria-label="Más opciones" title="Más opciones" aria-expanded="false" aria-controls="menuAcciones">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="18.5" cy="12" r="1.8" fill="currentColor"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main class="escenario">
+    <div id="mapa" aria-label="Mapa de México"></div>
+
+    <aside class="catalogo" aria-label="Productos">
+      <div class="catalogo-cabeza">
+        <span class="etq">Productos <span class="contador" id="contadorProductos"></span></span>
+        <button class="plegar" id="plegarCatalogo" type="button" aria-label="Ocultar productos" title="Ocultar productos">‹</button>
+      </div>
+      <label class="buscador">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="buscar" type="search" placeholder="Buscar fruta u hortaliza" autocomplete="off">
+      </label>
+      <div class="filtros" role="radiogroup" aria-label="Tipo de producto">
+        <label><input type="radio" name="tipo" value="todos" checked>Todos</label>
+        <label><input type="radio" name="tipo" value="Fruta">Frutas</label>
+        <label><input type="radio" name="tipo" value="Hortaliza">Hortalizas</label>
+      </div>
+      <nav id="productos" class="lista-productos" aria-label="Lista de productos"></nav>
+    </aside>
+
+    <button class="reabrir izq" id="abrirCatalogo" type="button">Productos ›</button>
+    <button class="reabrir der" id="abrirPanel" type="button">‹ Análisis</button>
+
+    <section class="titular" id="titular" aria-live="polite"></section>
+
+    <div class="controles-mapa" role="toolbar" aria-label="Capas del mapa">
+      <div class="segmentado" id="ctrlNivel" role="radiogroup" aria-label="Nivel geográfico">
+        <label><input type="radio" name="nivel" value="estatal" checked>Estados</label>
+        <label><input type="radio" name="nivel" value="municipal">Municipios</label>
+      </div>
+      <div id="ctrlEstatal" class="grupo-capas">
+        <select id="metricaMx" aria-label="Colorear estados por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="oferta">Oferta por venir (SIAP)</option>
+        </select>
+        <label class="interruptor"><input type="checkbox" id="verFlujos" checked><span></span>Flujos</label>
+        <label class="interruptor"><input type="checkbox" id="verImport" checked><span></span>Importación</label>
+        <label class="interruptor" title="Rutas estado de origen → central de abasto reportadas por el SNIIM"><input type="checkbox" id="verRed"><span></span>Red SNIIM</label>
+      </div>
+      <div id="ctrlMunicipal" class="grupo-capas" hidden>
+        <select id="metricaMun" aria-label="Colorear municipios por">
+          <option value="produccion">Producción (t)</option>
+          <option value="autosuficiencia">Autosuficiencia local</option>
+          <option value="rendimiento">Rendimiento (t/ha)</option>
+          <option value="sequia">Sequía hoy (CONAGUA)</option>
+        </select>
+        <span id="cargandoMun" class="sub" hidden>Cargando 2,475 municipios…</span>
+      </div>
+      <label class="interruptor" title="Círculos del tamaño de la producción sobre el mapa de color"><input type="checkbox" id="verVolumen"><span></span>Volumen</label>
+      <label class="interruptor" id="ctrlCentrales"><input type="checkbox" id="verCentrales"><span></span>Centrales</label>
+      <div id="ctrlSub" class="grupo-capas" hidden>
+        <select id="metricaSub" aria-label="Colorear regiones por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="imp">Dependencia de importaciones</option>
+        </select>
+        <label class="interruptor"><input type="checkbox" id="verImportSub" checked><span></span>Importaciones</label>
+        <label class="interruptor" id="ctrlEmbarquesEUA" hidden title="Embarques de la semana por zona de origen, cruce y puerto (USDA)"><input type="checkbox" id="verEmbarquesEUA" checked><span></span>Embarques</label>
+        <label class="interruptor" id="ctrlMercadosEUA" hidden title="Mercados terminales y cruces con México (USDA AMS)"><input type="checkbox" id="verMercadosEUA" checked><span></span>Precios USDA</label>
+        <span class="sub" id="fuenteSub"></span>
+      </div>
+      <div id="ctrlLatam" class="grupo-capas" hidden>
+        <select id="metricaLatam" aria-label="Colorear países por">
+          <option value="auto">Autosuficiencia</option>
+          <option value="pc">Consumo aparente por persona</option>
+          <option value="rend">Rendimiento (t/ha)</option>
+          <option value="opp">Oportunidad para México</option>
+        </select>
+        <label class="interruptor" id="ctrlRutas"><input type="checkbox" id="verRutas" checked><span></span>Rutas comerciales</label>
+        <span class="sub" id="fuenteLatam">FAOSTAT</span>
+      </div>
+    </div>
+
+    <div class="leyenda" id="leyenda"></div>
+
+    <button class="plegar plegar-panel" id="plegarPanel" type="button" aria-label="Ocultar análisis" title="Ocultar análisis">›</button>
+    <aside class="panel" aria-label="Análisis">
+      <button class="asa" id="asaHoja" type="button" aria-label="Expandir o contraer el análisis"><i></i></button>
+      <div class="tabs" role="tablist">
+        <button class="tab activo" data-tab="resumen" role="tab">Resumen</button>
+        <button class="tab" data-tab="balance" role="tab">Producto</button>
+        <button class="tab" data-tab="exportar" role="tab">Exportar</button>
+        <button class="tab" data-tab="entidad" role="tab">Entidad</button>
+        <button class="tab" data-tab="simulador" role="tab">Simulador</button>
+        <button class="tab tab-icono" data-tab="fuentes" role="tab" aria-label="Fuentes y metodología" title="Fuentes y metodología">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h9.5L19 9v10.5H5zM14.5 4.5V9H19M8.5 13h7M8.5 16.5h7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="contenido">
+        <div id="tab-resumen" class="pestana activo"></div>
+        <div id="tab-balance" class="pestana"></div>
+        <div id="tab-exportar" class="pestana"></div>
+        <div id="tab-entidad" class="pestana"></div>
+        <div id="tab-simulador" class="pestana"></div>
+        <div id="tab-fuentes" class="pestana"></div>
+      </div>
+    </aside>
+  </main>
+  <div class="pie-ficha" id="pieFicha" aria-hidden="true"></div>
+
+  <div class="guia" id="guia" hidden role="dialog" aria-modal="true" aria-labelledby="guiaTitulo">
+    <div class="guia-tarjeta">
+      <span class="etq">Guía rápida</span>
+      <h2 id="guiaTitulo">Cómo leer este mapa</h2>
+      <ol>
+        <li><b>Elige un producto</b> en la lista de la izquierda. Puedes buscarlo o filtrar frutas y hortalizas.</li>
+        <li><b>Lee el mapa.</b> El color de cada estado dice si su producción alcanza para su población (naranja: le falta; verde: le sobra). Activa <i>Volumen</i> para ver cuánto produce, o cambia a <i>Municipios</i> para ver 2,475 municipios.</li>
+        <li><b>Haz clic en un estado o municipio</b> para ver quién lo abastece, a dónde envía su excedente y qué produce.</li>
+        <li><b>Usa el Simulador</b> para probar sequías, rutas directas o menos intermediación, y ver el efecto en el precio.</li>
+      </ol>
+      <p class="sub">Con <i>Ver país</i> abres 24 países por estados o regiones; con <i>Latinoamérica</i> y <i>Mundo</i>, la comparación internacional de FAOSTAT. Los paneles se ocultan con ‹ › para dejar el mapa completo. Todas las cifras vienen de fuentes oficiales.</p>
+      <button class="boton-primario" id="cerrarGuia" type="button">Empezar</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="data/estados.js"></script>
+  <script src="data/productos.js"></script>
+  <!-- Se genera con scripts/procesar_siap.py; si no existe, se usan los datos preliminares -->
+  <script src="data/produccion_siap.js"></script>
+  <!-- Se genera con scripts/procesar_comercio.py (exportación/importación oficial) -->
+  <script src="data/comercio_oficial.js"></script>
+  <!-- Consumo per cápita oficial (Panorama Agroalimentario) y población CONAPO (scripts/procesar_panorama.py) -->
+  <script src="data/consumo_oficial.js"></script>
+  <!-- Producción municipal SIAP (scripts/procesar_siap.py); los polígonos se cargan al elegir "Municipios" -->
+  <script src="data/produccion_municipal.js"></script>
+  <!-- Secciones plegables de los paneles (título + resumen de una línea) -->
+  <script src="js/secciones.js"></script>
+  <script src="js/modelo.js"></script>
+  <script src="js/municipal.js"></script>
+  <!-- Precios de mayoreo SNIIM (scripts/procesar_sniim.py) -->
+  <script src="data/precios_sniim.js"></script>
+  <!-- Precio al consumidor PROFECO QQP (scripts/procesar_profeco.py) -->
+  <script src="data/precios_consumidor.js"></script>
+  <!-- Consumo por persona de cada estado frente al nacional, ENIGH 2024 (scripts/procesar_enigh.py) -->
+  <script src="data/consumo_regional.js"></script>
+  <!-- Helada y lluvia fuerte en los próximos días: SMN × producción municipal (scripts/procesar_clima_smn.py) -->
+  <script src="data/clima_smn.js"></script>
+  <script src="js/clima.js"></script>
+  <!-- Movimientos de precio y embarques de la semana (scripts/construir_alertas.py) -->
+  <script src="data/alertas_precio.js"></script>
+  <script src="js/alertas.js"></script>
+  <!-- Pérdidas por siniestro en 10 años (scripts/procesar_siniestros.py) -->
+  <script src="data/siniestros.js"></script>
+  <script src="js/siniestros.js"></script>
+  <!-- Costo de producción (FIRA Agrocostos) contra precio rural (scripts/procesar_costos_fira.py) -->
+  <script src="data/costos_fira.js"></script>
+  <script src="js/costos.js"></script>
+  <!-- Frescura de cada fuente (scripts/construir_frescura.py) -->
+  <script src="data/frescura.js"></script>
+  <script src="js/precios.js"></script>
+  <!-- Pronóstico de 8 semanas del mayoreo en México (scripts/procesar_pronostico_sniim.py → data/pronostico_sniim.js, carga diferida) -->
+  <script src="js/pronostico_sniim.js"></script>
+  <script src="js/estacionalidad.js"></script>
+  <script src="js/resumen.js"></script>
+  <!-- Fase LATAM: FAOSTAT (scripts/procesar_faostat.py) -->
+  <script src="data/latam.js"></script>
+  <script src="data/latam_comercio.js"></script>
+  <!-- Fase global: FAOSTAT todos los países (procesar_faostat.py global, procesar_faostat_bilateral.py global) -->
+  <script src="data/global.js"></script>
+  <script src="data/global_comercio.js"></script>
+  <!-- Lo que cada comprador reporta que le compra a México, para "Dónde puede vender México" (scripts/procesar_mercados.py) -->
+  <script src="data/desde_mexico.js"></script>
+  <!-- Vistas por país (motor común, scripts/subnacional_comun.py): EE. UU. (procesar_usda.py), Brasil (procesar_ibge.py), Colombia (procesar_eva.py), Canadá (procesar_statcan.py), Perú (procesar_midagri.py), España (procesar_mapa_es.py), Italia (procesar_istat.py), Turquía (procesar_tuik.py), Chile (procesar_odepa.py), Polonia (procesar_gus.py), Filipinas (procesar_psa.py), Ecuador (procesar_espac.py), Japón (procesar_maff.py), Francia (procesar_agreste.py), Australia (procesar_abs.py), Países Bajos (procesar_cbs.py), Bélgica (procesar_eurostat_be.py), Portugal (procesar_ine_pt.py), Grecia (procesar_elstat.py), Nueva Zelanda (procesar_statsnz.py), Corea del Sur (procesar_kosis.py), Guatemala (procesar_maga_gt.py), Costa Rica (procesar_cenagro_cr.py), Honduras (procesar_can_hn.py) -->
+  <script src="data/productos_paises.js"></script>
+  <script src="data/sub_us.js"></script>
+  <script src="data/sub_br.js"></script>
+  <script src="data/sub_cl.js"></script>
+  <script src="data/sub_ca.js"></script>
+  <script src="data/sub_co.js"></script>
+  <script src="data/sub_es.js"></script>
+  <script src="data/sub_it.js"></script>
+  <script src="data/sub_pe.js"></script>
+  <script src="data/sub_tr.js"></script>
+  <script src="data/sub_au.js"></script>
+  <script src="data/sub_ec.js"></script>
+  <script src="data/sub_fr.js"></script>
+  <script src="data/sub_jp.js"></script>
+  <script src="data/sub_ph.js"></script>
+  <script src="data/sub_pl.js"></script>
+  <script src="data/sub_nl.js"></script>
+  <script src="data/sub_be.js"></script>
+  <script src="data/sub_pt.js"></script>
+  <script src="data/sub_gr.js"></script>
+  <script src="data/sub_nz.js"></script>
+  <script src="data/sub_kr.js"></script>
+  <script src="data/sub_gt.js"></script>
+  <script src="data/sub_cr.js"></script>
+  <script src="data/sub_hn.js"></script>
+  <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
+  <script src="js/paleta.js"></script>
+  <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
+  <script src="data/sequia.js"></script>
+  <!-- Alerta de oferta: avance de siembras y cosechas del SIAP contra el mismo corte del año anterior (scripts/procesar_alerta_oferta.py) -->
+  <script src="data/alerta_oferta.js"></script>
+  <script src="js/alerta.js"></script>
+  <script src="js/sequia.js"></script>
+  <!-- Acceso a mercados: requisitos fitosanitarios y aranceles para México (scripts/construir_acceso.py) -->
+  <script src="data/acceso.js"></script>
+  <script src="js/acceso.js"></script>
+  <!-- Historia de 10 años de FAOSTAT (scripts/procesar_historia.py → data/historia.js, carga diferida) -->
+  <script src="js/historia.js"></script>
+  <!-- Precios de mayoreo de EE. UU.: USDA AMS Market News (scripts/descargar_ams.py y scripts/procesar_ams.py) -->
+  <script src="data/precios_eua.js"></script>
+  <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
+  <script src="data/competencia_eua.js"></script>
+  <script src="js/precios_eua.js"></script>
+  <!-- Embarques semanales por origen y pronóstico de 8 semanas (scripts/procesar_embarques.py, procesar_pronostico.py; carga diferida) -->
+  <script src="js/embarques.js"></script>
+  <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
+  <script src="data/precios_ue.js"></script>
+  <script src="js/precios_ue.js"></script>
+  <!-- Vista por mercado de destino: proveedores de cada país comprador (scripts/procesar_mercados.py → data/mercados.js, carga diferida) -->
+  <script src="js/mercado.js"></script>
+  <script src="js/subnacional.js"></script>
+  <script src="js/latam.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
+  <script src="js/recorrido.js"></script>
+  <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->
+  <script src="js/comparar.js"></script>
+  <!-- Versión en inglés: traducción del texto ya pintado (data/traduccion_en.js) -->
+  <script src="js/idioma.js"></script>
+</body>
+</html>

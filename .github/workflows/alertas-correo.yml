@@ -6,7 +6,7 @@ name: Alertas por correo del mapa
 
 on:
   schedule:
-    - cron: "0 15 * * 1"   # lunes 9:00 en la Ciudad de México
+    - cron: "0 22 * * 2"   # martes 16:00 en la Ciudad de México (después de la actualización semanal de las 14:00)
   workflow_dispatch: {}
 
 permissions:
