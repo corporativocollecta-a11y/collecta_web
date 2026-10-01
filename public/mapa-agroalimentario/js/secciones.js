@@ -39,5 +39,23 @@
     return d;
   }
 
-  window.Seccion = { envolver, abrir };
+  // Carga diferida de verdad: si el elemento está dentro de una sección cerrada, fn() espera a que se abra (así los
+  // datos pesados, como data/historia.js de 914 kB, no se bajan con solo mostrar la pestaña). Devuelve true si esperó.
+  const pendientes = new Map();   // <details> → [fn]
+  function alAbrir(el, fn) {
+    const d = el.closest("details.seccion");
+    if (!d || d.open) { fn(); return false; }
+    if (!pendientes.has(d)) pendientes.set(d, []);
+    pendientes.get(d).push(fn);
+    return true;
+  }
+  document.addEventListener("toggle", e => {
+    const d = e.target;
+    if (!d.open || !pendientes.has(d)) return;
+    const fns = pendientes.get(d);
+    pendientes.delete(d);
+    fns.forEach(f => f());
+  }, true);
+
+  window.Seccion = { envolver, abrir, alAbrir };
 })();

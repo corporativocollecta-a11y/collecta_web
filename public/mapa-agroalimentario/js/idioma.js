@@ -143,7 +143,7 @@
     let n;
     while ((n = w.nextNode())) {
       const t = (originales.get(n) ?? n.nodeValue).trim();
-      if (!t || !/\p{L}{3}/u.test(t) || n.parentElement.closest("script,style")) continue;
+      if (!t || !/\p{L}{3}/u.test(t) || n.parentElement.closest("script,style,[translate=no]")) continue;
       const { s } = normalizar(t);
       if (!(s in (window.TRADUCCION_EN ?? {})) && !(t in nombres)) faltan.add(s);
     }

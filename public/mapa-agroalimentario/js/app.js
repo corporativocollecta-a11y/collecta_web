@@ -263,6 +263,26 @@
     `<div class="barra-h"><span class="n">${pais}</span><span class="b"><i style="width:${s * 100}%"></i></span><span class="x">${pctFino(s)}</span></div>`).join("");
   const usd = v => v >= 1e9 ? `US$${(v / 1e9).toFixed(2)} mil M` : v >= 1e6 ? `US$${fmt(v / 1e6)} M` : `US$${fmt(v / 1e3)} mil`;
 
+  // Resumen ejecutivo de una línea: dónde se produce, cuánto se exporta y a dónde, si alcanza para el consumo y la
+  // oferta por venir (alerta SIAP). Cada parte va en su <span> para que js/idioma.js la traduzca por separado.
+  function resumenEjecutivo(res) {
+    const n = res.nacional, p = res.producto;
+    const lider = [...res.filas].sort((a, b) => b.prod - a.prod)[0];
+    const partes = [];
+    if (n.produccion > 0 && lider?.prod > 0) partes.push(`${fmtT(n.produccion)} al año, ${pct(lider.prod / n.produccion)} en ${lider.nombre}`);
+    const exp = p.exportacion / (n.produccion || 1);
+    const dest = Object.entries(p.destinos ?? {}).sort((a, b) => b[1] - a[1])[0];
+    if (p.exportacion > 0 && exp >= 0.01) partes.push(dest ? `exporta ${pct(Math.min(1, exp))}, ${pct(dest[1])} de eso a ${dest[0]}` : `exporta ${pct(Math.min(1, exp))}`);
+    partes.push(n.autosuficiencia >= 1.1 ? "produce más de lo que consume" : n.autosuficiencia >= 0.9 ? "produce lo que consume" : `importa ${pct(1 - n.autosuficiencia)} de lo que consume`);
+    const al = window.Alerta?.disponible(res.clave) ? Alerta.calcular(res.clave) : null;
+    if (al?.s != null) {
+      const s = al.s, r = Math.round(s * 100);
+      const cuanto = s >= 0.15 ? "mucho mayor que en" : s >= 0.05 ? "mayor que en" : s > -0.05 ? "similar a" : s > -0.15 ? "menor que en" : "mucho menor que en";
+      partes.push(`oferta por venir ${cuanto} años anteriores (${r > 0 ? "+" : r < 0 ? "−" : "±"}${Math.abs(r)}%)`);
+    }
+    return `<p class="ejecutivo">${partes.map(x => `<span>${x}</span>`).join(" · ")}</p>`;
+  }
+
   // ---------- Panel: Balance nacional ----------
   function renderBalance() {
     const n = res.nacional, p = res.producto;
@@ -278,6 +298,7 @@
     const origen1 = primero(p.origenes);
     document.getElementById("tab-balance").innerHTML = `
       <h2>${p.nombre}</h2>
+      ${resumenEjecutivo(res)}
       <p class="sub">${fuente}${p.consumoOficial ? `<span class="tag ok">Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion}</span> ` : ""}${p.tipo}
         · consumo usado: <b>${res.pc.toFixed(1)} kg/persona/año</b>
         ${escenario().consumoPC != null ? "(escenario)" : res.base === "oficial" && p.consumoOficial ? `(oficial, Panorama p. ${p.paginaPanorama})` : res.inconsistente ? "(referencia)" : "(consumo aparente " + (window.POBLACION_CONAPO?.anio ?? "") + ")"}
@@ -294,9 +315,11 @@
       </div>
       ${nota}
       ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${window.PronosticoSNIIM ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
       ${window.Alerta?.disponible(res.clave) ? S("alerta", `<h3>Siembras y cosechas: alerta de oferta <span class="tag ok">SIAP</span></h3>${Alerta.html(res.clave)}`, Alerta.resumen(res.clave),
         { abierta: Math.abs(Alerta.calcular(res.clave).s ?? 0) >= 0.15 }) : ""}
       ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}
+      ${window.Clima?.disponible(res.clave) ? S("clima", `<h3>Helada y lluvia fuerte en los próximos días <span class="tag ok">SMN</span></h3>${Clima.html(res.clave)}`, Clima.resumen(res.clave)) : ""}
       ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
       ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
       ${origen1 ? S("importaciones", `<h3>Origen de las importaciones</h3>${barras(p.origenes)}`, `Primer origen: ${origen1[0]}, ${pctFino(origen1[1])} del volumen importado`) : ""}
@@ -448,7 +471,7 @@
       <p class="sub">Población ${fmt(f.pob)}${window.POBLACION_CONAPO ? ` (CONAPO ${window.POBLACION_CONAPO.anio})` : ""} · ${res.producto.nombre}${f.estimado ? " · producción estimada (entidad no desglosada)" : ""}</p>
       <div class="kpis">
         <div class="kpi"><div class="v">${fmtT(f.prod)}</div><div class="l">Producción</div></div>
-        <div class="kpi"><div class="v">${fmtT(f.demanda)}</div><div class="l">Demanda propia</div></div>
+        <div class="kpi"><div class="v">${fmtT(f.demanda)}</div><div class="l">Demanda propia${res.regional ? `<br>consume por persona ${pct(f.indiceConsumo)} del promedio nacional (ENIGH)` : ""}</div></div>
         <div class="kpi destacado"><div class="v">${f.autosuf >= 1 ? "Sí se autoabastece" : "No se autoabastece"} · ${etiqueta(f.autosuf)}</div>
           <div class="l">Su producción alcanza para <b>${fmtP(f.personas)}</b> personas: ${f.autosuf >= 1
             ? `cubre a su población y a <b>${fmtP(f.personas - f.pob)}</b> mexicanos más (o mercado de exportación).`
@@ -564,6 +587,9 @@
       ${p.consumoOficial ? `<div class="ctrl"><label>Base de consumo</label>
         <select id="sBase"><option value="oficial" ${res.base === "oficial" ? "selected" : ""}>Oficial: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion} (${p.consumoPC} kg, datos ${window.CONSUMO_OFICIAL.anioDatos})</option>
         <option value="aparente" ${res.base === "aparente" ? "selected" : ""}>Aparente ${window.POBLACION_CONAPO?.anio ?? ""}: producción − exportación + importación (${res.pcAparente.toFixed(1)} kg)</option></select></div>` : ""}
+      ${window.CONSUMO_REGIONAL?.productos?.[estado.producto] ? `<div class="ctrl"><label>Consumo por estado</label>
+        <select id="sRegional"><option value="si" ${res.regional ? "selected" : ""}>Según la ENIGH ${window.CONSUMO_REGIONAL.anio}: cada estado con su consumo por persona</option>
+        <option value="no" ${res.regional ? "" : "selected"}>Igual en todo el país</option></select></div>` : ""}
       ${ctrl("sConsumo", "Consumo per cápita (kg/año)", 0.5, Math.ceil(Math.max(p.consumoPC, res.pc) * 2.5), 0.1, res.pc.toFixed(1), v => (+v).toFixed(1))}
       ${ctrl("sProdNac", "Producción nacional (variación)", 0.5, 1.5, 0.05, esc.factorProdNacional, pctVar)}
       ${ctrl("sExport", "Exportaciones (variación)", 0, 2, 0.05, esc.factorExport, pctVar)}
@@ -618,6 +644,7 @@
     if (sniim) enlazar("sInterm", "reduccionIntermediacion");
     if (sniim && cons) enlazar("sMinor", "reduccionMinorista");
     else enlazar("sMargen", "margenCentral");
+    document.getElementById("sRegional")?.addEventListener("change", e => { esc.consumoRegional = e.target.value === "si"; render(); });
     document.getElementById("sBase")?.addEventListener("change", e => {
       esc.baseConsumo = e.target.value; delete esc.consumoPC; render();
     });
@@ -625,10 +652,31 @@
     document.getElementById("sReset").onclick = () => { delete estado.escenarios[estado.producto]; render(); };
   }
 
+  // ---------- Frescura de los datos (data/frescura.js, scripts/construir_frescura.py) ----------
+  const MES_CORTO = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function frescura() {
+    const F = window.FRESCURA?.fuentes ?? [];
+    const hoy = new Date();
+    return F.map(f => { const edad = Math.round((hoy - new Date(f.al + "T12:00:00")) / 864e5); return { ...f, edad, ok: edad <= f.cada + f.retraso + 7 }; });
+  }
+  function frescuraHTML() {
+    const F = frescura();
+    if (!F.length) return "";
+    const g = window.FRESCURA.generado.split("-").map(Number);
+    return `<h3>Qué tan al día están los datos</h3>
+      <div class="desplaza"><table class="compacta">
+        <tr><th>Fuente</th><th>Datos hasta</th><th>Se publica</th><th>Estado</th></tr>
+        ${F.map(f => `<tr><td>${f.nombre}</td><td>${f.periodo}</td><td>${f.cada <= 1 ? "cada día" : f.cada <= 8 ? "cada semana" : f.cada <= 16 ? "cada quincena" : f.cada <= 31 ? "cada mes" : "cada año"}</td>
+          <td>${f.ok ? '<span class="tag ok">Al día</span>' : '<span class="tag def">Atrasado</span>'}</td></tr>`).join("")}
+      </table></div>
+      <p class="sub">"Al día" = la fuente no ha publicado nada más reciente según su calendario habitual (incluido su retraso normal de publicación). Revisado el ${g[2]} ${MES_CORTO[g[1] - 1]} ${g[0]}; se actualiza con <code>scripts/actualizar_semanal.py</code>.</p>`;
+  }
+
   // ---------- Panel: Fuentes ----------
   function renderFuentes() {
     document.getElementById("tab-fuentes").innerHTML = `
       <h2>Fuentes y metodología</h2>
+      ${frescuraHTML()}
       <div class="nota"><b>Estado de los datos:</b> la producción por entidad y el precio medio rural provienen del SIAP (cierre agrícola municipal) cuando existe data/produccion_siap.js. Exportación, importación y países provienen de la estadística oficial de comercio exterior (INEGI/SE vía UN Comtrade). Los precios de mayoreo son del SNIIM y los precios al consumidor de PROFECO. El consumo per cápita es el del Panorama Agroalimentario del SIAP y la población, la proyección CONAPO del año analizado.
       Todas las cifras en uso provienen de fuentes oficiales; los scripts de <code>scripts/</code> permiten actualizarlas a otro año.</div>
       <h3>Fuentes oficiales integradas</h3>
@@ -669,7 +717,7 @@
         <li><b>Sequía</b>: Monitor de Sequía de México por municipio (CONAGUA / Servicio Meteorológico Nacional), último corte quincenal, cruzado con la producción municipal del SIAP.</li>
         <li><b>Historia de 10 años</b>: producción, exportación e importación 2015–2024 por país (FAOSTAT).</li>
         <li><b>Estados Unidos</b> – selector <i>Ver país…</i>: producción por estado de USDA NASS Quick Stats 2025 (mercado fresco; donde NASS reserva el dato, reparto con la superficie del Censo Agropecuario 2022), población 2025 del Census Bureau y comercio de FAOSTAT, incluida la exportación de México a EE. UU. Precios de mayoreo 2025 de USDA AMS Market News: 11 mercados terminales y precio FOB del producto mexicano en los cruces de Nogales, McAllen y Otay Mesa.</li>
-        <li><b>ENIGH (INEGI)</b>: gasto y consumo de alimentos en hogares, para ajustar consumo por región.</li>
+        <li><b>ENIGH 2024 (INEGI, nueva serie)</b>: kilos comprados por los hogares en la semana de referencia, por producto y estado, con el factor de expansión. Da un índice del consumo por persona de cada estado frente al nacional (con pocos hogares en la muestra se acerca a 1) que reparte la demanda nacional entre estados sin cambiar el total. Mide lo que compran los hogares: no incluye restaurantes ni industria. Se puede apagar en el simulador.</li>
         <li><b>FAOSTAT (FAO)</b> – vista <i>Latinoamérica</i>: producción, superficie, exportación e importación (t y USD) y población de 34 países de América Latina y el Caribe, año 2024, desde las descargas masivas de la región Américas. Para comparar países se usa FAOSTAT también para México, cuyas cifras pueden diferir de las del SIAP. El comercio bilateral viene de la matriz detallada de comercio de FAOSTAT: salidas de países latinoamericanos según el exportador y llegadas desde fuera de la región según el importador. La vista <i>Mundo</i> usa los archivos mundiales de FAOSTAT (231 países; sin agregados regionales) y solo lo que reporta cada exportador.</li>
       </ul>
       <h3>Metodología</h3>
@@ -893,10 +941,14 @@
     }
     if (!window.PRODUCCION_SIAP) return;
     aviso.textContent = "Fuentes oficiales " + window.PRODUCCION_SIAP.anio + " · SIAP · INEGI · SNIIM · PROFECO · CONAPO";
+    // Punto ámbar si alguna fuente semanal o mensual se atrasó (detalle en la pestaña Fuentes)
+    const atrasadas = frescura().filter(f => !f.ok && f.cada <= 31);
+    aviso.classList.toggle("atrasado", atrasadas.length > 0);
     aviso.title = `Producción: SIAP ${window.PRODUCCION_SIAP.anio} · ` +
       (window.COMERCIO_OFICIAL ? `Comercio: INEGI/Comtrade ${window.COMERCIO_OFICIAL.anio} · ` : "") +
       (window.PRECIOS_CONSUMIDOR ? `Precios: SNIIM y PROFECO ${window.PRECIOS_CONSUMIDOR.anio} · ` : "") +
       (window.CONSUMO_OFICIAL ? `Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion} · Población: CONAPO ${window.POBLACION_CONAPO.anio}` : "");
+    if (atrasadas.length) aviso.title += ` · Atrasado: ${atrasadas.map(f => f.nombre).join(", ")}`;
   }
 
   function seleccionarProducto(k, abrirDetalle = false) {

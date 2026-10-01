@@ -210,8 +210,121 @@
       </div>
       ${opciones.length > 1 ? opciones.map(o => `<div class="ruta"><span>${o.nombre}</span><span class="x">${Math.round(o.km).toLocaleString("es-MX")} km</span><span class="x">${mxn(o.neto)}/kg</span></div>`).join("") : ""}
       ${filas ? netoTablaHTML(k, filas, tarifa, entidad.id) : ""}
+      <div data-neto-semanal data-k="${k}" data-e="${entidad.id}" data-tarifa="${tarifa ?? ""}"></div>
       <p class="sub">Referencia: ${f.mercancia}, ${f.empaque}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.</p>`;
   }
+  // ---------- Precio neto por semana y mejor semana para vender (data/neto_semanal.js, carga diferida) ----------
+  // FOB semanal del cruce en pesos (USDA × tipo de cambio de esa semana) menos el flete del estado al cruce con la
+  // tarifa del simulador ajustada por el diésel del estado: tarifa × (0.6 + 0.4 × diésel estado / diésel nacional 2025).
+  const NS = () => window.NETO_SEMANAL;
+  let cargaNS = null;
+  const cargarNS = () => cargaNS ??= Promise.all([
+    window.Paleta.cargar("data/neto_semanal.js", () => !!window.NETO_SEMANAL),
+    window.Paleta.cargar("data/avance_siap.js", () => !!window.AVANCE_SIAP).catch(() => {})
+  ]);
+  const MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  // lunes de la semana ISO w del año a, y semana ISO de una fecha (UTC)
+  const lunesISO = (a, w) => { const d = new Date(Date.UTC(a, 0, 4)); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + 7 * (w - 1)); return d; };
+  const semanaISO = d => {
+    const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    x.setUTCDate(x.getUTCDate() + 3 - ((x.getUTCDay() + 6) % 7));
+    return 1 + Math.floor((x - Date.UTC(x.getUTCFullYear(), 0, 1)) / 6048e5);
+  };
+  const fechaCorta = d => `${d.getUTCDate()} ${MESL[d.getUTCMonth()]}`;
+
+  function tarifaEstado(id, tarifa) {
+    const di = NS()?.diesel, x = di?.estados?.[id];
+    const base = tarifa ?? 2.2;
+    return x && di.base2025 ? { tarifa: base * (0.6 + 0.4 * x / di.base2025), diesel: x } : { tarifa: base, diesel: null };
+  }
+  // Neto por semana con el cruce que más deja cada semana: perfil típico (semana del año 1–52) y últimas 52 semanas
+  function netoSemanal(k, entidad, tarifa) {
+    const p = NS()?.productos?.[k];
+    if (!p || !E()?.cruces) return null;
+    const { tarifa: t, diesel } = tarifaEstado(entidad.id, tarifa);
+    const cruces = Object.entries(p.cruces).filter(([c]) => E().cruces[c])
+      .map(([c, s]) => ({ c, s, flete: window.Modelo.distanciaKm(entidad, E().cruces[c]) * t / 1000 }));
+    const mejor = vals => vals.reduce((b, v) => v.n != null && (!b || v.n > b.n) ? v : b, null);
+    const tipico = Array.from({ length: 52 }, (_, w) => mejor(cruces.map(x => ({ c: x.c, n: x.s.tipico[w] == null ? null : x.s.tipico[w] - x.flete }))));
+    const inicio = new Date(NS().inicio + "T00:00:00Z");
+    const ultimas = Array.from({ length: 52 }, (_, i) => {
+      const d = new Date(inicio); d.setUTCDate(d.getUTCDate() + 7 * i);
+      return { d, b: mejor(cruces.map(x => ({ c: x.c, n: x.s.ultimas[i] == null ? null : x.s.ultimas[i] - x.flete }))) };
+    });
+    return { tipico, ultimas, tarifa: t, diesel };
+  }
+  // Meses en que el estado cosecha (avance mensual del SIAP; ≥ 3% de su cosecha del año), o null si no hay dato
+  function mesesCosecha(k, id) {
+    const m = window.AVANCE_SIAP?.productos?.[k]?.[id];
+    const tot = m ? m.reduce((a, b) => a + b, 0) : 0;
+    return tot > 0 ? m.map(x => x / tot >= 0.03) : null;
+  }
+  function semanalHTML(k, id, tarifa) {
+    const entidad = window.Modelo?.calcular(k, {}).filas.find(f => f.id === id);
+    const R = entidad && netoSemanal(k, entidad, tarifa);
+    if (!R || R.tipico.filter(Boolean).length < 8) return "";
+    const anio = new Date().getUTCFullYear();
+    const cosecha = mesesCosecha(k, id);
+    const enCosecha = w => !cosecha || cosecha[lunesISO(anio, w + 1).getUTCMonth()];
+    // mejor ventana de 4 semanas seguidas del perfil típico, dentro de la cosecha del estado
+    let mejorV = null;
+    for (let w = 0; w < 52; w++) {
+      const sem = [0, 1, 2, 3].map(j => (w + j) % 52);
+      const v = sem.map(s => R.tipico[s]?.n);
+      if (!sem.every(enCosecha) || v.some(x => x == null)) continue;
+      const m = v.reduce((a, b) => a + b, 0) / 4;
+      if (!mejorV || m > mejorV.m) mejorV = { w, m };
+    }
+    const temporada = R.tipico.filter((x, w) => x && enCosecha(w)).map(x => x.n);
+    const promTemp = temporada.length ? temporada.reduce((a, b) => a + b, 0) / temporada.length : null;
+    const ult = [...R.ultimas].reverse().find(u => u.b);
+    // gráfica por semana del año: gris = típico; color = últimos 12 meses, cada semana en su lugar del año
+    const W = 320, H = 110, x0 = 22, y0 = 8, y1 = H - 16, paso = (W - x0 - 4) / 51;
+    const tip = R.tipico.map((x, w) => x ? [w, x.n] : null);
+    const rec = Array(52).fill(null);
+    R.ultimas.forEach(u => { if (u.b) { const w = Math.min(52, semanaISO(u.d)) - 1; rec[w] = [w, u.b.n]; } });
+    const vals = [...tip, ...rec].filter(Boolean).map(p => p[1]);
+    const lo = Math.min(0, ...vals), hi = Math.max(...vals);
+    const X = w => x0 + w * paso, Y = v => y1 - (v - lo) / (hi - lo || 1) * (y1 - y0);
+    const linea = pts => pts.map((p, i) => p ? `${i && pts[i - 1] ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}` : "").join("");
+    const bandas = cosecha ? R.tipico.map((_, w) => enCosecha(w) ? `<rect x="${(X(w) - paso / 2).toFixed(1)}" y="${y0}" width="${(paso + 0.3).toFixed(1)}" height="${y1 - y0}" fill="var(--productor)" opacity=".12"/>` : "").join("") : "";
+    const ventana = mejorV ? `<rect x="${(X(mejorV.w) - paso / 2).toFixed(1)}" y="${y0}" width="${(paso * 4).toFixed(1)}" height="${y1 - y0}" fill="none" stroke="var(--c-importa)" stroke-dasharray="3 2" rx="2"/>` : "";
+    const di = NS().diesel;
+    const pctD = R.diesel ? R.diesel / di.base2025 - 1 : null;
+    const desde = mejorV && lunesISO(anio, mejorV.w + 1);
+    const hasta = mejorV && lunesISO(anio, (mejorV.w + 3) % 52 + 1);
+    if (hasta) hasta.setUTCDate(hasta.getUTCDate() + 6);
+    const cruceCorto = c => (NOMBRE_CRUCE[c] ?? c).split(",")[0].split(" (")[0];
+    return `<h4 class="mini">Por semana</h4>
+      <div class="kpis">
+        ${ult ? `<div class="kpi"><div class="v">$${ult.b.n.toFixed(2)}/kg</div><div class="l">semana del ${fechaCorta(ult.d)}, por ${cruceCorto(ult.b.c)}</div></div>` : ""}
+        ${mejorV ? `<div class="kpi destacado"><div class="v">${fechaCorta(desde)} – ${fechaCorta(hasta)}</div><div class="l">mejor ventana para vender: $${mejorV.m.toFixed(2)}/kg neto típico${promTemp ? `, ${Math.round((mejorV.m / promTemp - 1) * 100)}% arriba del promedio de su temporada` : ""}</div></div>` : ""}
+      </div>
+      <svg class="estac" viewBox="0 0 ${W} ${H}" role="img" aria-label="Precio neto por semana del año">
+        ${bandas}${ventana}
+        <line x1="${x0}" x2="${W - 4}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--tenue)" stroke-width=".5"/>
+        <path d="${linea(tip)}" fill="none" stroke="var(--tenue)" stroke-width="1.5"/>
+        <path d="${linea(rec)}" fill="none" stroke="var(--c-importa)" stroke-width="1.8"/>
+        <text x="0" y="${(Y(hi) + 4).toFixed(1)}">${Math.round(hi)}</text><text x="0" y="${Y(lo).toFixed(1)}">${Math.round(lo)}</text>
+        ${[0, 2, 4, 6, 8, 10].map(m => `<text x="${(X(semanaISO(new Date(Date.UTC(anio, m, 1))) - 1) - 4).toFixed(1)}" y="${H - 3}">${MESL[m]}</text>`).join("")}
+      </svg>
+      <div class="leyenda-cadena"><span><i style="background:var(--tenue)"></i>Típico (mediana ${NS().desde}–${anio - 1})</span><span><i style="background:var(--c-importa)"></i>Últimos 12 meses</span>${cosecha ? `<span><i style="background:var(--productor);opacity:.35"></i>Cosecha en ${entidad.nombre}</span>` : ""}</div>
+      <p class="sub"><span>Pesos por kg: precio FOB semanal del producto mexicano en cada cruce (USDA) × tipo de cambio de esa semana, menos el flete al cruce que más deja.</span>
+        ${R.diesel ? `<span>Diésel en ${entidad.nombre} (CNE, ${MESES_L[+di.mes.slice(5) - 1]} de ${di.mes.slice(0, 4)}): $${R.diesel.toFixed(2)} el litro, ${Math.abs(Math.round(pctD * 100))}% ${pctD >= 0 ? "arriba" : "abajo"} del promedio nacional de ${di.base2025 ? "2025" : ""} ($${di.base2025.toFixed(2)}).</span>` : ""}
+        <span>Flete de ${R.tarifa.toFixed(2)} pesos por tonelada-km: la tarifa del simulador con el diésel como 40% del costo.</span>
+        <span>${cosecha ? "La mejor ventana se busca solo en los meses en que el estado cosecha (avance mensual del SIAP)." : "Sin calendario de cosecha del estado: la ventana se busca en todo el año."}</span>
+        <span>Es un techo: el FOB incluye empaque, enfriado, agente aduanal y margen del exportador.</span></p>`;
+  }
+  function llenarNS(el) {
+    el.dataset.lleno = "1";
+    const bajar = () => cargarNS().then(() => { el.innerHTML = semanalHTML(el.dataset.k, el.dataset.e, el.dataset.tarifa ? +el.dataset.tarifa : null); })
+      .catch(() => { el.innerHTML = ""; });
+    window.Seccion ? window.Seccion.alAbrir(el, bajar) : bajar();
+  }
+  const revisarNS = raiz => raiz.querySelectorAll?.("[data-neto-semanal]:not([data-lleno='1'])").forEach(llenarNS);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches?.("[data-neto-semanal]:not([data-lleno='1'])")) llenarNS(n); revisarNS(n); } })))
+    .observe(document.body, { childList: true, subtree: true });
+
   // Secciones de comercio exterior para la pestaña Exportar: [id, html, resumen de una línea]
   const seccionesExportar = (k, volumen, tituloVolumen) => [
     ["calendario", calendarioHTML(k), calendarioResumen(k)],

@@ -221,7 +221,13 @@
     };
     if (E()) return pintar();
     el.innerHTML = '<p class="sub">Cargando embarques del USDA…</p>';
-    cargar().then(pintar).catch(() => { el.innerHTML = '<p class="sub">No se pudieron cargar los embarques.</p>'; });
+    const bajar = () => cargar().then(pintar).catch(() => { el.innerHTML = '<p class="sub">No se pudieron cargar los embarques.</p>'; });
+    // En una sección cerrada, los embarques (~400 kB con pronóstico y origen) se bajan hasta que se abre
+    if (!window.Seccion) return bajar();
+    if (window.Seccion.alAbrir(el, bajar)) {
+      const r = el.closest("details.seccion")?.querySelector("summary [data-auto]");
+      if (r) r.textContent = modo === "pronostico" ? "Ábrela para ver el pronóstico de las próximas 8 semanas" : "Ábrela para ver quién abastece a EE. UU. semana a semana";
+    }
   }
   const revisar = raiz => raiz.querySelectorAll?.("[data-embarques]:not([data-lleno='1'])").forEach(llenar);
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches?.("[data-embarques]:not([data-lleno='1'])")) llenar(n); revisar(n); } })))

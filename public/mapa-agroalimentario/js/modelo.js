@@ -54,14 +54,21 @@
     const remanente = Math.max(0, p.nacional - listada);
     const pobNoListada = E.filter(e => !p.estados[e.id]).reduce((s, e) => s + e.pob, 0) || 1;
 
+    // Consumo por estado (ENIGH 2024, data/consumo_regional.js): índice del consumo por persona de cada estado frente
+    // al nacional, reescalado para que la demanda nacional no cambie (solo cambia el reparto entre estados).
+    // esc.consumoRegional === false → mismo consumo por persona en todo el país.
+    const reg = esc.consumoRegional === false ? null : window.CONSUMO_REGIONAL?.productos?.[clave]?.indice;
+    const escala = reg ? E.reduce((s, e) => s + e.pob * (reg[e.id] ?? 1), 0) / pobTotal : 1;
+    const indice = id => reg ? (reg[id] ?? 1) / escala : 1;
+
     const filas = E.map(e => {
       const base = p.estados[e.id] ?? remanente * e.pob / pobNoListada;
       const factor = esc.factorProd?.[e.id] ?? 1;
       const prod = base * factor * (esc.factorProdNacional ?? 1);
-      const demanda = e.pob * pc / 1000;
+      const demanda = e.pob * pc * indice(e.id) / 1000;
       const local = Math.min(prod, demanda);
       return {
-        ...e, prod, demanda, local, estimado: !p.estados[e.id],
+        ...e, prod, demanda, local, estimado: !p.estados[e.id], indiceConsumo: indice(e.id),
         excedente: prod - local, deficit: demanda - local,
         autosuf: demanda > 0 ? prod / demanda : 0,
         personas: prod * 1000 / pc,
@@ -149,7 +156,7 @@
     const excedenteSinMercado = filas.reduce((s, f) => s + Math.max(0, f.disponible), 0);
 
     return {
-      producto: p, clave, pc, pcAparente, base, filas, flujos, logistica,
+      producto: p, clave, pc, pcAparente, base, regional: !!reg, filas, flujos, logistica,
       inconsistente: datosInconsistentes(p, pobTotal),
       nacional: {
         produccion: prodNac, demanda: demNac, pobTotal,

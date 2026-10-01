@@ -80,7 +80,11 @@
       if (r) r.textContent = historia === "tendencias" ? resumenTendencias(k, paises ? new Set(paises.split(",")) : null) : resumen(k, pais);
     };
     if (H()) return pintar();
-    window.Paleta.cargar("data/historia.js", () => !!window.HISTORIA).then(pintar).catch(() => { el.innerHTML = ""; });
+    // En una sección cerrada, la serie (914 kB) se baja hasta que la persona la abre
+    const esperar = window.Seccion?.alAbrir(el, () => window.Paleta.cargar("data/historia.js", () => !!window.HISTORIA).then(pintar).catch(() => { el.innerHTML = ""; }));
+    const r = esperar && el.closest("details.seccion")?.querySelector("summary [data-auto]");
+    if (r) r.textContent = "Ábrela para ver diez años de producción y comercio";
+    if (!window.Seccion) window.Paleta.cargar("data/historia.js", () => !!window.HISTORIA).then(pintar).catch(() => { el.innerHTML = ""; });
   }
   const revisar = raiz => raiz.querySelectorAll?.("[data-historia]:not([data-lleno])").forEach(llenar);
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches?.("[data-historia]:not([data-lleno])")) llenar(n); revisar(n); } })))
