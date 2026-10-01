@@ -158,7 +158,7 @@ def sitio(datos, index, generado):
     for nombre in ("clima_smn.js", "frescura.js"):
         ruta = datos / nombre
         if ruta.exists():
-            huella = hashlib.sha256(ruta.read_bytes()).hexdigest()[:8]
+            huella = hashlib.md5(ruta.read_bytes()).hexdigest()[:8]   # la misma huella que publicar_web.py
             html = re.sub(rf"data/{re.escape(nombre)}\?v=[0-9a-f]+", f"data/{nombre}?v={huella}", html)
     index.write_text(html, encoding="utf-8")
     print(f"Sitio: frescura y huellas actualizadas en {index}")
