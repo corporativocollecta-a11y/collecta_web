@@ -1,0 +1,29 @@
+# Correo semanal con los movimientos de precio y embarques del mapa agroalimentario (/mapa-agroalimentario).
+# Lee public/mapa-agroalimentario/data/alertas_precio.js y lo envía por Gmail. El script se copia desde el proyecto
+# del mapa con scripts/publicar_web.py. Secretos (Settings → Secrets and variables → Actions):
+#   GMAIL_USUARIO, GMAIL_CLAVE_APP (contraseña de aplicación de Google), ALERTAS_PARA (correos separados por coma)
+name: Alertas por correo del mapa
+
+on:
+  schedule:
+    - cron: "0 15 * * 1"   # lunes 9:00 en la Ciudad de México
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  correo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Enviar alertas de la semana
+        env:
+          GMAIL_USUARIO: ${{ secrets.GMAIL_USUARIO }}
+          GMAIL_CLAVE_APP: ${{ secrets.GMAIL_CLAVE_APP }}
+          ALERTAS_PARA: ${{ secrets.ALERTAS_PARA }}
+        run: python scripts/enviar_alertas.py --datos public/mapa-agroalimentario/data
