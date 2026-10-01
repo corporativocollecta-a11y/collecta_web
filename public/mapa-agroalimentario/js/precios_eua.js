@@ -127,8 +127,10 @@
   function calendarioResumen(k) {
     const d = calendarioDatos(k);
     if (!d) return "";
-    const meses = d.altos.slice(0, 2).sort((a, b) => a[1] - b[1]).map(([, i]) => MES[i]).join(" y ");
-    return (meses ? `Mejores precios: ${meses} · ` : "") + `México aporta ${pct(d.parteAnual)} del abasto`;
+    // solo meses en que México embarca (≥ 10% de lo embarcado): un mes caro sin producto mexicano no es oportunidad
+    const conMX = d.altos.filter(([, i]) => d.tot[i] > 0 && d.c.mx[i] / d.tot[i] >= 0.1);
+    const meses = conMX.slice(0, 2).sort((a, b) => a[1] - b[1]).map(([, i]) => MES[i]).join(" y ");
+    return (meses ? `Mejores precios con producto mexicano: ${meses} · ` : "") + `México aporta ${pct(d.parteAnual)} de todo lo que se embarca en EE. UU. (incluida su producción)`;
   }
   function calendarioHTML(k) {
     const d = calendarioDatos(k);
@@ -153,7 +155,7 @@
         ${MESES.map((m, i) => `<text x="${24 + i * bw + bw / 2 - 3}" y="${H - 3}">${m}</text>`).join("")}
       </svg>
       <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>EE. UU.</span><span><i style="background:var(--c-importa)"></i>México</span>${otros.some(x => x > 0) ? `<span><i style="background:var(--c-neutro)"></i>${Object.keys(c.otros).slice(0, 3).join(", ")}</span>` : ""}${precio ? `<span><i style="background:var(--tinta)"></i>precio mayoreo</span>` : ""}</div>
-      ${altos.length ? `<div class="nota"><b>Mejores meses para vender:</b> ${altos.slice(0, 4).map(([v, i]) => `${MES[i]} (US$${v.toFixed(2)}/kg, México ${(parteMX(i) * 100).toFixed(0)}% del abasto)`).join(" · ")}. Precio mediano del año: US$${pMed.toFixed(2)}/kg.</div>` : ""}
+      ${altos.length ? `<div class="nota"><b>Mejores meses para vender:</b> ${altos.slice(0, 4).map(([v, i]) => `${MES[i]} (US$${v.toFixed(2)}/kg, ${parteMX(i) < 0.05 ? "fuera de la temporada de México" : `México ${(parteMX(i) * 100).toFixed(0)}% de lo embarcado`})`).join(" · ")}. Precio mediano del año: US$${pMed.toFixed(2)}/kg.</div>` : ""}
       <p class="sub">Barras: toneladas embarcadas por mes según su procedencia (reporte semanal de embarques del USDA; la producción de EE. UU. que no pasa por los distritos reportados no aparece). Los meses resaltados tienen precio de mayoreo al menos 5% arriba de la mediana del año.</p>`;
   }
   // Competencia: importaciones mensuales de EE. UU. por país de origen (UN Comtrade, window.COMPETENCIA_EUA)
@@ -504,6 +506,7 @@
   }
 
   window.PreciosEUA = { disponible, crearCapa, panelHTML, panelResumen, netoHTML, netoResumen, seccionesExportar,
-    netoMensual, cargarNeto: () => cargarNS(), tarifaEstado, cuotaAD, nombreCruce: c => NOMBRE_CRUCE[c] ?? c,
+    netoMensual, cargarNeto: () => cargarNS(), tarifaEstado, cuotaAD, calendarioResumen,
+    netoMejor: (k, entidad, tarifa) => netoOpciones(k, entidad, tarifa)?.[0] ?? null, nombreCruce: c => NOMBRE_CRUCE[c] ?? c,
     volumenMexico: k => E()?.mexico?.[k], volumenPais: k => datos(k)?.volumen };
 })();

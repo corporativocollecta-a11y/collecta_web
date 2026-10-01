@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="css/styles.css?v=4e2482d6">
+  <link rel="stylesheet" href="css/styles.css?v=e06407d0">
 </head>
 <body>
   <header class="cabecera">
@@ -187,7 +187,7 @@
   <!-- Se genera con scripts/procesar_siap.py; si no existe, se usan los datos preliminares -->
   <script src="data/produccion_siap.js?v=ab57e2b4"></script>
   <!-- Se genera con scripts/procesar_comercio.py (exportación/importación oficial) -->
-  <script src="data/comercio_oficial.js?v=e2a8c5a3"></script>
+  <script src="data/comercio_oficial.js?v=218d93cb"></script>
   <!-- Consumo per cápita oficial (Panorama Agroalimentario) y población CONAPO (scripts/procesar_panorama.py) -->
   <script src="data/consumo_oficial.js?v=28e27863"></script>
   <!-- Producción municipal SIAP (scripts/procesar_siap.py); los polígonos se cargan al elegir "Municipios" -->
@@ -207,7 +207,7 @@
   <script src="js/clima.js?v=f007bf24"></script>
   <!-- Movimientos de precio y embarques de la semana (scripts/construir_alertas.py) -->
   <script src="data/alertas_precio.js?v=c7bb3c33"></script>
-  <script src="js/alertas.js?v=bbf9821b"></script>
+  <script src="js/alertas.js?v=df1cd145"></script>
   <!-- Pérdidas por siniestro en 10 años (scripts/procesar_siniestros.py) -->
   <script src="data/siniestros.js?v=e1c42652"></script>
   <script src="js/siniestros.js?v=1b8292c5"></script>
@@ -215,18 +215,18 @@
   <script src="data/costos_fira.js?v=b4d551f7"></script>
   <script src="js/costos.js?v=0c04fca8"></script>
   <!-- Planear la venta de un estado: exportar o mercado nacional, mes a mes -->
-  <script src="js/planeador.js?v=0f45fc5a"></script>
+  <script src="js/planeador.js?v=bb31a13d"></script>
   <!-- Nombres de municipios (clave INEGI → nombre) para las tablas, sin cargar el mapa municipal de 2.5 MB -->
   <script src="data/municipios_nombres.js?v=cba5f902"></script>
   <!-- Producción nacional SIAP del año anterior, para comparar con la misma fuente (scripts/procesar_historia_estados.py) -->
   <script src="data/produccion_anterior.js?v=c4777be8"></script>
   <!-- Frescura de cada fuente (scripts/construir_frescura.py) -->
   <script src="data/frescura.js?v=98ad70ec"></script>
-  <script src="js/precios.js?v=b2efd7d8"></script>
+  <script src="js/precios.js?v=11af9017"></script>
   <!-- Pronóstico de 8 semanas del mayoreo en México (scripts/procesar_pronostico_sniim.py → data/pronostico_sniim.js, carga diferida) -->
-  <script src="js/pronostico_sniim.js?v=1a5b5726"></script>
-  <script src="js/estacionalidad.js?v=16d88f2f"></script>
-  <script src="js/resumen.js?v=e15f8f76"></script>
+  <script src="js/pronostico_sniim.js?v=78449c79"></script>
+  <script src="js/estacionalidad.js?v=32940de7"></script>
+  <script src="js/resumen.js?v=817932bf"></script>
   <!-- Fase LATAM: FAOSTAT (scripts/procesar_faostat.py) -->
   <script src="data/latam.js?v=ab5ad978"></script>
   <script src="data/latam_comercio.js?v=62bf2324"></script>
@@ -262,7 +262,7 @@
   <script src="data/sub_cr.js?v=e0b7f4bc"></script>
   <script src="data/sub_hn.js?v=9782dec3"></script>
   <!-- Paleta, contornos (data/geo, scripts/construir_geo.py) y dibujo común de coropletas y rutas -->
-  <script src="js/paleta.js?v=1f8c0eec"></script>
+  <script src="js/paleta.js?v=ac317633"></script>
   <!-- Riesgo climático: Monitor de Sequía de CONAGUA por municipio (scripts/procesar_sequia.py) -->
   <script src="data/sequia.js?v=f55a551a"></script>
   <!-- Alerta de oferta: avance de siembras y cosechas del SIAP contra el mismo corte del año anterior (scripts/procesar_alerta_oferta.py) -->
@@ -278,9 +278,9 @@
   <script src="data/precios_eua.js?v=87d2361d"></script>
   <!-- Importaciones mensuales de EE. UU. por origen: UN Comtrade (scripts/procesar_competencia.py) -->
   <script src="data/competencia_eua.js?v=e44eefcb"></script>
-  <script src="js/precios_eua.js?v=0ceacd6e"></script>
+  <script src="js/precios_eua.js?v=e40bcafa"></script>
   <!-- Embarques semanales por origen y pronóstico de 8 semanas (scripts/procesar_embarques.py, procesar_pronostico.py; carga diferida) -->
-  <script src="js/embarques.js?v=3218395b"></script>
+  <script src="js/embarques.js?v=5b428dd3"></script>
   <!-- Precios en la Unión Europea: Comisión Europea, Agri-food data portal (scripts/procesar_precios_ue.py) -->
   <script src="data/precios_ue.js?v=72cf1e71"></script>
   <script src="js/precios_ue.js?v=53ad15f9"></script>
@@ -288,7 +288,7 @@
   <script src="js/mercado.js?v=9e898320"></script>
   <script src="js/subnacional.js?v=5aa7d2c6"></script>
   <script src="js/latam.js?v=d80114be"></script>
-  <script src="js/app.js?v=9afdca87"></script>
+  <script src="js/app.js?v=053e0277"></script>
   <!-- Modo presentación: recorrido guiado por los hallazgos (#tour) -->
   <script src="js/recorrido.js?v=52b1c5ed"></script>
   <!-- Comparar lado a lado: países, productos o estados (FAOSTAT, SIAP; serie de estados en data/historia_estados.js) -->

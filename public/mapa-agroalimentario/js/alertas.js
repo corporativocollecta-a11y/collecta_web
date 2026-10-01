@@ -18,8 +18,8 @@
       case "precio_mx": return `Mayoreo en México${v} ${sube ? "subió" : "bajó"} ${c} en dos semanas ($${a.precio.toFixed(2)} el kg)`;
       case "anual_eua": return `Precio en EE. UU.${v} ${c} ${sube ? "más alto" : "más bajo"} que hace un año`;
       case "anual_mx": return `Mayoreo en México${v} ${c} ${sube ? "más caro" : "más barato"} que hace un año`;
-      case "pronostico_eua": return `Pronóstico en EE. UU.${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
-      case "pronostico_mx": return `Pronóstico en México${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (error típico ${pct(a.error)})`;
+      case "pronostico_eua": return `Pronóstico en EE. UU.${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (suele fallar ±${pct(a.error)})`;
+      case "pronostico_mx": return `Pronóstico en México${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (suele fallar ±${pct(a.error)})`;
       case "embarques_mx": return `Cruzó de México ${c} ${sube ? "más" : "menos"} que hace un año (${fmt(a.t)} t en dos semanas)`;
       default: return "";
     }
@@ -44,7 +44,7 @@
             <span class="prod"><i style="background:${window.PRODUCTOS[k].color}"></i>${window.PRODUCTOS[k].nombre}</span>
             <span class="txt">${as.slice(0, 2).map(a => `<span class="tag ${clase(a)}">${a.cambio > 0 ? "▲" : "▼"} ${pct(a.cambio)}</span> <span>${texto(a)}</span>`).join("<br>")}</span></button>`).join("")}
         </div>
-        <p class="sub">${A().alertas.length} señales en ${g.length} productos. Umbrales: precio ±15% en dos semanas, ±30% contra hace un año; pronóstico ±20% en 8 semanas (solo si su error típico es menor a 30%); embarques de México ±30% contra hace un año. Detalle en cada producto.</p>
+        <p class="sub">${A().alertas.length} señales en ${g.length} productos. Umbrales: precio ±15% en dos semanas, ±30% contra hace un año; pronóstico ±20% en 8 semanas (solo si suele fallar menos de ±30%); embarques de México ±30% contra hace un año. Detalle en cada producto.</p>
       </div>`;
   }
   function productoHTML(k) {

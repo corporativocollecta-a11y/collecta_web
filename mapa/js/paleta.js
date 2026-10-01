@@ -16,6 +16,13 @@
     [/\bSouth Africa\b/g, "Sudáfrica"], [/\bItaly\b/g, "Italia"], [/\bFrance\b/g, "Francia"], [/\bJapan\b/g, "Japón"], [/\bKorea\b/g, "Corea"],
     [/ And /g, " y "]
   ];
+  // Productos cuyo precio rural (SIAP) no es comparable con el de mayoreo o consumidor: otra variedad u otra presentación.
+  // Ahí "de cada $100, cuánto llega al productor" engañaría, así que no se calcula y se explica.
+  const precioNoComparable = {
+    pera: "El mayoreo (SNIIM) y el consumidor (PROFECO) son de pera D'Anjou, casi toda importada; el precio rural es de pera criolla nacional.",
+    durazno: "El mayoreo y el consumidor son de durazno amarillo de primera; el precio rural mezcla criollo y durazno para industria.",
+    nuez: "El precio al consumidor es de nuez pelada en mitades; el rural y el de mayoreo son de nuez con cáscara."
+  };
   const usdaES = s => s == null || document.documentElement.lang === "en" ? s : USDA_ES.reduce((x, [re, r]) => x.replace(re, r), String(s));
 
   let cache = null;
@@ -98,5 +105,5 @@
     return window.L.circleMarker([lat, lon], { radius: radio, color: t.sel, weight: 1.2, opacity: 0.8, fillColor: t.sel, fillOpacity: 0.08, interactive: false }).addTo(capa);
   }
 
-  window.Paleta = { usdaES, tokens, refrescar, auto, imp, rel, cargar, geoRegiones, geoPaises, coropletas, ruta, origen, volumen };
+  window.Paleta = { usdaES, precioNoComparable, tokens, refrescar, auto, imp, rel, cargar, geoRegiones, geoPaises, coropletas, ruta, origen, volumen };
 })();

@@ -121,7 +121,23 @@
   new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches?.("[data-planear]:not([data-lleno='1'])")) llenar(n); revisar(n); } })))
     .observe(document.body, { childList: true, subtree: true });
 
+  // Mejor central del año (sin estacionalidad), para la ficha de decisión de la pestaña Exportar
+  function centralAnual(k, entidad, tarifa, margen = 0.25) {
+    const p = S()?.productos?.[k];
+    if (!p?.mercados || !entidad) return null;
+    const netos = [];
+    Object.entries(p.mercados).forEach(([id, [precio, n]]) => {
+      const c = S().centrales[id];
+      if (!c || n < MIN_COT) return;
+      netos.push({ n: precio * (1 - margen) - window.Modelo.distanciaKm(entidad, c) * tarifa / 1000, central: c.nombre });
+    });
+    if (!netos.length) return null;
+    netos.sort((a, b) => a.n - b.n);
+    // típico = mediana de las centrales (la que más paga suele ser una plaza lejana o chica: se da aparte)
+    return { n: netos[Math.floor(netos.length / 2)].n, mejor: netos.at(-1), centrales: netos.length };
+  }
   window.Planeador = {
+    centralAnual,
     marca: (k, f, tarifa) => `<div data-planear data-k="${k}" data-e="${f.id}" data-prod="${Math.round(f.prod)}" data-tarifa="${tarifa ?? ""}"></div>`,
     disponible: k => !!(S()?.productos?.[k]?.mercados || window.PRECIOS_EUA?.productos?.[k]?.frontera)
   };

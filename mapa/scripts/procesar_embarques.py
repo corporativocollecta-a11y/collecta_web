@@ -206,6 +206,19 @@ def main():
         semanas.append(s)
         s += timedelta(days=7)
     idx = {s: i for i, s in enumerate(semanas)}
+    # Semanas sin ningún reporte del USDA (p. ej. 16 de dic de 2024: el reporte no se publicó) quedaban en 0 en todos los
+    # orígenes y ensuciaban las comparaciones contra el año anterior: se rellenan con el promedio de la semana anterior
+    # y la siguiente de cada origen, y se listan.
+    con_dato = {s for k in vol.values() for o in k.values() for s, t in o.items() if t}
+    huecos = [s for s in semanas[1:-1] if s not in con_dato]
+    for s in huecos:
+        antes, despues = s - timedelta(days=7), s + timedelta(days=7)
+        for k in vol.values():
+            for serie in k.values():
+                if serie.get(antes) or serie.get(despues):
+                    serie[s] = (serie.get(antes, 0) + serie.get(despues, 0)) / 2
+    if huecos:
+        print("Semanas sin reporte del USDA, rellenadas con sus vecinas:", [s.isoformat() for s in huecos])
     productos = {}
     for k, os_ in vol.items():
         productos[k] = {}
@@ -220,7 +233,7 @@ def main():
     for o in origenes:   # los puertos llevan sus principales países de origen
         if paises.get(o):
             origenes[o].append([p for p, _ in sorted(paises[o].items(), key=lambda x: -x[1])[:4]])
-    salida = {"generado": date.today().isoformat(), "fuente": "USDA AMS Market News, National Shipping Point Trends (1662)", "unidad": "t",
+    salida = {"generado": date.today().isoformat(), "rellenadas": [s.isoformat() for s in huecos], "fuente": "USDA AMS Market News, National Shipping Point Trends (1662)", "unidad": "t",
               "semanas": [s.isoformat() for s in semanas], "origenes": origenes, "productos": productos}
     destino = RAIZ / "data" / "embarques.js"
     destino.write_text(

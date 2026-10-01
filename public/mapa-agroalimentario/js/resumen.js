@@ -26,7 +26,7 @@
       return {
         k, nombre: p.nombre, tipo: p.tipo, color: p.color,
         prod: r.nacional.produccion, auto: r.nacional.autosuficiencia,
-        alProductor: final > 0 ? p.precioRural / final : null,
+        alProductor: final > 0 && !window.Paleta?.precioNoComparable?.[k] ? p.precioRural / final : null,
         exportUSD: p.valorExportUSD ?? 0, exportT: p.exportacion, importT: p.importacion,
         consumidor: cons, mensual: p.produccionMensual ?? null,
         brecha: p.consumoOficial && r.pcAparente > 0 ? r.pcAparente / p.consumoPC - 1 : null

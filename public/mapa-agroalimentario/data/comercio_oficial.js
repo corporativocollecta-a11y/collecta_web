@@ -465,9 +465,9 @@ window.COMERCIO_OFICIAL = {
    ]
   },
   "frambuesa": {
-   "exportacion": 50124,
+   "exportacion": 82147,
    "importacion": 0,
-   "valorExportUSD": 258542672,
+   "valorExportUSD": 423721193,
    "valorImportUSD": 0,
    "destinos": {
     "Estados Unidos": 0.8602,
@@ -486,13 +486,13 @@ window.COMERCIO_OFICIAL = {
      "frambuesa",
      "zarzamora"
     ],
-    "proporcion": 0.3758
+    "proporcion": 0.6158
    }
   },
   "zarzamora": {
-   "exportacion": 83265,
+   "exportacion": 51242,
    "importacion": 0,
-   "valorExportUSD": 429487680,
+   "valorExportUSD": 264309159,
    "valorImportUSD": 0,
    "destinos": {
     "Estados Unidos": 0.8602,
@@ -511,13 +511,23 @@ window.COMERCIO_OFICIAL = {
      "frambuesa",
      "zarzamora"
     ],
-    "proporcion": 0.6242
+    "proporcion": 0.3842
    }
+  },
+  "tomate_verde": {
+   "exportacion": 73981,
+   "importacion": 0,
+   "destinos": {
+    "Estados Unidos": 1.0
+   },
+   "origenes": {},
+   "fracciones": [],
+   "fuenteComercio": "USDA 2025 (cruces registrados; sin fracción arancelaria propia)"
   }
  }
 };
 Object.entries(window.COMERCIO_OFICIAL.productos).forEach(([k, v]) => {
   const p = window.PRODUCTOS[k]; if (!p) return;
-  Object.assign(p, v, { fuenteComercio: 'Comtrade/INEGI ' + window.COMERCIO_OFICIAL.anio });
+  Object.assign(p, v, { fuenteComercio: v.fuenteComercio ?? 'Comtrade/INEGI ' + window.COMERCIO_OFICIAL.anio });
   p.origenImport = Object.keys(v.origenes).filter(o => o !== 'Otros').join(', ') || p.origenImport;
 });

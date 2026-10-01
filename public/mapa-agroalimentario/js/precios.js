@@ -107,8 +107,9 @@
     return `
       <div class="kpis" style="margin-top:8px">
         <div class="kpi"><div class="v">${mxn(c.precio)}</div><div class="l">Precio al consumidor (PROFECO, mediana ${window.PRECIOS_CONSUMIDOR.anio})</div></div>
-        <div class="kpi"><div class="v">$${(x.rural / Math.max(c.precio, x.mayoreo) * 100).toFixed(0)} de cada $100</div><div class="l">llega al productor</div></div>
+        ${window.Paleta?.precioNoComparable?.[res.clave] ? "" : `<div class="kpi"><div class="v">$${(x.rural / Math.max(c.precio, x.mayoreo) * 100).toFixed(0)} de cada $100</div><div class="l">llega al productor</div></div>`}
       </div>
+      ${window.Paleta?.precioNoComparable?.[res.clave] ? `<div class="nota">No se calcula cuánto llega al productor: ${window.Paleta.precioNoComparable[res.clave]}</div>` : ""}
       <p class="sub">Margen minorista (consumidor − mayoreo): ${mxn(Math.max(0, c.precio - x.mayoreo))}/kg · ${fmt(c.registros)} registros de precio en tiendas y mercados.</p>
       ${giros.length > 1 ? `<h3>Precio al consumidor por tipo de comercio</h3>${giros.map(([g, [p, n]]) =>
         `<div class="barra-h"><span class="n">${g.replace("Supermercado / Tienda de Autoservicio", "Supermercado")}</span><span class="b"><i style="width:${p / maxG * 100}%"></i></span><span class="x">${mxn(p)}</span></div>`).join("")}` : ""}

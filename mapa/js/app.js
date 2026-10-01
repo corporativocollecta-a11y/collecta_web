@@ -289,6 +289,29 @@
     return `<p class="ejecutivo">${partes.map(x => `<span>${x}</span>`).join(" · ")}</p>`;
   }
 
+  // Ficha de decisión al inicio de Exportar: acceso y arancel en EE. UU., neto por kg exportando contra venderlo en una
+  // central de abasto (del estado elegido o el que más produce) y los mejores meses. El detalle sigue más abajo.
+  function fichaDecision(k, f, tarifa, secUSA) {
+    if (!f) return "";
+    const acc = window.Acceso?.celda(k, "US");
+    const exp = window.PreciosEUA?.netoMejor(k, f, tarifa);
+    const nac = window.Planeador?.centralAnual(k, f, tarifa);
+    const meses = window.PreciosEUA?.calendarioResumen(k)?.split(" · ")[0];
+    if (!acc && !exp && !nac) return "";
+    const mxn2 = n => "$" + n.toFixed(2);
+    const gana = exp && nac ? (exp.neto >= nac.n ? "exp" : "nac") : null;
+    return `<div class="ficha-decision">
+      <span class="etq">Lo esencial para decidir · ${f.nombre}</span>
+      <div class="kpis">
+        ${acc ? `<div class="kpi"><div class="v" style="font-size:15px">${window.Acceso.etiqueta(acc)}</div><div class="l">Acceso a EE. UU.: ${acc.arancel ?? ""}</div></div>` : ""}
+        ${exp ? `<div class="kpi${gana === "exp" ? " destacado" : ""}"><div class="v">${mxn2(exp.neto)}/kg</div><div class="l">exportando por ${exp.nombre.split(",")[0]} (precio en la frontera menos flete${exp.ad ? " y antidumping" : ""}; mediana del año)</div></div>` : ""}
+        ${nac ? `<div class="kpi${gana === "nac" ? " destacado" : ""}"><div class="v">${mxn2(nac.n)}/kg</div><div class="l">vendiendo en el mercado nacional: típico de ${nac.centrales} centrales de abasto (mayoreo menos 25% de margen del mayorista y el flete); hasta ${mxn2(nac.mejor.n)} en ${nac.mejor.central}</div></div>` : ""}
+      </div>
+      ${!exp && nac ? `<p class="sub">El USDA no publica un precio en la frontera para ${res.producto.nombre.toLowerCase()}: no se puede calcular el neto de exportar.</p>` : ""}
+      ${meses ? `<p class="sub">${meses} en EE. UU. Mes a mes, en <i>Planear la venta</i>.</p>` : `<p class="sub">Mes a mes, en <i>Planear la venta</i>.</p>`}
+    </div>`;
+  }
+
   // ---------- Panel: Balance nacional ----------
   function renderBalance() {
     const n = res.nacional, p = res.producto;
@@ -375,6 +398,7 @@
         ${destino1 ? `<div class="kpi destacado"><div class="v">${pctFino(destino1[1])} va a ${destino1[0]}</div>
           <div class="l">${p.valorExportUSD && p.exportacion ? `<span>Precio medio de exportación: US$${(p.valorExportUSD / p.exportacion / 1000).toFixed(2)} el kg.</span> ` : ""}<span>Importación: ${fmtT(n.importacionReportada)}${p.valorImportUSD ? ` · ${usd(p.valorImportUSD)}` : ""}.</span></div></div>` : ""}
       </div>
+      ${fichaDecision(k, f, tarifa, secUSA)}
       ${window.Mercado ? Mercado.selectorHTML() : ""}
       ${destino1 ? S("destinos", `<h3>Destino de las exportaciones (por volumen)</h3>${barras(p.destinos)}`,
         `Primer destino: ${destino1[0]}, ${pctFino(destino1[1])} del volumen`, { abierta: true }) : ""}
@@ -587,7 +611,8 @@
           <span><i style="background:#e9b949"></i>Transporte ${mxn(transpActual)}</span>
           <span><i style="background:#c0392b"></i>Intermediación ${mxn(intermediacion)}</span>
           ${cons ? `<span><i style="background:#7b4fa0"></i>Minorista ${mxn(menudeo)}</span>` : ""}</div>
-        ${cons ? `<p class="sub">De cada $100 que paga el consumidor, el productor recibe <b>$${(p.precioRural / finalHoy * 100).toFixed(0)}</b>.
+        ${window.Paleta.precioNoComparable[res.clave] ? `<div class="nota">Esta cadena compara precios de productos distintos: ${window.Paleta.precioNoComparable[res.clave]}</div>` : ""}
+        ${cons && !window.Paleta.precioNoComparable[res.clave] ? `<p class="sub">De cada $100 que paga el consumidor, el productor recibe <b>$${(p.precioRural / finalHoy * 100).toFixed(0)}</b>.
           Mayoreo SNIIM ${mxn(sniim.precio)} · consumidor PROFECO ${mxn(cons.precio)} (mediana ${window.PRECIOS_CONSUMIDOR.anio}).</p>` : ""}
         ${ctrl("sInterm", "Reducción de la intermediación mayorista (compra directa, centros de acopio, cooperativas)", 0, 80, 5, esc.reduccionIntermediacion ?? 0, v => v + "%")}
         ${cons ? ctrl("sMinor", "Reducción del margen minorista (mercados sobre ruedas, venta directa, canales cortos)", 0, 80, 5, esc.reduccionMinorista ?? 0, v => v + "%") : ""}

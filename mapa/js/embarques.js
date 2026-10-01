@@ -176,7 +176,7 @@
           <line x1="${x(u)}" x2="${x(u)}" y1="4" y2="${Hh - 16}" stroke="var(--tenue)" stroke-dasharray="2 2"/>
           <text x="${x(i1)}" y="${Hh - 2}">${S[i1]?.slice(0, 7) ?? ""}</text><text x="${x(u) - 18}" y="${Hh - 2}">${S[u]?.slice(0, 7) ?? ""}</text>
         </svg>
-        <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>Precio observado (US$/kg)</span><span><i style="background:var(--c-importa)"></i>Pronóstico y banda 20–80%</span></div>`;
+        <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>Precio observado (US$/kg)</span><span><i style="background:var(--c-importa)"></i>Pronóstico y rango probable (el precio real cayó ahí 6 de cada 10 veces)</span></div>`;
     }
     const semanasFut = Array.from({ length: P().horizonte }, (_, h) => p.ultima + h + 1);
     const nombreSemana = i => { const d = new Date(S[0] + "T12:00:00"); d.setDate(d.getDate() + 7 * i); return `${d.getDate()} ${MES[d.getMonth()]}`; };
@@ -195,7 +195,7 @@
         <span>Suponer que el precio no cambia se equivoca ${(pr.mapeIngenuo ?? []).map(m => pct(m)).join(", ")}.</span>
         <span>${(pr.metodo ?? "").includes("e") ? `La estacionalidad mejora el pronóstico a partir de la semana ${pr.metodo.indexOf("e") + 1}; antes se usa el último precio.` : "En este producto la estacionalidad no mejora a la referencia: se muestra el último precio."}</span>
         <span>${confiable != null && confiable > 0.25 ? "El error es alto: úsalo solo como orientación." : "Sirve para anticipar la tendencia, no el precio exacto."}</span>
-        <span>Nivel reciente: ${pr.factor.toFixed(2)}× lo normal para estas semanas.</span></div>` : ""}
+        <span>${Math.abs(pr.factor - 1) < 0.05 ? "Hoy el precio está en su nivel normal para estas fechas." : `Hoy el precio está ${Math.round(Math.abs(pr.factor - 1) * 100)}% ${pr.factor > 1 ? "arriba" : "abajo"} de lo normal para estas fechas.`}</span></div>` : ""}
       <p class="sub"><span>Oferta: la misma semana en años anteriores ajustada por el nivel reciente, sin prueba de error.</span>
         <span>Precio: la misma semana en años anteriores (USDA, desde 2021) ajustada por cómo vienen las últimas cuatro semanas frente a esas mismas semanas de otros años.</span>
         <span>Precio de referencia:</span> <span translate="no">${window.Paleta.usdaES(pr?.referencia ?? "—")}</span> <span>${p.precio?.mayoreo ? "(mayoreo en Los Ángeles, Chicago y Nueva York)." : "(FOB en la frontera)."}</span>

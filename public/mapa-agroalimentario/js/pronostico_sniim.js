@@ -35,7 +35,7 @@
         <line x1="${x(u)}" x2="${x(u)}" y1="4" y2="${Hh - 16}" stroke="var(--tenue)" stroke-dasharray="2 2"/>
         <text x="${x(i1)}" y="${Hh - 2}">${semana(inicio, i1).toISOString().slice(0, 7)}</text><text x="${x(u) - 18}" y="${Hh - 2}">${pr.ultima.slice(0, 7)}</text>
       </svg>
-      <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>Precio observado ($/kg)</span><span><i style="background:var(--c-importa)"></i>Pronóstico y banda 20–80%</span></div>`;
+      <div class="leyenda-cadena"><span><i style="background:var(--productor)"></i>Precio observado ($/kg)</span><span><i style="background:var(--c-importa)"></i>Pronóstico y rango probable (el precio real cayó ahí 6 de cada 10 veces)</span></div>`;
     const tabla = `
       <div class="desplaza"><table class="compacta">
         <tr><th>Semana del</th><th class="num">Precio $/kg</th></tr>
@@ -50,7 +50,7 @@
         <span>Suponer que el precio no cambia se equivoca ${pr.mapeIngenuo.filter(m => m != null).map(m => pct(m)).join(", ")}.</span>
         <span>${pr.metodo.includes("e") ? `La estacionalidad mejora el pronóstico a partir de la semana ${pr.metodo.indexOf("e") + 1}; antes se usa el último precio.` : "En este producto la estacionalidad no mejora a la referencia: se muestra el último precio."}</span>
         <span>${confiable != null && confiable > 0.25 ? "El error es alto: úsalo solo como orientación." : "Sirve para anticipar la tendencia, no el precio exacto."}</span>
-        <span>Nivel reciente: ${pr.factor.toFixed(2)}× lo normal para estas semanas.</span></div>` : ""}
+        <span>${Math.abs(pr.factor - 1) < 0.05 ? "Hoy el precio está en su nivel normal para estas fechas." : `Hoy el precio está ${Math.round(Math.abs(pr.factor - 1) * 100)}% ${pr.factor > 1 ? "arriba" : "abajo"} de lo normal para estas fechas.`}</span></div>` : ""}
       <p class="sub"><span>Precio frecuente de <span translate="no">${pr.variedad}</span> (primera calidad), mediana semanal de todas las centrales de abasto que reporta el SNIIM, en pesos por kg.</span> <span>Método: la misma semana en años anteriores (desde 2019) ajustada por cómo vienen las últimas cuatro semanas frente a esas mismas semanas de otros años; en cada semana del horizonte se usa ese método o el último precio, el que haya acertado más en la prueba.</span></p>`;
   }
   function resumen(k) {

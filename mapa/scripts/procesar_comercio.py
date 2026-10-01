@@ -154,6 +154,19 @@ def produccion_siap():
     return {k: v["nacional"] for k, v in datos["productos"].items()}
 
 
+def usda_mexico():
+    """Lo que el USDA registra que cruzó de México por producto (data/precios_eua.js → mexico), y su año."""
+    ruta = RAIZ / "data" / "precios_eua.js"
+    if not ruta.exists():
+        return {}, None
+    t = ruta.read_text(encoding="utf-8")
+    d = json.loads(t[t.index("{"):t.rindex("}") + 1])
+    return d.get("mexico", {}), d.get("anio")
+
+
+USDA_MX, USDA_ANIO = usda_mexico()
+
+
 def main(anio):
     catalogo = paises()
     resultado = {}
@@ -172,7 +185,11 @@ def main(anio):
     for grupo, g in COMPARTIDAS.items():
         exp_t, exp_usd, exp_p = resumir(descargar(anio, grupo, g["codigos"], "X")["data"], catalogo)
         imp_t, imp_usd, imp_p = resumir(descargar(anio, grupo, g["codigos"], "M")["data"], catalogo)
-        base = {k: produccion.get(k, 0) for k in g["productos"]}
+        # Reparto con lo que el USDA registra que cruzó de México de cada producto (reporte 1662, data/precios_eua.js):
+        # con la producción SIAP salía al revés (frambuesa 37.6%, cuando el USDA registra 111 mil t de frambuesa y
+        # 69 mil t de zarzamora en 2025). Si no hay registro del USDA, se usa la producción.
+        usda = {k: (USDA_MX.get(k) or {}).get("total", 0) for k in g["productos"]}
+        base = usda if all(usda.values()) else {k: produccion.get(k, 0) for k in g["productos"]}
         total = sum(base.values())
         if not total:
             print(f"  {grupo}: sin producción SIAP para repartir; se omite")
@@ -188,13 +205,22 @@ def main(anio):
             print(f"  {clave:9s} exp {exp_t * f:>12,.0f} t  US${exp_usd * f / 1e6:>8,.0f} M   imp {imp_t * f:>10,.0f} t"
                   f"  ({f:.1%} de {grupo})")
 
+    # Tomate verde (tomatillo): sin fracción propia (va en 070999); su exportación se estima con lo que el USDA registra
+    # que cruzó de México. Sin valor en dólares ni importación.
+    for clave in ("tomate_verde",):
+        v = (USDA_MX.get(clave) or {}).get("total")
+        if clave not in resultado and v:
+            resultado[clave] = {"exportacion": round(v), "importacion": 0, "destinos": {"Estados Unidos": 1.0}, "origenes": {},
+                                "fracciones": [], "fuenteComercio": f"USDA {USDA_ANIO} (cruces registrados; sin fracción arancelaria propia)"}
+            print(f"  {clave:9s} exp {v:>12,.0f} t  (estimado con los cruces del USDA)")
+
     salida = RAIZ / "data" / "comercio_oficial.js"
     salida.write_text(
         f"// Generado por scripts/procesar_comercio.py — UN Comtrade, reporte de México (INEGI/SE), año {anio}\n"
         f"window.COMERCIO_OFICIAL = {json.dumps({'anio': anio, 'productos': resultado}, ensure_ascii=False, indent=1)};\n"
         "Object.entries(window.COMERCIO_OFICIAL.productos).forEach(([k, v]) => {\n"
         "  const p = window.PRODUCTOS[k]; if (!p) return;\n"
-        "  Object.assign(p, v, { fuenteComercio: 'Comtrade/INEGI ' + window.COMERCIO_OFICIAL.anio });\n"
+        "  Object.assign(p, v, { fuenteComercio: v.fuenteComercio ?? 'Comtrade/INEGI ' + window.COMERCIO_OFICIAL.anio });\n"
         "  p.origenImport = Object.keys(v.origenes).filter(o => o !== 'Otros').join(', ') || p.origenImport;\n"
         "});\n",
         encoding="utf-8",

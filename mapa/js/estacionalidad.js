@@ -76,9 +76,9 @@
       efecto = s > 0 ? `<p class="sub">Escenario: con ${pct(s)} de la cosecha redistribuida, la brecha entre el mes más caro y el más barato
         del mayoreo pasaría de <b>${pct(v(may))}</b> a <b>≈ ${pct(v(precio1))}</b> (estimación lineal con la relación observada precio–cosecha).</p>` : "";
     }
-    const lectura = !rel ? "" : rel.r <= -0.5 ? `El precio sigue claramente a la cosecha (r = ${rel.r.toFixed(2)}): sube cuando la producción nacional baja.`
-      : rel.r <= -0.2 ? `Relación moderada entre cosecha y precio (r = ${rel.r.toFixed(2)}).`
-      : `El precio no sigue a la cosecha nacional (r = ${rel.r.toFixed(2)}): influyen importaciones, almacenamiento, calidad o exportación.`;
+    const lectura = !rel ? "" : rel.r <= -0.5 ? `El precio sigue claramente a la cosecha: sube cuando la producción nacional baja.`
+      : rel.r <= -0.2 ? `Cuando hay menos cosecha el precio tiende a subir, aunque no siempre (relación moderada).`
+      : `El precio no sigue a la cosecha nacional: pesan más las importaciones, el almacenamiento, la calidad o la exportación.`;
 
     const iMin = may ? may.indexOf(Math.min(...may.filter(x => x != null))) : -1;
     const iMax = may ? may.indexOf(Math.max(...may.filter(x => x != null))) : -1;
