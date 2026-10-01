@@ -15,6 +15,7 @@
   const E = () => window.EMBARQUES, P = () => window.PRONOSTICO;
   const GRUPOS = { eua: ["EE. UU.", "var(--productor)"], mx: ["México", "var(--c-importa)"], imp: ["Importación", "var(--minorista)"], mixto: ["Mixto (CA/AZ y cruces)", "var(--transporte)"] };
   const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
   const nombreOrigen = m => document.documentElement.lang === "en" && m[5] ? m[5] : m[0];
   const fecha = i => { const d = new Date(E().semanas[i] + "T12:00:00"); return `${d.getDate()} ${MES[d.getMonth()]} ${d.getFullYear()}`; };
 
@@ -23,7 +24,8 @@
   const cargar = () => cargando ??= Promise.all([
     window.Paleta.cargar("data/embarques.js", () => !!window.EMBARQUES),
     window.Paleta.cargar("data/pronostico.js", () => !!window.PRONOSTICO).catch(() => {}),
-    window.Paleta.cargar("data/avance_siap.js", () => !!window.AVANCE_SIAP).catch(() => {})
+    window.Paleta.cargar("data/avance_siap.js", () => !!window.AVANCE_SIAP).catch(() => {}),
+    window.Paleta.cargar("data/origen_exportacion.js", () => !!window.ORIGEN_EXPORTACION).catch(() => {})
   ]);
 
   // t de un origen en la semana i
@@ -43,20 +45,38 @@
   }
 
   // ---------- Origen estimado por estado de lo que cruza de México ----------
-  // El USDA no dice de qué estado viene lo que cruza. Estimación: el volumen de cada cruce se reparte entre los estados
-  // según su excedente exportable (producción SIAP − demanda propia, modelo del mapa) y su cercanía al cruce
-  // (peso exp(−km/400), km ≈ 1.25 × línea recta desde la capital del estado).
+  // El USDA no dice de qué estado viene lo que cruza. El volumen de cada cruce se reparte entre los estados según:
+  //  1. lo que la Secretaría de Economía registra que cada estado exportó a EE. UU. ese mes (data/origen_exportacion.js,
+  //     scripts/procesar_origen_exportacion.py); si el mes aún no se publica, el mismo mes del año anterior. En 2025
+  //     coincidió 94% con el registro mes a mes, contra 62% del método 2;
+  //  2. sin registro: su excedente exportable (producción SIAP − demanda propia, modelo del mapa).
+  // En ambos casos, cada estado sale por los cruces según su cercanía (peso exp(−km/400), km ≈ 1.25 × línea recta
+  // desde la capital del estado).
   // Estados autorizados para exportar a EE. UU. cuando el acceso lo restringe (data/acceso.js: aguacate Hass solo de
   // Michoacán o Jalisco)
   const AUTORIZADOS = { aguacate: ["16", "14"] };
   const CRUCES_MX = { mx_tx: [26.20, -98.23], mx_nog: [31.34, -110.94], mx_otay: [32.55, -116.94], mx_cal: [32.60, -115.10] };
-  function estadosEstimados(k, i) {
+  // Partes registradas por la SE para el mes de la semana i (o el mismo mes de hasta 3 años antes). La Ciudad de
+  // México se quita: ahí está el domicilio de comercializadoras, no huertas.
+  function registro(k, i) {
+    const p = window.ORIGEN_EXPORTACION?.productos?.[k];
+    if (!p) return null;
+    const [a, m] = E().semanas[i].slice(0, 7).split("-").map(Number);
+    for (let x = a; x >= a - 3; x--) {
+      const clave = `${x}-${String(m).padStart(2, "0")}`, partes = p[clave];
+      if (partes && Object.keys(partes).some(e => e !== "09")) return { partes, anio: x, mes: m, propio: x === a };
+    }
+    return null;
+  }
+  function estadosEstimados(k, i, factores = null) {
     if (!window.Modelo || !window.PRODUCTOS?.[k]) return null;
+    const reg = factores ? null : registro(k, i);
     // Con el avance mensual del SIAP: cosecha del mes de esa semana menos el consumo mensual del estado; sin él, el
     // excedente anual (producción − demanda)
     const mensual = window.AVANCE_SIAP?.productos?.[k];
     const mes = +E().semanas[i].slice(5, 7) - 1;
-    const filas = window.Modelo.calcular(k, {}).filas.map(f => ({ ...f, exc: mensual ? Math.max(0, (mensual[f.id]?.[mes] ?? 0) - f.demanda / 12) : Math.max(0, f.prod - f.demanda) }))
+    const filas = window.Modelo.calcular(k, {}).filas.map(f => ({ ...f, exc: reg ? (f.id === "09" ? 0 : reg.partes[f.id] ?? 0)
+      : (factores ? factores[f.id] ?? 0 : 1) * (mensual ? Math.max(0, (mensual[f.id]?.[mes] ?? 0) - f.demanda / 12) : Math.max(0, f.prod - f.demanda)) }))
       .filter(f => f.exc > 0 && (!AUTORIZADOS[k] || AUTORIZADOS[k].includes(f.id)));
     if (!filas.length) return null;
     const km = (f, [la, lo]) => 1.25 * window.Modelo.distanciaKm(f, { lat: la, lon: lo });
@@ -73,6 +93,7 @@
       filas.forEach((f, j) => { reparto[f.id] = (reparto[f.id] ?? { nombre: f.nombre, t: 0, cruces: {} }); const x = t * pesos[j] / suma; reparto[f.id].t += x; reparto[f.id].cruces[c] = (reparto[f.id].cruces[c] ?? 0) + x; });
     });
     const lista = Object.values(reparto).sort((a, b) => b.t - a.t);
+    if (lista.length) lista.registro = reg;
     return lista.length ? lista : null;
   }
   function estadosHTML(k, i) {
@@ -82,7 +103,7 @@
     const corto = { mx_tx: "Texas", mx_nog: "Nogales", mx_otay: "Otay Mesa", mx_cal: "Calexico/San Luis" };
     return `<h4 class="mini">De qué estados viene lo que cruzó (estimado)</h4>
       ${lista.slice(0, 8).map(x => `<div class="barra-h"><span class="n">${x.nombre}</span><span class="b"><i style="width:${x.t / lista[0].t * 100}%;background:var(--c-importa)"></i></span><span class="x">${pct(x.t / tot)}</span></div>`).join("")}
-      <p class="sub">Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente ${window.AVANCE_SIAP?.productos?.[k] ? `(cosecha del mes según el avance mensual del SIAP ${window.AVANCE_SIAP.anio}, menos su consumo)` : `(producción SIAP ${window.PRODUCCION_SIAP?.anio ?? ""} menos su consumo)`} según su cercanía a cada cruce${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a EE. UU." : ""}. Principal ruta de ${lista[0].nombre}: ${corto[Object.entries(lista[0].cruces).sort((a, b) => b[1] - a[1])[0][0]]}.</p>`;
+      <p class="sub">${lista.registro ? `El USDA reporta el cruce, no el estado de origen. Se reparte según lo que la Secretaría de Economía registra que cada estado exportó a EE. UU. en ${MESES_L[lista.registro.mes - 1]} de ${lista.registro.anio}${lista.registro.propio ? "" : " (el mes de esta semana aún no se publica)"}, en valor y por domicilio del exportador; cada estado se asigna a los cruces por cercanía${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a Estados Unidos" : ""}` : `Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente ${window.AVANCE_SIAP?.productos?.[k] ? `(cosecha del mes según el avance mensual del SIAP ${window.AVANCE_SIAP.anio}, menos su consumo)` : `(producción SIAP ${window.PRODUCCION_SIAP?.anio ?? ""} menos su consumo)`} según su cercanía a cada cruce${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a EE. UU." : ""}`}. Principal ruta de ${lista[0].nombre}: ${corto[Object.entries(lista[0].cruces).sort((a, b) => b[1] - a[1])[0][0]]}.</p>`;
   }
 
   // ---------- Oferta: quién abastece a EE. UU. en la semana elegida y en las últimas 52 ----------
@@ -235,5 +256,6 @@
     };
   }
 
-  window.Embarques = { cargar, marca, crearCapa, disponible: k => !E() || disponible(k) };
+  // estadosEstimados se expone para la validación contra Data México (scripts/validar_origen_estados.py)
+  window.Embarques = { cargar, marca, crearCapa, disponible: k => !E() || disponible(k), estadosEstimados };
 })();
