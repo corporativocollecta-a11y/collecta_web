@@ -8,6 +8,8 @@
   const pct = x => Math.abs(Math.round(x * 100)) + "%";
   const fmt = n => Math.round(n).toLocaleString("es-MX");
   const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const MES_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mesAnio = (m, ingles) => m ? `${(ingles ? MES_EN : MES)[+m.slice(5) - 1]} ${m.slice(0, 4)}` : "";
   const fecha = iso => { const [, m, d] = iso.split("-").map(Number); return `${d} ${MES[m - 1]}`; };
 
   // En inglés el texto se arma directamente (lleva translate="no"): la variedad de referencia mezcla nombres del SNIIM
@@ -32,6 +34,8 @@
         case "pronostico_eua": return `U.S. forecast${v}: ${sube ? "up" : "down"} ${c} in 8 weeks${err}`;
         case "pronostico_mx": return `Mexico forecast${v}: ${sube ? "up" : "down"} ${c} in 8 weeks${err}`;
         case "embarques_mx": return `Crossings from Mexico ${c} ${sube ? "above" : "below"} a year ago (${fmt(a.t)} t in two weeks)`;
+        case "internacional_mes": return `International price ${sube ? "rose" : "fell"} ${c} in the month (US$${fmt(a.precio)}/t, ${mesAnio(a.mes, true)})`;
+        case "internacional_anual": return `International price ${c} ${sube ? "higher" : "lower"} than a year ago (US$${fmt(a.precio)}/t, ${mesAnio(a.mes, true)})`;
         default: return "";
       }
     }
@@ -43,6 +47,8 @@
       case "pronostico_eua": return `Pronóstico en EE. UU.${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (suele fallar ±${pct(a.error)})`;
       case "pronostico_mx": return `Pronóstico en México${v}: ${sube ? "sube" : "baja"} ${c} en 8 semanas (suele fallar ±${pct(a.error)})`;
       case "embarques_mx": return `Cruzó de México ${c} ${sube ? "más" : "menos"} que hace un año (${fmt(a.t)} t en dos semanas)`;
+      case "internacional_mes": return `Precio internacional ${sube ? "subió" : "bajó"} ${c} en el mes (US$${fmt(a.precio)} la tonelada, ${mesAnio(a.mes)})`;
+      case "internacional_anual": return `Precio internacional ${c} ${sube ? "más alto" : "más bajo"} que hace un año (US$${fmt(a.precio)} la tonelada, ${mesAnio(a.mes)})`;
       default: return "";
     }
   }
@@ -66,7 +72,7 @@
             <span class="prod"><i style="background:${window.PRODUCTOS[k].color}"></i>${window.PRODUCTOS[k].nombre}</span>
             <span class="txt">${as.slice(0, 2).map(a => `<span class="tag ${clase(a)}">${a.cambio > 0 ? "▲" : "▼"} ${pct(a.cambio)}</span> <span translate="${en() ? "no" : "yes"}">${texto(a)}</span>`).join("<br>")}</span></button>`).join("")}
         </div>
-        <p class="sub">${A().alertas.length} señales en ${g.length} productos. Umbrales: precio ±15% en dos semanas, ±30% contra hace un año; pronóstico ±20% en 8 semanas (solo si suele fallar menos de ±30%); embarques de México ±30% contra hace un año. Detalle en cada producto.</p>
+        <p class="sub">${A().alertas.length} señales en ${g.length} productos. Umbrales: precio ±15% en dos semanas, ±30% contra hace un año; pronóstico ±20% en 8 semanas (solo si suele fallar menos de ±30%); embarques de México ±30% contra hace un año; precio internacional de granos ±8% en el mes o ±25% contra hace un año. Detalle en cada producto.</p>
       </div>`;
   }
   function productoHTML(k) {

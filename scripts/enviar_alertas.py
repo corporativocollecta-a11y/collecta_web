@@ -73,6 +73,11 @@ def texto(a):
         return f"Pronóstico en México{v}: {'sube' if sube else 'baja'} {c} en 8 semanas (suele fallar ±{pct(a['error'])})"
     if t == "embarques_mx":
         return f"Cruzó de México {c} {'más' if sube else 'menos'} que hace un año ({round(a['t']):,} t en dos semanas)"
+    mes = f"{MES[int(a['mes'][5:7]) - 1]} {a['mes'][:4]}" if a.get("mes") else ""
+    if t == "internacional_mes":
+        return f"Precio internacional {'subió' if sube else 'bajó'} {c} en el mes (US${round(a['precio']):,} la tonelada, {mes})"
+    if t == "internacional_anual":
+        return f"Precio internacional {c} {'más alto' if sube else 'más bajo'} que hace un año (US${round(a['precio']):,} la tonelada, {mes})"
     return ""
 
 
@@ -107,7 +112,8 @@ def armar(datos, productos=None):
   {sus}{aviso}
   {cuerpo}
   <p style="color:#666;font-size:12px;margin-top:14px">Umbrales: precio ±15% en dos semanas o ±30% contra hace un año; pronóstico ±20% en 8 semanas
-  (solo si suele fallar menos de ±30%); embarques de México ±30% contra hace un año. Fuentes: USDA AMS Market News y SNIIM.
+  (solo si suele fallar menos de ±30%); embarques de México ±30% contra hace un año; precio internacional de granos ±8% en el mes
+  o ±25% contra hace un año. Fuentes: USDA AMS Market News, SNIIM y Banco Mundial.
   Detalle en <a href="{MAPA}">el mapa agroalimentario de Collecta</a>.</p>
 </div>"""
     lineas = "\n".join(f"{N[k]}: " + "; ".join(f"{'+' if a['cambio'] > 0 else '-'}{pct(a['cambio'])} {texto(a)}" for a in lista)

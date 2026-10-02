@@ -12,6 +12,9 @@ Por producto, con datos de la última semana disponible:
     más (con al menos 5,000 t en alguno de los dos periodos: con menos, un cambio grande es ruido).
   En México no se alertan series del SNIIM cuyo pronóstico a 4 semanas falla más de 25% (precio que salta semana a
   semana, p. ej. zarzamora).
+  - internacional_mes / internacional_anual (granos): el precio internacional del último mes (Banco Mundial / FMI,
+    data/precios_granos.js) contra el mes anterior, ±8% o más, o contra el mismo mes del año anterior, ±25% o más. Una
+    sola alerta por serie: el maíz va con el maíz amarillo (el que se importa); el sorgo no tiene serie propia.
 Cada alerta guarda su magnitud para ordenar; el texto lo arma js/alertas.js (así se traduce por plantillas).
 
 Entradas: data/pronostico.js, data/pronostico_sniim.js, data/embarques.js. Se corre en actualizar_semanal.py.
@@ -24,6 +27,8 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 CAMBIO, ANUAL, PRON, EMB, MIN_T, MAPE_MAX = 0.15, 0.30, 0.20, 0.30, 5000, 0.30
+INT_MES, INT_ANUAL = 0.08, 0.25
+SERIE_INTERNACIONAL = {"maiz_amarillo": "maiz", "trigo": "trigo", "arroz": "arroz", "soya": "soya", "cebada": "cebada"}
 RUIDO_MX = 0.25
 
 
@@ -94,6 +99,22 @@ def main():
         antes = sum(por.get(i, 0) for i in (u - 53, u - 52))
         if max(ahora, antes) >= MIN_T and antes > 0 and abs(ahora / antes - 1) >= EMB:
             alertas.append({"k": k, "tipo": "embarques_mx", "cambio": round(ahora / antes - 1, 3), "t": round(ahora)})
+    try:
+        G = leer("precios_granos")
+    except FileNotFoundError:
+        G = None
+    for k, sk in (SERIE_INTERNACIONAL.items() if G else []):
+        s = dict(map(tuple, G["series"].get(sk, [])))
+        if not s:
+            continue
+        mes = max(s)
+        a, m = map(int, mes.split("-"))
+        previo = f"{a - 1}-12" if m == 1 else f"{a}-{m - 1:02d}"
+        hace = f"{a - 1}-{m:02d}"
+        if previo in s and abs(s[mes] / s[previo] - 1) >= INT_MES:
+            alertas.append({"k": k, "tipo": "internacional_mes", "cambio": round(s[mes] / s[previo] - 1, 3), "precio": s[mes], "mes": mes})
+        if hace in s and abs(s[mes] / s[hace] - 1) >= INT_ANUAL:
+            alertas.append({"k": k, "tipo": "internacional_anual", "cambio": round(s[mes] / s[hace] - 1, 3), "precio": s[mes], "mes": mes})
     alertas.sort(key=lambda a: -abs(a["cambio"]))
     salida = {"generado": date.today().isoformat(), "semanaEUA": P["semanas"][-1],
               "semanaMX": max((p["ultima"] for p in S["productos"].values()), default=None), "alertas": alertas}

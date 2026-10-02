@@ -369,7 +369,7 @@
       ${window.Granos?.esGrano(res.clave) && Granos.tienePrecio(res.clave) ? S("granos_precio", `<h3>Precio internacional contra el nacional <span class="tag ok">Banco Mundial</span></h3>${Granos.precioHTML(res.clave)}`, Granos.resumenPrecio(res.clave)) : ""}
       ${window.OfertaGlobal && window.GLOBAL?.productos?.[res.clave] ? S("mundo_mx", `<h3>México en la oferta mundial <span class="tag ok">FAOSTAT</span></h3>${OfertaGlobal.marca(res.clave, "mx")}`,
         "De dónde importa, a dónde vende y qué rutas serían más cortas") : ""}
-      ${window.PronosticoSNIIM && window.PRECIOS_SNIIM?.productos?.[res.clave] && !window.Granos?.esGrano(res.clave) ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
+      ${window.PronosticoSNIIM && window.PRECIOS_SNIIM?.productos?.[res.clave] ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
       ${window.Alerta?.disponible(res.clave) ? S("alerta", `<h3>Siembras y cosechas: alerta de oferta <span class="tag ok">SIAP</span></h3>${Alerta.html(res.clave)}`, Alerta.resumen(res.clave),
         { abierta: Math.abs(Alerta.calcular(res.clave).s ?? 0) >= 0.15 }) : ""}
       ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}

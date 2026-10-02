@@ -2019,6 +2019,8 @@ for _n in (3, 4, 5):
     _le = ["@ #%"] * _n
     _le[1] = "European Union #%"
     EXTRA["Principales exportadores #/#: " + ", ".join(_l) + " del comercio mundial."] = "Main exporters #/#: " + ", ".join(_le) + " of world trade."
+EXTRA["# señales en # productos. Umbrales: precio ±#% en dos semanas, ±#% contra hace un año; pronóstico ±#% en # semanas (solo si suele fallar menos de ±#%); embarques de @ ±#% contra hace un año; precio internacional de @ ±#% en el mes o ±#% contra hace un año. Detalle en cada producto."] = (
+    "# signals in # products. Thresholds: price ±#% in two weeks, ±#% vs. a year ago; forecast ±#% in # weeks (only if it is usually off by less than ±#%); shipments from @ ±#% vs. a year ago; international prices of @ ±#% in the month or ±#% vs. a year ago. Details in each product.")
 # Variantes con unidades (Mt, mil t, t) y listas de meses o estados
 _U = [("Mt", "Mt"), ("mil t", "thousand t"), ("t", "t")]
 for _a, _ae in _U:
