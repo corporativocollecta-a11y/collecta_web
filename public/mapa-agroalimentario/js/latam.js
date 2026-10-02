@@ -176,7 +176,9 @@
       ${window.Historia ? S("historia", `<h3>Quién crece y quién cae</h3>${Historia.marca("tendencias", R.k, esGlobal() ? {} : { paises: R.filas.map(f => f.id).join(",") })}`, AUTO) : ""}
       ${deficit.length ? `<div class="nota">No cubren su consumo aparente: <b>${deficit.slice(0, 6).map(f => `${f.nombre} (${pct(f.auto)})`).join(", ")}</b>${deficit.length > 6 ? ` y ${deficit.length - 6} más` : ""}.
         ${mx && mx.auto > 1.2 ? `México tiene excedente (${mx.auto.toFixed(1)}×): una oportunidad de abasto.` : ""}</div>` : ""}
-      <p class="sub">Disponibilidad aparente = producción − exportación + importación; incluye mermas y usos industriales. Países con menos de 1 millón de habitantes no se listan como deficitarios.</p>`;
+      <p class="sub">Disponibilidad aparente = producción − exportación + importación; incluye mermas y usos industriales. Países con menos de 1 millón de habitantes no se listan como deficitarios.</p>
+      ${esGlobal() && window.OfertaGlobal ? S("oferta_global", `<h3>Oferta, demanda y rutas en el mundo <span class="tag ok">FAOSTAT ${anio}</span></h3>${OfertaGlobal.marca(R.k)}`,
+        "Quién produce de más, a quién le falta y qué rutas se podrían acortar", { abierta: true }) : ""}`;
   }
 
   // Pestaña Exportar: comercio exterior del producto en la región o el mundo

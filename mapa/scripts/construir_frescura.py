@@ -81,6 +81,10 @@ def main():
     if ps and ps["productos"]:
         u = max(date.fromisoformat(p["ultima"]) for p in ps["productos"].values())
         agregar("sniim_semanal", "SNIIM: precio semanal de mayoreo", u + timedelta(days=6), f"semana del {u.day} de {MESES[u.month - 1]}", 7, 9, "procesar_pronostico_sniim.py")
+    ca = leer("precios_canada")
+    if ca:
+        h = date.fromisoformat(ca["hasta"])
+        agregar("canada_mayoreo", "InfoHort (Canadá): mayoreo en Toronto y Montreal", h, f"al {h.day} de {MESES[h.month - 1]}", 7, 10, "procesar_precios_canada.py")
     cl = leer("clima_smn")
     if cl:
         f = date.fromisoformat(cl["generado"])

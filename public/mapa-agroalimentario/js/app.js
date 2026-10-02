@@ -313,6 +313,7 @@
         ${exp ? `<div class="kpi${gana === "exp" ? " destacado" : ""}"><div class="v">${mxn2(exp.neto)}/kg</div><div class="l">exportando por <span translate="no">${exp.nombre.split(",")[0]}</span> (precio en la frontera menos flete${exp.ad ? " y antidumping" : ""}; mediana del año)</div></div>` : ""}
         ${nac ? `<div class="kpi${gana === "nac" ? " destacado" : ""}"><div class="v">${mxn2(nac.n)}/kg</div><div class="l">vendiendo en el mercado nacional: típico de ${nac.centrales} centrales de abasto (mayoreo menos 25% de margen del mayorista y el flete); hasta ${mxn2(nac.mejor.n)} en <span translate="no">${nac.mejor.central}</span></div></div>` : ""}
       </div>
+      ${window.PreciosCanada?.lineaFicha(k) ? `<p class="sub">${PreciosCanada.lineaFicha(k)}</p>` : ""}
       ${!exp && nac ? `<p class="sub">El USDA no publica un precio en la frontera para ${res.producto.nombre.toLowerCase()}: no se puede calcular el neto de exportar.</p>` : ""}
       ${meses ? `<p class="sub">${meses} en EE. UU. Mes a mes, en <i>Planear la venta</i>.</p>` : `<p class="sub">Mes a mes, en <i>Planear la venta</i>.</p>`}
     </div>`;
@@ -362,6 +363,8 @@
       </div>
       ${nota}
       ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${window.OfertaGlobal && window.GLOBAL?.productos?.[res.clave] ? S("mundo_mx", `<h3>México en la oferta mundial <span class="tag ok">FAOSTAT</span></h3>${OfertaGlobal.marca(res.clave, "mx")}`,
+        "De dónde importa, a dónde vende y qué rutas serían más cortas") : ""}
       ${window.PronosticoSNIIM ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
       ${window.Alerta?.disponible(res.clave) ? S("alerta", `<h3>Siembras y cosechas: alerta de oferta <span class="tag ok">SIAP</span></h3>${Alerta.html(res.clave)}`, Alerta.resumen(res.clave),
         { abierta: Math.abs(Alerta.calcular(res.clave).s ?? 0) >= 0.15 }) : ""}
@@ -427,6 +430,7 @@
       ${window.Planeador?.disponible(k) && f?.prod > 0 ? S("plan", `<h3>Planear la venta de ${f.nombre} <span class="tag ok">USDA · SNIIM · SIAP</span></h3>${Planeador.marca(k, f, tarifa)}`, `Exportar o vender en México, mes a mes, con el volumen que esperas`) : ""}
       ${window.Acceso ? S("acceso", Acceso.html(k), Acceso.resumen(k)) : ""}
       ${opp.html ? S("oportunidades", opp.html, opp.resumen) : ""}
+      ${window.PreciosCanada?.disponible(k) ? S("canada", PreciosCanada.html(k), PreciosCanada.resumen(k)) : ""}
       ${window.PreciosUE ? S("europa", PreciosUE.html(k), PreciosUE.resumen(k)) : ""}`;
     cont.querySelectorAll("tr.clic[data-id]").forEach(tr => tr.onclick = () => {
       estado.entidad = tr.dataset.id; estado.entidadElegida = true; estado.municipio = null; render();

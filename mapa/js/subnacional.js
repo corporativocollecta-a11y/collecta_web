@@ -218,6 +218,7 @@
         window.Acceso.resumenMercado(R.k, d.codigo)) : ""}
       ${secUSA}
       ${d.codigo === "US" && window.Embarques ? S("pronostico", `<h3>Pronóstico de 8 semanas <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", R.k, "eua")}`, AUTO) : ""}
+      ${d.codigo === "CA" && window.PreciosCanada?.disponible(R.k) ? S("canada", PreciosCanada.html(R.k), PreciosCanada.resumen(R.k), { abierta: true }) : ""}
       ${window.PreciosUE ? S("europa", PreciosUE.html(R.k, ue), PreciosUE.resumen(R.k, ue)) : ""}
       ${window.Mercado && d.m49 ? `<p class="sub"><a href="#" class="enlace-mercado" data-mercado="${d.m49}">Ver el mercado de ${d.pais} como comprador: qué importa y a quién le compra →</a></p>` : ""}`;
   }

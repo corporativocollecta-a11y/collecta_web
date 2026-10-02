@@ -23,6 +23,7 @@ def main():
              ["scripts/procesar_neto_semanal.py"],   # FOB semanal en pesos, tipo de cambio (FRED) y diésel por estado (CNE)
              ["scripts/procesar_pronostico_sniim.py"],   # mayoreo en México (SNIIM), año en curso
              ["scripts/actualizar_sequia.py"],   # Monitor de Sequía de la CONAGUA (quincenal)
+             ["scripts/procesar_precios_canada.py"],   # mayoreo en Toronto y Montreal (InfoHort, diario)
              ["scripts/procesar_clima_smn.py"],   # helada y lluvia de los próximos días (vence: conviene correrlo a diario)
              ["scripts/construir_alertas.py"],   # movimientos fuertes de la semana (usa los pronósticos)
              ["scripts/construir_frescura.py"]]   # al final: hasta qué fecha llega cada fuente
