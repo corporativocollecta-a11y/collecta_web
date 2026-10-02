@@ -45,6 +45,10 @@ PRODUCTOS = {
     # Productos que solo existen en las vistas internacionales y por país (data/productos_paises.js)
     "mandarina": [495], "cereza": [531], "kiwi": [592], "chabacano": [526], "ciruela": [536], "coco": [249],
     "ajo": [406], "col": [358], "ejote": [414], "chile_seco": [689], "cafe": [656], "cacao": [661],
+    # Granos y leguminosas. FAOSTAT no separa el maíz por color ("maiz" = maíz grano). El arroz se produce palay (27) y
+    # se comercia también descascarillado (28), blanco (31) y quebrado (32): en comercio se suman sin convertir.
+    "maiz": [56], "frijol": [176], "trigo": [15], "sorgo": [83], "arroz": [27, 28, 31, 32], "soya": [236],
+    "cebada": [44], "garbanzo": [191],
 }
 NOMBRES = {"arandano": "Berries (arándano, frambuesa, zarzamora)", "cafe": "Café verde (oro)", "cacao": "Cacao en grano",
            "chile_seco": "Chile seco", "mandarina": "Mandarina y clementina"}

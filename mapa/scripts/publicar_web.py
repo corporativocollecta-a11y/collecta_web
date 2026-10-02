@@ -32,7 +32,8 @@ NOINDEX = '<meta name="robots" content="noindex, nofollow">'
 # Archivos que también generan las actualizaciones automáticas en GitHub Actions (clima-smn.yml y
 # actualizacion-semanal.yml de collecta_web); todos llevan "generado"
 AUTOMATICOS = ("clima_smn.js", "embarques.js", "pronostico.js", "alerta_oferta.js", "origen_exportacion.js",
-               "neto_semanal.js", "pronostico_sniim.js", "alertas_precio.js", "sequia.js", "precios_canada.js")
+               "neto_semanal.js", "pronostico_sniim.js", "alertas_precio.js", "sequia.js", "precios_canada.js",
+               "balanzas_siap.js", "psd_granos.js", "precios_granos.js")
 # Copia del proyecto en el sitio (collecta_web/mapa/) para que GitHub Actions corra la actualización semanal; sin
 # data/fuentes (descargas crudas, van en la caché de Actions) ni .env (la clave del USDA va como secreto)
 ESPEJO = SITIO / "mapa"

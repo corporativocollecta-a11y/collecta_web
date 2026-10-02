@@ -41,6 +41,10 @@ TITULOS = {
     "frambuesa": ("frambuesa",), "guayaba": ("guayaba",), "nopal": ("nopales",), "nuez": ("nuez",),
     "zarzamora": ("zarzamora",),  # su 2.ª línea es texto corrido: coincide por la 1.ª línea
     # zanahoria: el Panorama 2025 no tiene ficha → la app usa el consumo de respaldo de data/productos.js
+    # Granos: sus fichas dicen "Disponibilidad anual per cápita" (todos los usos). Maíz amarillo, sorgo y cebada dicen
+    # "N/A" (uso pecuario e industrial): la app usa el consumo aparente. Los dos trigos se suman en "trigo" (ver main).
+    "maiz_blanco": ("maiz blanco",), "frijol": ("frijol",), "arroz": ("arroz palay",), "soya": ("soya",),
+    "garbanzo": ("garbanzo",), "trigo_panificable": ("trigo panificable",), "trigo_cristalino": ("trigo cristalino",),
 }
 
 
@@ -53,7 +57,7 @@ def fichas(reader):
     algunos títulos ocupan dos líneas ("Tomate / verde", "Uva / fruta") se entregan ambas variantes."""
     for i, pagina in enumerate(reader.pages):
         texto = pagina.extract_text() or ""
-        if "Consumo anual" not in texto:
+        if "Consumo anual" not in texto and "Disponibilidad" not in texto:
             continue
         lineas = [l.strip() for l in texto.splitlines() if l.strip()]
         k = next((n for n, l in enumerate(lineas) if l.startswith("Panorama Agroalimentario")), None)
@@ -110,15 +114,17 @@ def main(pdf, anio):
             # 1) valor en kg/g que sigue a la etiqueta "Consumo anual" (evita pesos de fruto en la descripción,
             #    p. ej. sandía "de 2 hasta 20 kg"); 2) si no aparece así, único valor en kg/g de la ficha,
             #    descartando pesos de fruto ("500 g")
-            i = texto.find("Consumo anual")
-            despues = re.search(r"(\d+(?:\.\d+)?)\s*(kg|g)\b", texto[i:i + 200])
+            i = texto.find("Consumo anual") if "Consumo anual" in texto else texto.find("Disponibilidad")
+            despues = re.search(r"(\d+(?:\.\d+)?)\s*(kg|g)\b", texto[i:i + 200]) if i >= 0 else None
             if despues:
                 valores = [(float(despues.group(1)), despues.group(2))]
             else:
                 valores = [(float(v), u) for v, u in re.findall(r"(\d+(?:\.\d+)?)\s*(kg|g)\b", texto)]
             candidatos = [v if u == "kg" else v / 1000 for v, u in valores if not (u == "g" and v <= 500 and len(valores) > 1)]
             # con la etiqueta se admiten consumos pequeños (berenjena: 62 g); sin ella, se exige ≥ 100 g
-            candidatos = [c for c in candidatos if (0.01 if despues else 0.1) <= c <= 45]
+            # granos ("Disponibilidad"): hasta 200 kg (maíz blanco 164 kg); frutas y hortalizas: hasta 45 kg
+            tope = 200 if "Disponibilidad" in texto and "Consumo anual" not in texto else 45
+            candidatos = [c for c in candidatos if (0.01 if despues else 0.1) <= c <= tope]
             if not candidatos:
                 continue
             # producción nacional del año de datos: "21, 489, 704 toneladas 3, 723, 803 toneladas"
@@ -133,6 +139,14 @@ def main(pdf, anio):
         print(f"  {clave:9s} {resultado.get(clave, {}).get('consumoPC', 'NO ENCONTRADO')!s:>6} kg  (pág. {resultado.get(clave, {}).get('pagina')})"
               f"  producción de referencia: {resultado.get(clave, {}).get('produccionRef')}"
               f"  mensual: {resultado.get(clave, {}).get('mensual')}")
+
+    # trigo = panificable + cristalino (el mapa tiene un solo trigo; el SIAP los publica aparte)
+    tp, tc = resultado.pop("trigo_panificable", None), resultado.pop("trigo_cristalino", None)
+    if tp and tc:
+        resultado["trigo"] = {"consumoPC": round(tp["consumoPC"] + tc["consumoPC"], 1), "pagina": tp["pagina"], "mensual": None,
+                              "produccionRef": (tp["produccionRef"] or 0) + (tc["produccionRef"] or 0) or None,
+                              "partes": {"panificable": tp["consumoPC"], "cristalino": tc["consumoPC"]}}
+        print(f"  trigo      {resultado['trigo']['consumoPC']} kg (panificable {tp['consumoPC']} + cristalino {tc['consumoPC']})")
 
     with urllib.request.urlopen(POB_URL.format(anio=anio), timeout=120) as r:
         pob = {str(x["State ID"]).zfill(2): x["Projected Population"] for x in json.loads(r.read())["data"]}

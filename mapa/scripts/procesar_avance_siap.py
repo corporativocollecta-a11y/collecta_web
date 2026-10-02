@@ -30,6 +30,10 @@ CULTIVOS = {
     "zarzamora": 420, "brocoli": 57, "calabacita": 63, "cebolla": 78, "mango": 230, "papaya": 285, "melon": 241,
     "sandia": 326, "uva": 401, "esparrago": 132, "lechuga": 206, "berenjena": 53, "tomate_verde": 390, "coliflor": 105,
     "naranja": 259, "platano": 304, "pina": 296, "zanahoria": 416, "nopal": 268, "guayaba": 175, "papa": 283,
+    # granos y leguminosas; el maíz grano se pide por variedad (440 blanco, 438 amarillo; el resto —azul, pozolero, de color,
+    # sin clasificar— es menos de 1% y no se separa)
+    "maiz_blanco": (225, 440), "maiz_amarillo": (225, 438), "frijol": 152, "trigo": 395, "sorgo": 374, "arroz": 36,
+    "soya": 375, "cebada": 77, "garbanzo": 159,
 }
 
 
@@ -38,10 +42,12 @@ def norm(t):
 
 
 def consulta(cultivo, anio, mes):
-    ruta = CARPETA / f"{cultivo}_{anio}_{mes:02d}.html"
+    """cultivo = id del SIAP o (id, variedad)."""
+    cultivo, variedad = cultivo if isinstance(cultivo, tuple) else (cultivo, "--")
+    ruta = CARPETA / (f"{cultivo}_{anio}_{mes:02d}.html" if variedad == "--" else f"{cultivo}v{variedad}_{anio}_{mes:02d}.html")
     if ruta.exists() and ruta.stat().st_size > 2000:
         return ruta.read_bytes().decode("latin-1")
-    args = [1, anio, 5, 3, 0, "--", "--", cultivo, 200201, "--", 2, 0, 0, 0, mes]
+    args = [1, anio, 5, 3, 0, "--", "--", cultivo, 200201, variedad, 2, 0, 0, 0, mes]
     cmd = ["curl", "-sS", "--retry", "4", "--retry-delay", "3", "--max-time", "120", "-A", "Mozilla/5.0", "-X", "POST", URL,
            "--data-urlencode", "xajax=reporte", "--data-urlencode", "xajaxr=1"]
     for a in args:

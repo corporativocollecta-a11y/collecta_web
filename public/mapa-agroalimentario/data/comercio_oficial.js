@@ -464,6 +464,175 @@ window.COMERCIO_OFICIAL = {
     "080299"
    ]
   },
+  "frijol": {
+   "exportacion": 70700,
+   "importacion": 95600,
+   "valorExportUSD": 109512850,
+   "valorImportUSD": 97326616,
+   "destinos": {
+    "Estados Unidos": 0.5235,
+    "Perú": 0.2886,
+    "El Salvador": 0.0576,
+    "Brasil": 0.0308,
+    "Portugal": 0.0281,
+    "Otros": 0.0714
+   },
+   "origenes": {
+    "Estados Unidos": 0.7357,
+    "Canadá": 0.1166,
+    "Argentina": 0.0701,
+    "Otros": 0.0776
+   },
+   "fracciones": [
+    "071333",
+    "071339"
+   ],
+   "fuenteComercio": "SIAP, balanza disponibilidad-consumo 2024/25",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 12821,
+    "importacion": 252407
+   }
+  },
+  "trigo": {
+   "exportacion": 25000,
+   "importacion": 5698800,
+   "valorExportUSD": 11996742,
+   "valorImportUSD": 1496289807,
+   "destinos": {},
+   "origenes": {
+    "Estados Unidos": 0.8334,
+    "Canadá": 0.1586,
+    "Francia": 0.008
+   },
+   "fracciones": [
+    "100119",
+    "100199"
+   ],
+   "fuenteComercio": "SIAP, balanza disponibilidad-consumo 2025/26",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 0,
+    "importacion": 2729588
+   }
+  },
+  "sorgo": {
+   "exportacion": 0,
+   "importacion": 583172,
+   "valorExportUSD": 0,
+   "valorImportUSD": 117965842,
+   "destinos": {},
+   "origenes": {
+    "Estados Unidos": 0.9964,
+    "Otros": 0.0036
+   },
+   "fracciones": [
+    "100790"
+   ],
+   "fuenteComercio": "Comtrade/INEGI 2025",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 0,
+    "importacion": 583172
+   }
+  },
+  "arroz": {
+   "exportacion": 80000,
+   "importacion": 1198194,
+   "valorExportUSD": 56443542,
+   "valorImportUSD": 597277205,
+   "destinos": {
+    "Estados Unidos": 0.8359,
+    "Cuba": 0.1641
+   },
+   "origenes": {
+    "Estados Unidos": 0.8504,
+    "Tailandia": 0.1271,
+    "Brasil": 0.0205,
+    "Otros": 0.002
+   },
+   "fracciones": [
+    "100610",
+    "100620",
+    "100630",
+    "100640"
+   ],
+   "fuenteComercio": "SIAP, balanza disponibilidad-consumo 2024/25",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 12887,
+    "importacion": 327950
+   }
+  },
+  "soya": {
+   "exportacion": 0,
+   "importacion": 6577631,
+   "valorExportUSD": 0,
+   "valorImportUSD": 2783239401,
+   "destinos": {},
+   "origenes": {
+    "Estados Unidos": 0.7567,
+    "Brasil": 0.2433
+   },
+   "fracciones": [
+    "120190"
+   ],
+   "fuenteComercio": "importación: FAOSTAT 2024 (espejo); exportación: Comtrade/INEGI 2025",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 0,
+    "importacion": 2538379
+   }
+  },
+  "cebada": {
+   "exportacion": 946,
+   "importacion": 445648,
+   "valorExportUSD": 368061,
+   "valorImportUSD": 135699816,
+   "destinos": {},
+   "origenes": {
+    "Francia": 0.6041,
+    "Australia": 0.3628,
+    "Estados Unidos": 0.032,
+    "Otros": 0.0011
+   },
+   "fracciones": [
+    "100390"
+   ],
+   "fuenteComercio": "importación: FAOSTAT 2024 (espejo); exportación: Comtrade/INEGI 2025",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 946,
+    "importacion": 0
+   }
+  },
+  "garbanzo": {
+   "exportacion": 135010,
+   "importacion": 654,
+   "valorExportUSD": 201530780,
+   "valorImportUSD": 0,
+   "destinos": {
+    "Turquía": 0.5281,
+    "España": 0.1187,
+    "Estados Unidos": 0.0735,
+    "Argelia": 0.0438,
+    "United Arab Emirates": 0.0437,
+    "Otros": 0.1922
+   },
+   "origenes": {
+    "Canadá": 0.9694,
+    "Estados Unidos": 0.0306
+   },
+   "fracciones": [
+    "071320"
+   ],
+   "fuenteComercio": "importación: FAOSTAT 2024 (espejo); exportación: Comtrade/INEGI 2025",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 135010,
+    "importacion": 0
+   }
+  },
   "frambuesa": {
    "exportacion": 82147,
    "importacion": 0,
@@ -523,6 +692,60 @@ window.COMERCIO_OFICIAL = {
    "origenes": {},
    "fracciones": [],
    "fuenteComercio": "USDA 2025 (cruces registrados; sin fracción arancelaria propia)"
+  },
+  "maiz_blanco": {
+   "exportacion": 2900,
+   "importacion": 841200,
+   "valorExportUSD": 1970377,
+   "valorImportUSD": 192326979,
+   "destinos": {
+    "Cuba": 0.3148,
+    "Venezuela": 0.3057,
+    "Guatemala": 0.1823,
+    "Estados Unidos": 0.1784,
+    "El Salvador": 0.0099,
+    "Otros": 0.0089
+   },
+   "origenes": {
+    "Estados Unidos": 0.9986,
+    "Otros": 0.0014
+   },
+   "fracciones": [
+    "100590"
+   ],
+   "fuenteComercio": "SIAP, balanza disponibilidad-consumo 2024/25",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 3469,
+    "importacion": 347434
+   }
+  },
+  "maiz_amarillo": {
+   "exportacion": 3500,
+   "importacion": 23917400,
+   "valorExportUSD": 2378452,
+   "valorImportUSD": 5468336019,
+   "destinos": {
+    "Cuba": 0.3148,
+    "Venezuela": 0.3057,
+    "Guatemala": 0.1823,
+    "Estados Unidos": 0.1784,
+    "El Salvador": 0.0099,
+    "Otros": 0.0089
+   },
+   "origenes": {
+    "Estados Unidos": 0.9986,
+    "Otros": 0.0014
+   },
+   "fracciones": [
+    "100590"
+   ],
+   "fuenteComercio": "SIAP, balanza disponibilidad-consumo 2024/25",
+   "paisesFuente": "FAOSTAT 2024, matriz de comercio",
+   "comtradeMexico": {
+    "exportacion": 4186,
+    "importacion": 9878403
+   }
   }
  }
 };

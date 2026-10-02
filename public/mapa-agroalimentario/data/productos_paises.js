@@ -21,6 +21,7 @@ window.PRODUCTOS_PAISES = {
   ciruela:      { nombre: "Ciruela", tipo: "Fruta", color: "#7e22ce" },
   coco:         { nombre: "Coco", tipo: "Fruta", color: "#a16207" },
   ajo:          { nombre: "Ajo", tipo: "Hortaliza", color: "#d6d3d1" },
+  maiz:         { nombre: "Maíz grano", tipo: "Grano", color: "#e9c46a" },   // vistas internacionales (FAOSTAT no separa colores)
   ejote:        { nombre: "Ejote", tipo: "Hortaliza", color: "#16a34a" },
   chile_seco:   { nombre: "Chile seco", tipo: "Hortaliza", color: "#991b1b" },
   cafe:         { nombre: "Café", tipo: "Otro", color: "#78350f" },

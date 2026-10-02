@@ -24,7 +24,10 @@
   const precioNoComparable = {
     pera: "El mayoreo (SNIIM) y el consumidor (PROFECO) son de pera D'Anjou, casi toda importada; el precio rural es de pera criolla nacional.",
     durazno: "El mayoreo y el consumidor son de durazno amarillo de primera; el precio rural mezcla criollo y durazno para industria.",
-    nuez: "El precio al consumidor es de nuez pelada en mitades; el rural y el de mayoreo son de nuez con cáscara."
+    nuez: "El precio al consumidor es de nuez pelada en mitades; el rural y el de mayoreo son de nuez con cáscara.",
+    maiz_blanco: "El precio al consumidor es de tortilla de maíz: de 1 kg de grano salen cerca de 1.5 kg de tortilla, con molienda, gas y mano de obra de por medio.",
+    trigo: "El precio al consumidor es de harina de trigo empacada; el rural es de grano.",
+    arroz: "El precio rural es de arroz palay (con cáscara); el mayoreo y el consumidor son de arroz pulido: de 1 kg de palay salen cerca de 0.72 kg de pulido."
   };
   const usdaES = s => s == null || document.documentElement.lang === "en" ? s : USDA_ES.reduce((x, [re, r]) => x.replace(re, r), String(s));
 

@@ -81,6 +81,22 @@ def main():
     if ps and ps["productos"]:
         u = max(date.fromisoformat(p["ultima"]) for p in ps["productos"].values())
         agregar("sniim_semanal", "SNIIM: precio semanal de mayoreo", u + timedelta(days=6), f"semana del {u.day} de {MESES[u.month - 1]}", 7, 9, "procesar_pronostico_sniim.py")
+    bal = leer("balanzas_siap")
+    if bal:
+        # fecha del último mes con dato observado (no estimado) de la balanza del maíz blanco
+        r = max((c for c in bal["productos"].get("maiz_blanco", {}).values()), key=lambda c: c["desde"], default=None)
+        if r:
+            i = (r["estimadoDesde"] if r.get("estimadoDesde") is not None else len(r["meses"])) - 1
+            m, a = r["meses"][i].split()
+            agregar("siap_balanzas", "SIAP: balanzas disponibilidad-consumo de granos", fin_mes(int(a), MESES.index(m) + 1), f"{m} de {a}", 31, 60, "procesar_balanzas_siap.py")
+    psd = leer("psd_granos")
+    if psd:
+        g = date.fromisoformat(psd["generado"])
+        agregar("usda_psd", "USDA PSD: balance y proyección de granos", g, f"consultado el {g.day} de {MESES[g.month - 1]}", 31, 15, "procesar_psd.py")
+    pg = leer("precios_granos")
+    if pg:
+        a, m = map(int, pg["ultimo"].split("-"))
+        agregar("bm_granos", "Banco Mundial: precio internacional de granos", fin_mes(a, m), f"{MESES[m - 1]} de {a}", 31, 35, "procesar_precios_granos.py")
     ca = leer("precios_canada")
     if ca:
         h = date.fromisoformat(ca["hasta"])

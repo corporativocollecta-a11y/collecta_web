@@ -282,7 +282,8 @@
     const disp = n.produccion - (p.exportacion ?? 0) + (p.importacion ?? 0), imp = (p.importacion ?? 0) / (disp || 1);
     if (imp >= 0.05) partes.push(`importa ${pct(Math.min(1, imp))} de lo que consume`);
     const cubre = disp / (n.demanda || 1);
-    if (!noCuadra) partes.push(cubre < 0.9 ? `lo que queda en el país cubre ${pct(cubre)} del consumo de referencia`
+    // con el consumo aparente (sin consumo oficial) "lo que queda cubre su consumo" es cierto por definición: no se dice
+    if (!noCuadra && res.base === "oficial") partes.push(cubre < 0.9 ? `lo que queda en el país cubre ${pct(cubre)} del consumo de referencia`
       : cubre > 1.1 ? `lo que queda en el país supera ${pct(cubre - 1)} el consumo de referencia` : "lo que queda en el país cubre su consumo");
     const al = window.Alerta?.disponible(res.clave) ? Alerta.calcular(res.clave) : null;
     if (al?.s != null) {
@@ -363,9 +364,12 @@
       </div>
       ${nota}
       ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${window.Granos?.esGrano(res.clave) && Granos.tieneBalanza(res.clave) ? S("granos_balanza", `<h3>Balanza oficial: oferta y demanda <span class="tag ok">SIAP</span></h3>${Granos.balanzaHTML(res.clave)}`, Granos.resumenBalanza(res.clave), { abierta: true }) : ""}
+      ${window.Granos?.esGrano(res.clave) && Granos.tienePSD(res.clave) ? S("granos_psd", `<h3>México y el mundo, con proyección <span class="tag ok">USDA</span></h3>${Granos.psdHTML(res.clave)}`, Granos.resumenPSD(res.clave)) : ""}
+      ${window.Granos?.esGrano(res.clave) && Granos.tienePrecio(res.clave) ? S("granos_precio", `<h3>Precio internacional contra el nacional <span class="tag ok">Banco Mundial</span></h3>${Granos.precioHTML(res.clave)}`, Granos.resumenPrecio(res.clave)) : ""}
       ${window.OfertaGlobal && window.GLOBAL?.productos?.[res.clave] ? S("mundo_mx", `<h3>México en la oferta mundial <span class="tag ok">FAOSTAT</span></h3>${OfertaGlobal.marca(res.clave, "mx")}`,
         "De dónde importa, a dónde vende y qué rutas serían más cortas") : ""}
-      ${window.PronosticoSNIIM ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
+      ${window.PronosticoSNIIM && window.PRECIOS_SNIIM?.productos?.[res.clave] && !window.Granos?.esGrano(res.clave) ? S("pronostico_mx", `<h3>Pronóstico de 8 semanas en las centrales <span class="tag ok">SNIIM</span></h3>${PronosticoSNIIM.marca(res.clave)}`, AUTO) : ""}
       ${window.Alerta?.disponible(res.clave) ? S("alerta", `<h3>Siembras y cosechas: alerta de oferta <span class="tag ok">SIAP</span></h3>${Alerta.html(res.clave)}`, Alerta.resumen(res.clave),
         { abierta: Math.abs(Alerta.calcular(res.clave).s ?? 0) >= 0.15 }) : ""}
       ${S("estacionalidad", Estacionalidad.balanceHTML(res, escenario()), Estacionalidad.resumen(res))}
@@ -373,7 +377,7 @@
       ${window.Sequia ? S("sequia", Sequia.balanceHTML(res.clave, res.producto.nombre), Sequia.resumen(res.clave)) : ""}
       ${window.Costos?.disponible(res.clave) ? S("costos", `<h3>Costo de producción contra precio al productor <span class="tag ok">FIRA · SIAP</span></h3>${Costos.html(res.clave)}`, Costos.resumen(res.clave)) : ""}
       ${window.Siniestros?.disponible(res.clave) ? S("siniestros", `<h3>Pérdidas por siniestro en diez años <span class="tag ok">SIAP</span></h3>${Siniestros.html(res.clave)}`, Siniestros.resumen(res.clave)) : ""}
-      ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3><p class="sub">Cifras de FAOSTAT (hasta 2024) para comparar con otros países: pueden diferir del SIAP y de la estadística de comercio 2025 que usa el resto del panel.</p>${Historia.marca("pais", res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
+      ${window.Historia && res.clave !== "arandano" ? S("historia", `<h3>México en diez años <span class="tag ok">FAOSTAT</span></h3><p class="sub">Cifras de FAOSTAT (hasta 2024) para comparar con otros países: pueden diferir del SIAP y de la estadística de comercio 2025 que usa el resto del panel.${/^maiz_/.test(res.clave) ? " Maíz grano, blanco y amarillo juntos (FAOSTAT no los separa)." : ""}</p>${Historia.marca("pais", /^maiz_/.test(res.clave) ? "maiz" : res.clave, { pais: "484", titulo: "" })}`, AUTO) : ""}
       ${origen1 ? S("importaciones", `<h3>Origen de las importaciones</h3>${barras(p.origenes)}`, `Primer origen: ${origen1[0]}, ${pctFino(origen1[1])} del volumen importado`) : ""}
       ${S("entidades", `<h3>Principales entidades productoras</h3>
       <table>
@@ -422,9 +426,11 @@
       ${window.Mercado ? Mercado.selectorHTML() : ""}
       ${destino1 ? S("destinos", `<h3>Destino de las exportaciones (por volumen)</h3>${barras(p.destinos)}`,
         `Primer destino: ${destino1[0]}, ${pctFino(destino1[1])} del volumen`, { abierta: true }) : ""}
+      ${window.Granos?.esGrano(k) && Granos.importacionHTML(k) ? S("granos_import", `<h3>Importación: de dónde llega <span class="tag ok">FAOSTAT · USDA</span></h3>${Granos.importacionHTML(k)}`,
+        Object.entries(p.origenes ?? {}).filter(([o]) => o !== "Otros").slice(0, 2).map(([o, v]) => `${o} ${pctFino(v)}`).join(" · "), { abierta: true }) : ""}
       ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
-      ${window.Embarques ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
-      ${window.Embarques ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}
+      ${window.Embarques && !window.Granos?.esGrano(k) ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
+      ${window.Embarques && !window.Granos?.esGrano(k) ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}
       ${f && !estado.entidadElegida ? `<p class="sub nota-estado">Las secciones por estado muestran <b>${f.nombre}</b>, el que más produce ${p.nombre.toLowerCase()}. Toca tu estado en el mapa para verlas con el tuyo.</p>` : ""}
       ${window.PreciosEUA && f?.prod > 0 ? S("neto", PreciosEUA.netoHTML(k, f, p.precioRural, tarifa, res.filas), PreciosEUA.netoResumen(k, f, p.precioRural, tarifa)) : ""}
       ${window.Planeador?.disponible(k) && f?.prod > 0 ? S("plan", `<h3>Planear la venta de ${f.nombre} <span class="tag ok">USDA · SNIIM · SIAP</span></h3>${Planeador.marca(k, f, tarifa)}`, `Exportar o vender en México, mes a mes, con el volumen que esperas`) : ""}
@@ -779,6 +785,9 @@
         <li><b>Sequía</b>: Monitor de Sequía de México por municipio (CONAGUA / Servicio Meteorológico Nacional), último corte quincenal, cruzado con la producción municipal del SIAP.</li>
         <li><b>Historia de 10 años</b>: producción, exportación e importación 2015–2024 por país (FAOSTAT).</li>
         <li><b>Estados Unidos</b> – selector <i>Ver país…</i>: producción por estado de USDA NASS Quick Stats 2025 (mercado fresco; donde NASS reserva el dato, reparto con la superficie del Censo Agropecuario 2022), población 2025 del Census Bureau y comercio de FAOSTAT, incluida la exportación de México a EE. UU. Precios de mayoreo 2025 de USDA AMS Market News: 11 mercados terminales y precio FOB del producto mexicano en los cruces de Nogales, McAllen y Otay Mesa.</li>
+        <li><b>Granos y leguminosas</b>: balanzas disponibilidad-consumo del SIAP (maíz blanco y amarillo, frijol, arroz y trigo; ciclo comercial octubre–septiembre con los meses que faltan estimados); maíz por color con el avance de siembras y cosechas por variedad del SIAP; balance y proyección de México y del mundo del USDA (FAS, PSD Online); precio internacional mensual del Banco Mundial (Pink Sheet) y del FMI (cebada), con el tipo de cambio de la Reserva Federal; mayoreo de granos básicos del SNIIM (semanal). El comercio de granos que México reporta a Comtrade queda muy por debajo del de la balanza del SIAP y del que reportan los países exportadores: se usa la balanza o, si no la hay, el mayor de los dos.</li>
+        <li><b>Canadá</b>: precio de mayoreo en Toronto y Montreal por país de origen (Agriculture and Agri-Food Canada, InfoHort, diario) con el tipo de cambio DEXCAUS de la Reserva Federal.</li>
+        <li><b>Oferta, demanda y rutas en el mundo</b>: matriz detallada de comercio de FAOSTAT 2024 y ruta mínima por programación lineal (problema de transporte).</li>
         <li><b>ENIGH 2024 (INEGI, nueva serie)</b>: kilos comprados por los hogares en la semana de referencia, por producto y estado, con el factor de expansión. Da un índice del consumo por persona de cada estado frente al nacional (con pocos hogares en la muestra se acerca a 1) que reparte la demanda nacional entre estados sin cambiar el total. Mide lo que compran los hogares: no incluye restaurantes ni industria. Se puede apagar en el simulador.</li>
         <li><b>FAOSTAT (FAO)</b> – vista <i>Latinoamérica</i>: producción, superficie, exportación e importación (t y USD) y población de 34 países de América Latina y el Caribe, año 2024, desde las descargas masivas de la región Américas. Para comparar países se usa FAOSTAT también para México, cuyas cifras pueden diferir de las del SIAP. El comercio bilateral viene de la matriz detallada de comercio de FAOSTAT: salidas de países latinoamericanos según el exportador y llegadas desde fuera de la región según el importador. La vista <i>Mundo</i> usa los archivos mundiales de FAOSTAT (231 países; sin agregados regionales) y solo lo que reporta cada exportador.</li>
       </ul>
@@ -858,6 +867,7 @@
   function render() {
     if (estado.region === "sub") return renderSub();
     if (estado.region !== "mx") return renderLatam();
+    if (estado.producto === "maiz") estado.producto = "maiz_blanco";   // FAOSTAT no separa colores; en México sí
     if (!window.PRODUCTOS[estado.producto]) estado.producto = "jitomate";  // producto que solo existe en vistas por país
     recalcular();
     // Sin estado elegido, las pestañas Entidad y Exportar muestran el estado que más produce (no siempre Sinaloa)
@@ -897,6 +907,7 @@
 
   // ---------- Vista Latinoamérica (FAOSTAT) ----------
   function renderLatam() {
+    if (/^maiz_/.test(estado.producto) && Latam.disponible("maiz")) estado.producto = "maiz";
     if (!Latam.disponible(estado.producto)) estado.producto = Latam.claves()[0];
     indicadores = Latam.indicadores();
     renderLista();

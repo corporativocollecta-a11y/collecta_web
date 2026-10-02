@@ -1793,7 +1793,13 @@ for _pre_es, _pre_en in (("No se calcula cuánto llega al productor: ", "The sha
             ("El mayoreo y el consumidor son de @ amarillo de primera; el precio rural mezcla criollo y @ para industria.",
              "Wholesale and consumer prices are for top-grade yellow @; the farm-gate price mixes native and processing @."),
             ("El precio al consumidor es de @ pelada en mitades; el rural y el de mayoreo son de @ con cáscara.",
-             "The consumer price is for shelled @ halves; the farm-gate and wholesale prices are for in-shell @.")):
+             "The consumer price is for shelled @ halves; the farm-gate and wholesale prices are for in-shell @."),
+            ("El precio al consumidor es de tortilla de @: de # kg de grano salen cerca de # kg de tortilla, con molienda, gas y mano de obra de por medio.",
+             "The consumer price is for @ tortillas: # kg of grain yields about # kg of tortillas, with milling, gas and labor in between."),
+            ("El precio al consumidor es de harina de @ empacada; el rural es de grano.",
+             "The consumer price is for packaged @ flour; the farm-gate price is for grain."),
+            ("El precio rural es de @ palay (con cáscara); el mayoreo y el consumidor son de @ pulido: de # kg de palay salen cerca de # kg de pulido.",
+             "The farm-gate price is for paddy @; wholesale and consumer prices are for milled @: # kg of paddy yields about # kg of milled rice.")):
         EXTRA[_pre_es + _n_es] = _pre_en + _n_en
 for _sep_es, _sep_en in ((", ", ", "), (" y ", " and ")):
     for _n in (2, 3, 4):
@@ -1893,6 +1899,126 @@ EXTRA.update({
     "Produce #% del mundo (# Mt) y aporta #% de su exportación. Le sigue": "It produces #% of the world total (# Mt) and supplies #% of its exports. Next is",
     "@: — · #% del mundo": "@: — · #% of the world",
 })
+# Granos y leguminosas (js/granos.js, notas de data/productos.js, precios, fuentes)
+_PG_INT = " (Banco Mundial, Commodity Price Data (Pink Sheet), mensual; tipo de cambio: Reserva Federal (DEXMXUS)), convertido con el tipo de cambio de cada mes; no incluye flete, aranceles ni manejo hasta @."
+_PG_INT_EN = " (World Bank, Commodity Price Data (Pink Sheet), monthly; exchange rate: Federal Reserve (DEXMXUS)), converted at each month's exchange rate; excludes freight, tariffs and handling to @."
+_BAL = "SIAP, análisis de balanzas disponibilidad-consumo (reporte de @ # publicado el # de @ de #); ciclo comercial de @ # a @ #"
+_BAL_EN = "SIAP, availability–consumption balance analysis (report for @ # published # @ #); marketing year from @ # to @ #"
+EXTRA.update({
+    "Balanza oficial: oferta y demanda": "Official balance: supply and demand",
+    "Ciclo #/#: importación # mil t, #% del consumo": "Marketing year #/#: imports # thousand t, #% of consumption",
+    "Ciclo #/#: importación # Mt, #% del consumo": "Marketing year #/#: imports # Mt, #% of consumption",
+    "del consumo se cubre con importación (ciclo #/#; con meses estimados)": "of consumption is covered by imports (#/# marketing year; with estimated months)",
+    "del consumo se cubre con importación (ciclo #/#)": "of consumption is covered by imports (#/# marketing year)",
+    "inventario al cierre del ciclo ≈ # meses de consumo (#% contra #/#)": "ending stocks ≈ # months of consumption (#% vs. #/#)",
+    "inventario al cierre del ciclo ≈ # meses de consumo": "ending stocks ≈ # months of consumption",
+    "Miles de toneladas": "Thousand tonnes", "Cambio": "Change", "Inventario inicial": "Beginning stocks", "Oferta total": "Total supply",
+    "Consumo humano": "Food use", "Consumo pecuario": "Feed use", "Mermas": "Losses", "Demanda total": "Total demand", "Consumo": "Consumption",
+    "Oferta por mes del ciclo #/# (miles de t)": "Supply by month, #/# marketing year (thousand t)", "Meses estimados": "Estimated months",
+    _BAL + " Inventario al cierre = oferta − demanda.": _BAL_EN + " Ending stocks = supply − demand.",
+    _BAL + " Suma del @ panificable y el cristalino. Inventario al cierre = oferta − demanda.": _BAL_EN + " Sum of bread and durum @. Ending stocks = supply − demand.",
+    _BAL + " Convertido a @ palay (pulido ÷ #) para compararlo con la producción del mapa. Inventario al cierre = oferta − demanda.":
+        _BAL_EN + " Converted to paddy @ (milled ÷ #) to compare with the map's production. Ending stocks = supply − demand.",
+    "@ y el mundo, con proyección": "@ and the world, with projection",
+    "#/#: @ #º importador del mundo · inventario mundial #% del consumo": "#/#: @ is the world's No. # importer · world stocks #% of consumption",
+    "importador del mundo en #/# (proyección del USDA); el USDA no separa blanco y amarillo": "importer in the world in #/# (USDA projection); USDA does not split white and yellow",
+    "importador del mundo en #/# (proyección del USDA)": "importer in the world in #/# (USDA projection)",
+    "del consumo de @ importado en #/# (# Mt de # Mt)": "of @'s consumption imported in #/# (# Mt of # Mt)",
+    "del consumo de @ importado en #/# (# mil t de # Mt)": "of @'s consumption imported in #/# (# thousand t of # Mt)",
+    "del consumo de @ importado en #/# (# mil t de # mil t)": "of @'s consumption imported in #/# (# thousand t of # thousand t)",
+    "inventario mundial entre consumo al cierre de #/# (# pts contra #/#): más alto, más holgura y precios más bajos":
+        "world stocks-to-use at the end of #/# (# pts vs. #/#): higher means more slack and lower prices",
+    "@ por ciclo comercial (el último es proyección)": "@ by marketing year (the last one is a projection)",
+    "USDA FAS, Production, Supply and Distribution (PSD), con la proyección del último informe WASDE; años comerciales del USDA. Puede diferir de la balanza del SIAP (otro calendario y otras fuentes).":
+        "USDA FAS, Production, Supply and Distribution (PSD), with the latest WASDE projection; USDA marketing years. It may differ from SIAP's balance (other calendar and sources).",
+    "USDA FAS, Production, Supply and Distribution (PSD), con la proyección del último informe WASDE; años comerciales del USDA, @ pulido. Puede diferir de la balanza del SIAP (otro calendario y otras fuentes).":
+        "USDA FAS, Production, Supply and Distribution (PSD), with the latest WASDE projection; USDA marketing years, milled @. It may differ from SIAP's balance (other calendar and sources).",
+    "Precio internacional contra el nacional": "International vs. domestic price", "Banco Mundial": "World Bank",
+    "Internacional US$#/t en @ #": "International US$#/t in @ #",
+    "precio internacional en @ # ($# pesos por kg), #% contra hace un año": "international price in @ # (MX$# per kg), #% vs. a year ago",
+    "mayoreo nacional (SNIIM # mediana de # centrales)": "domestic wholesale (SNIIM # median of # markets)",
+    "precio al productor (SIAP)": "farm-gate price (SIAP)", "@ #": "@ #",
+    "Internacional (pesos/kg)": "International (MXN/kg)", "Mayoreo SNIIM": "SNIIM wholesale", "Productor SIAP": "SIAP farm-gate",
+    "Internacional: @ @ No. # FOB Golfo" + _PG_INT: "International: @, @ No. # FOB Gulf" + _PG_INT_EN,
+    "Internacional: @ @ No. # FOB Golfo" + _PG_INT + " Sin precio internacional vigente de @ (el Banco Mundial lo dejó de publicar en #): se muestra el del @, al que suele seguir de cerca.":
+        "International: @, @ No. # FOB Gulf" + _PG_INT_EN + " No current international @ price (the World Bank stopped publishing it in #): @ is shown, which it usually tracks closely.",
+    "Internacional: @ rojo duro de invierno (HRW) @, FOB Golfo" + _PG_INT: "International: hard red winter (HRW) @ @, FOB Gulf" + _PG_INT_EN,
+    "Internacional: @ blanco tailandés #% quebrado, FOB Bangkok" + _PG_INT + " Es precio de @ blanco; el mayoreo del SNIIM es @ pulido y el del productor, palay (más barato por kg).":
+        "International: Thai white @ #% broken, FOB Bangkok" + _PG_INT_EN + " It is a white @ price; SNIIM wholesale is milled @ and the farm-gate price is paddy (cheaper per kg).",
+    "Internacional: @, CIF Rotterdam" + _PG_INT: "International: @, CIF Rotterdam" + _PG_INT_EN,
+    "Internacional: @ (FMI)" + _PG_INT: "International: @ (IMF)" + _PG_INT_EN,
+    "Cifras de FAOSTAT (hasta #) para comparar con otros países: pueden diferir del SIAP y de la estadística de comercio # que usa el resto del panel. @, blanco y amarillo juntos (FAOSTAT no los separa).":
+        "FAOSTAT figures (up to #) to compare with other countries: they may differ from SIAP and from the # trade statistics used in the rest of the panel. @, white and yellow together (FAOSTAT does not split them).",
+    "Importación: de dónde llega": "Imports: where they come from", "FAOSTAT · USDA": "FAOSTAT · USDA",
+    "De dónde llega lo que importa @": "Where @'s imports come from", "Quién importa en el mundo (#/#)": "Who imports in the world (#/#)",
+    "FAOSTAT # matriz de comercio · volumen: SIAP, balanza disponibilidad-consumo #/#": "FAOSTAT # trade matrix · volume: SIAP, availability–consumption balance #/#",
+    "FAOSTAT # matriz de comercio · volumen: Comtrade/INEGI #": "FAOSTAT # trade matrix · volume: Comtrade/INEGI #",
+    "FAOSTAT # matriz de comercio · volumen: importación: FAOSTAT # (espejo); exportación: Comtrade/INEGI #":
+        "FAOSTAT # trade matrix · volume: imports: FAOSTAT # (mirror); exports: Comtrade/INEGI #",
+    "Comercio: SIAP, balanza disponibilidad-consumo #/#": "Trade: SIAP, availability–consumption balance #/#",
+    "Comercio: importación: FAOSTAT # (espejo); exportación: Comtrade/INEGI #": "Trade: imports: FAOSTAT # (mirror); exports: Comtrade/INEGI #",
+    "Comercio: Comtrade/INEGI #": "Trade: Comtrade/INEGI #",
+    "Lo que @ reporta a Naciones Unidas (Comtrade) es menor: # mil t importadas. Se usa la balanza del SIAP o lo que reportan los países exportadores.":
+        "What @ reports to the United Nations (Comtrade) is lower: # thousand t imported. SIAP's balance or what exporting countries report is used.",
+    "Lo que @ reporta a Naciones Unidas (Comtrade) es menor: # Mt importadas. Se usa la balanza del SIAP o lo que reportan los países exportadores.":
+        "What @ reports to the United Nations (Comtrade) is lower: # Mt imported. SIAP's balance or what exporting countries report is used.",
+    "SIAP: balanzas disponibilidad-consumo de @": "SIAP: availability–consumption balances for @",
+    "USDA PSD: balance y proyección de @": "USDA PSD: @ balance and projection", "consultado el # de @": "retrieved # @",
+    "Banco Mundial: precio internacional de @": "World Bank: international @ prices",
+    ": balanzas disponibilidad-consumo del SIAP (@ y amarillo, @, @ y @; ciclo comercial @–@ con los meses que faltan estimados); @ por color con el avance de siembras y cosechas por variedad del SIAP; balance y proyección de @ y del mundo del USDA (FAS, PSD Online); precio internacional mensual del Banco Mundial (Pink Sheet) y del FMI (@), con el tipo de cambio de la Reserva Federal; mayoreo de @ básicos del SNIIM (semanal). El comercio de @ que @ reporta a Comtrade queda muy por debajo del de la balanza del SIAP y del que reportan los países exportadores: se usa la balanza o, si no la hay, el mayor de los dos.":
+        ": SIAP availability–consumption balances (@ and yellow, @, @ and @; @–@ marketing year with the missing months estimated); @ by color from SIAP's planting and harvest progress by variety; balance and projection for @ and the world from USDA (FAS, PSD Online); monthly international prices from the World Bank (Pink Sheet) and the IMF (@), at the Federal Reserve exchange rate; SNIIM wholesale prices of basic @ (weekly). The @ trade that @ reports to Comtrade is far below SIAP's balance and what exporting countries report: the balance is used or, without it, the larger of the two.",
+    ": precio de mayoreo en Toronto y Montreal por país de origen (Agriculture and Agri-Food Canada, InfoHort, diario) con el tipo de cambio DEXCAUS de la Reserva Federal.":
+        ": wholesale prices in Toronto and Montreal by country of origin (Agriculture and Agri-Food Canada, InfoHort, daily) at the Federal Reserve DEXCAUS exchange rate.",
+    ": matriz detallada de comercio de FAOSTAT # y ruta mínima por programación lineal (problema de transporte).":
+        ": FAOSTAT # detailed trade matrix and minimum route by linear programming (transportation problem).",
+    "en la lista de la izquierda. Puedes buscarlo o filtrar @, @ y @.": "in the list on the left. You can search for it or filter @, @ and @.",
+    "No hay precios de frontera ni de centrales de abasto para este producto en los meses de cosecha del estado.":
+        "There are no border or wholesale market prices for this product in the state's harvest months.",
+    "Importación oficial · US$# mil M": "Official imports · US$# billion", "necesaria según modelo: # Mt": "required by the model: # Mt",
+    "# mil t ·": "# thousand t ·", "Kenya": "Kenya", "Jordan": "Jordan", "United Arab Emirates": "United Arab Emirates",
+    "Tortillerías": "Tortilla shops", "Panaderías": "Bakeries", "Bolsa # Gr": "# g bag",
+    "Negro": "Black", "Pinto": "Pinto", "Peruano": "Peruano", "Bayo": "Bayo", "Mayocoba": "Mayocoba", "Azufrado": "Azufrado",
+    "Grande Entero": "Large, whole", "Chico Quebrado": "Small, broken", "Pulido": "Milled", "Pulido @": "Milled, @", "Chico": "Small", "Grande": "Large",
+    "@ #% · @ #%": "@ #% · @ #%", "@, @, @, @, @, @, @, @, @, @, @, @, @": "@, @, @, @, @, @, @, @, @, @, @, @, @",
+    "Fracciones arancelarias (SA): # # # #": "Tariff lines (HS): # # # #",
+    "# productos agrícolas en # países": "# crops in # countries", "# productos agrícolas, de la parcela al plato": "# crops, from field to plate", "De lo que exporta la región en estos productos,": "Of what the region exports in these products,",
+    "Exporta en estos # productos": "Exports in these # products", "Sus principales clientes (todos estos productos)": "Its main customers (all these products)",
+    "col, @, chile, @, @, @, @, @, @, @, @, @, chile, @, @, @, @, berries": "cabbage, @, chili, @, @, @, @, @, @, @, @, @, chili, @, @, @, @, berries",
+    "En @ la FAO reporta # mil t en #; el SIAP registra # Mt en # Para comparar países se usa FAOSTAT en todos.":
+        "In @ FAO reports # thousand t in #; SIAP records # Mt in # FAOSTAT is used for all to compare countries.",
+    # notas de productos (data/productos.js)
+    "@ blanco: tortilla, masa y harina. El cierre municipal del SIAP no separa colores; la parte blanca de cada estado sale del avance mensual por variedad (incluye azul, pozolero y de color, menos de #%). Disponibilidad per cápita del Panorama (todos los usos).":
+        "@, white: tortillas, dough and flour. SIAP's municipal closing data does not split colors; each state's white share comes from the monthly progress report by variety (includes blue, pozole and colored corn, under #%). Per-capita availability from the Panorama (all uses).",
+    "@ amarillo: alimento balanceado (pecuario) e industria (almidón, fructosa). Casi todo se importa de @ El Panorama no publica consumo per cápita: se usa el consumo aparente (producción + importación − exportación) entre la población, y la demanda se reparte por población (aproximación: el consumo real sigue a la ganadería y la industria).":
+        "@, yellow: compound feed (livestock) and industry (starch, fructose). Almost all is imported from the @ The Panorama does not publish per-capita consumption: apparent consumption (production + imports − exports) divided by population is used, and demand is split by population (an approximation: actual use follows livestock and industry).",
+    "@ (Phaseolus vulgaris), todas las variedades: negro, pinto, @, azufrado, peruano y otros.": "@ (Phaseolus vulgaris), all varieties: black, pinto, @, azufrado, peruano and others.",
+    "@ @: panificable (harinero, se importa) y cristalino (duro, para pasta; se exporta). Consumo per cápita del Panorama: # kg panificable + # kg cristalino.":
+        "@ @: bread wheat (for flour, imported) and durum (for pasta; exported). Per-capita consumption from the Panorama: # kg bread + # kg durum.",
+    "@ @: alimento balanceado (pecuario). El Panorama no publica consumo per cápita: se usa el consumo aparente y la demanda se reparte por población (aproximación).":
+        "@ @: compound feed (livestock). The Panorama does not publish per-capita consumption: apparent consumption is used and demand is split by population (an approximation).",
+    "@ palay (con cáscara) en la producción; el comercio incluye @ con cáscara, descascarillado y blanco, convertido a equivalente palay (blanco ÷ #).":
+        "Paddy @ (unhusked) in production; trade includes paddy, husked and milled @, converted to paddy equivalent (milled ÷ #).",
+    "@ (@ @): casi toda se importa para molienda (pasta para alimento balanceado y aceite). Disponibilidad per cápita del Panorama (todos los usos).":
+        "@ (@ @): almost all is imported for crushing (meal for compound feed and oil). Per-capita availability from the Panorama (all uses).",
+    "@ @: casi toda es maltera (cerveza). El Panorama no publica consumo per cápita: se usa el consumo aparente y la demanda se reparte por población (aproximación).":
+        "@ @: almost all is malting barley (beer). The Panorama does not publish per-capita consumption: apparent consumption is used and demand is split by population (an approximation).",
+    "@ @ (humano y forrajero). @ exporta cerca de la mitad, sobre todo @ blanco grande de @ y @.":
+        "@ @ (food and feed). @ exports about half, mostly large white @ from @ and @.",
+})
+for _pre_es, _pre_en in (("No se calcula cuánto llega al productor: ", "The share reaching the producer is not computed: "),
+                         ("Esta cadena compara precios de productos distintos: ", "This chain compares prices of different products: ")):
+    EXTRA[_pre_es + "El precio al consumidor es de tortilla de @: de # kg de @ salen cerca de # kg de tortilla, con molienda, gas y mano de obra de por medio."] = (
+        _pre_en + "The consumer price is for @ tortillas: # kg of @ yields about # kg of tortillas, with milling, gas and labor in between.")
+    EXTRA[_pre_es + "El precio al consumidor es de harina de @ empacada; el rural es de @."] = _pre_en + "The consumer price is for packaged @ flour; the farm-gate price is for @."
+    EXTRA[_pre_es + "El precio rural es de @ palay (con cáscara); el mayoreo y el consumidor son de @ pulido: de # kg de palay salen cerca de # kg de pulido."] = (
+        _pre_en + "The farm-gate price is for paddy @; wholesale and consumer prices are for milled @: # kg of paddy yields about # kg of milled rice.")
+for _n in (3, 4, 5):
+    EXTRA["Principales exportadores #/#: " + ", ".join(["@ #%"] * _n) + " del comercio mundial."] = "Main exporters #/#: " + ", ".join(["@ #%"] * _n) + " of world trade."
+    _l = ["@ #%"] * _n
+    _l[1] = "Unión Europea #%"
+    _le = ["@ #%"] * _n
+    _le[1] = "European Union #%"
+    EXTRA["Principales exportadores #/#: " + ", ".join(_l) + " del comercio mundial."] = "Main exporters #/#: " + ", ".join(_le) + " of world trade."
 # Variantes con unidades (Mt, mil t, t) y listas de meses o estados
 _U = [("Mt", "Mt"), ("mil t", "thousand t"), ("t", "t")]
 for _a, _ae in _U:

@@ -50,8 +50,11 @@ FIRA = {
     "melon": ["MELON"], "naranja": ["NARANJO"], "nuez": ["NOGAL"], "papa": ["PAPA "], "papaya": ["PAPAYA", "PAPAYO"],
     "pina": ["PINA"], "platano": ["PLATANO"], "sandia": ["SANDIA"], "uva": ["VID MANTENIMIENTO", "VID UVA", "VID  MANTENIMIENTO"],
     "zarzamora": ["ZARZAMORA"],
+    # granos: FIRA no separa el maíz por color (se usa el mismo costo para blanco y amarillo, ver main)
+    "maiz_blanco": ["MAIZ "], "sorgo": ["SORGO "], "trigo": ["TRIGO "], "frijol": ["FRIJOL"], "arroz": ["ARROZ"],
+    "soya": ["SOYA"], "cebada": ["CEBADA"], "garbanzo": ["GARBANZO"],
 }
-NO_PRODUCTIVO = re.compile(r"ESTABLEC|PRE-?PRODUCTIVO|PREPRODUCTIVO|ANO [1-4]\b|PASA")
+NO_PRODUCTIVO = re.compile(r"ESTABLEC|PRE-?PRODUCTIVO|PREPRODUCTIVO|ANO [1-4]\b|PASA|FORRAJ|HOJERO|ESCOBERO")
 
 
 def sin_acentos(t):
@@ -130,6 +133,8 @@ def main():
         if e and cu > 0 and rend >= 0.5:
             filas[k][(e, tipo)].append((anio, cu, rend))
     rural = precio_rural()
+    if "maiz" in rural:   # el SIAP tampoco separa el precio rural del maíz por color
+        rural["maiz_blanco"] = rural["maiz_amarillo"] = rural.pop("maiz")
     productos = {}
     for k, estados in filas.items():
         out = defaultdict(list)
@@ -139,7 +144,9 @@ def main():
             costo = sum(cu for _, cu, _ in sel) / len(sel) / 1000 * fac.get(ult, 1)
             out[e].append([tipo, round(costo, 2), int(ult), round(sum(r for *_, r in sel) / len(sel), 1), len(sel)])
         productos[k] = dict(out)
-    salida = {"generado": date.today().isoformat(), "actualizadoA": hoy, "indice": f"OCDE/FRED hasta {ult_cpi}; después {tasa:.1f}% anual",
+    if "maiz_blanco" in productos:   # mismo costo de FIRA para el maíz amarillo, solo en estados que lo producen
+        productos["maiz_amarillo"] = {e: v for e, v in productos["maiz_blanco"].items() if e in rural.get("maiz_amarillo", {})}
+    salida ={"generado": date.today().isoformat(), "actualizadoA": hoy, "indice": f"OCDE/FRED hasta {ult_cpi}; después {tasa:.1f}% anual",
               "factores": fac, "rural": {k: rural.get(k, {}) for k in productos}, "fuente": "FIRA, Agrocostos 2015–2022 (costo paramétrico por hectárea); SIAP, precio medio rural 2025",
               "productos": productos}
     destino = RAIZ / "data" / "costos_fira.js"

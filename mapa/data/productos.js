@@ -1,7 +1,7 @@
 // ============================================================================
 // METADATOS Y VALORES DE RESPALDO POR PRODUCTO
 // ----------------------------------------------------------------------------
-// Nombre, tipo, color y notas de cada producto (34: 13 originales + 21 añadidos con datos 2025).
+// Nombre, tipo, color y notas de cada producto (43: 13 originales + 21 frutas y hortalizas y 9 granos añadidos con datos 2025).
 // Las cifras numéricas de este archivo son valores de respaldo (los 13 originales: aproximaciones
 // ref. 2023; los 21 añadidos: tomados de las salidas oficiales 2025) y SOLO se usan si falta el
 // archivo oficial correspondiente; index.html carga después los datos oficiales que las sobrescriben:
@@ -289,5 +289,81 @@ window.PRODUCTOS = {
     precioRural: 33.34, precioConsumidor: 78,
     destinos: {"Estados Unidos": 0.8602, "Alemania": 0.0581, "Países Bajos": 0.0189, "Japón": 0.0174, "España": 0.0151, "Otros": 0.0303},
     estados: { "16": 246000, "14": 22000, "02": 3000, "25": 2000, "06": 2000, "26": 800, "21": 614, "11": 233, "15": 143, "17": 38, "22": 16, "09": 15 }
+  },
+  // ---------------------------------------------------------------------------------------------------------------
+  // Granos y leguminosas (tipo "Grano"). Respaldo: SIAP cierre 2025, Panorama 2025 y FAOSTAT 2024.
+  // El cierre municipal solo publica "Maíz grano": blanco y amarillo se separan con el avance del SIAP por variedad.
+  // ---------------------------------------------------------------------------------------------------------------
+  maiz_blanco: {
+    nota: "Maíz grano blanco: tortilla, masa y harina. El cierre municipal del SIAP no separa colores; la parte blanca de cada estado sale del avance mensual por variedad (incluye azul, pozolero y de color, menos de 1%). Disponibilidad per cápita del Panorama (todos los usos).",
+    nombre: "Maíz blanco", tipo: "Grano", color: "#e6d3a3",
+    nacional: 21054455, consumoPC: 164, exportacion: 30000, importacion: 600000,
+    precioRural: 5.18, precioConsumidor: 9,
+    destinos: {"Estados Unidos": 0.5, "Venezuela": 0.3, "Otros": 0.2},
+    estados: { "14": 2709000, "25": 2251000, "16": 2019000, "15": 1864000, "11": 1746000, "12": 1559000, "30": 1439000, "07": 1299000, "21": 1173000, "20": 819000, "13": 648000, "04": 504000 }
+  },
+  maiz_amarillo: {
+    nota: "Maíz grano amarillo: alimento balanceado (pecuario) e industria (almidón, fructosa). Casi todo se importa de EE. UU. El Panorama no publica consumo per cápita: se usa el consumo aparente (producción + importación − exportación) entre la población, y la demanda se reparte por población (aproximación: el consumo real sigue a la ganadería y la industria).",
+    nombre: "Maíz amarillo", tipo: "Grano", color: "#e9b824",
+    nacional: 3362929, consumoPC: 199, exportacion: 0, importacion: 23250000,
+    precioRural: 5.18, precioConsumidor: 0,
+    destinos: {"Otros": 1},
+    estados: { "08": 1495000, "14": 881000, "07": 189000, "28": 156000, "16": 123000, "32": 102000, "04": 65000, "10": 62000, "11": 52000, "17": 51000, "21": 45000, "22": 41000 }
+  },
+  frijol: {
+    nota: "Frijol (Phaseolus vulgaris), todas las variedades: negro, pinto, Flor de mayo, azufrado, peruano y otros.",
+    nombre: "Frijol", tipo: "Grano", color: "#5b3a29",
+    nacional: 1368093, consumoPC: 10.4, exportacion: 30000, importacion: 410000,
+    precioRural: 17.21, precioConsumidor: 38,
+    destinos: {"Estados Unidos": 0.7, "Otros": 0.3},
+    estados: { "32": 501000, "25": 222000, "10": 158000, "08": 75000, "07": 70000, "18": 70000, "24": 64000, "11": 50000, "21": 34000, "30": 30000, "20": 24000, "12": 15000 }
+  },
+  trigo: {
+    nota: "Trigo grano: panificable (harinero, se importa) y cristalino (duro, para pasta; se exporta). Consumo per cápita del Panorama: 53.5 kg panificable + 7.8 kg cristalino.",
+    nombre: "Trigo", tipo: "Grano", color: "#c9a227",
+    nacional: 1718732, consumoPC: 61.3, exportacion: 30000, importacion: 4280000,
+    precioRural: 5.39, precioConsumidor: 0,
+    destinos: {"Otros": 1},
+    estados: { "11": 414000, "26": 407000, "02": 196000, "25": 192000, "16": 153000, "14": 103000, "08": 98000, "29": 34000, "03": 29000, "19": 20000, "05": 17000, "20": 15000 }
+  },
+  sorgo: {
+    nota: "Sorgo grano: alimento balanceado (pecuario). El Panorama no publica consumo per cápita: se usa el consumo aparente y la demanda se reparte por población (aproximación).",
+    nombre: "Sorgo", tipo: "Grano", color: "#a0522d",
+    nacional: 4067035, consumoPC: 31, exportacion: 0, importacion: 40000,
+    precioRural: 4.08, precioConsumidor: 0,
+    destinos: {"Otros": 1},
+    estados: { "28": 1913000, "11": 836000, "16": 283000, "18": 212000, "14": 161000, "17": 123000, "21": 98000, "25": 83000, "24": 70000, "04": 66000, "08": 55000, "12": 50000 }
+  },
+  arroz: {
+    nota: "Arroz palay (con cáscara) en la producción; el comercio incluye arroz con cáscara, descascarillado y blanco, convertido a equivalente palay (blanco ÷ 0.65).",
+    nombre: "Arroz", tipo: "Grano", color: "#d9cfb4",
+    nacional: 257481, consumoPC: 9.8, exportacion: 20000, importacion: 1270000,
+    precioRural: 5.69, precioConsumidor: 30,
+    destinos: {"Otros": 1},
+    estados: { "18": 80000, "04": 62000, "16": 37000, "14": 18000, "28": 15000, "06": 15000, "30": 14000, "27": 7986, "17": 6331, "12": 2296, "07": 221, "15": 113 }
+  },
+  soya: {
+    nota: "Soya (frijol soya): casi toda se importa para molienda (pasta para alimento balanceado y aceite). Disponibilidad per cápita del Panorama (todos los usos).",
+    nombre: "Soya", tipo: "Grano", color: "#b5a642",
+    nacional: 295182, consumoPC: 51.4, exportacion: 0, importacion: 6580000,
+    precioRural: 7.64, precioConsumidor: 0,
+    destinos: {"Otros": 1},
+    estados: { "04": 137000, "28": 71000, "31": 31000, "24": 19000, "07": 18000, "30": 14000, "23": 3728, "26": 226 }
+  },
+  cebada: {
+    nota: "Cebada grano: casi toda es maltera (cerveza). El Panorama no publica consumo per cápita: se usa el consumo aparente y la demanda se reparte por población (aproximación).",
+    nombre: "Cebada", tipo: "Grano", color: "#d4b46a",
+    nacional: 899128, consumoPC: 7, exportacion: 0, importacion: 30000,
+    precioRural: 5.88, precioConsumidor: 0,
+    destinos: {"Otros": 1},
+    estados: { "11": 246000, "13": 205000, "29": 172000, "21": 112000, "15": 76000, "08": 23000, "32": 19000, "16": 16000, "14": 11000, "10": 9495, "22": 5433, "24": 2870 }
+  },
+  garbanzo: {
+    nota: "Garbanzo grano (humano y forrajero). México exporta cerca de la mitad, sobre todo garbanzo blanco grande de Sinaloa y Sonora.",
+    nombre: "Garbanzo", tipo: "Grano", color: "#c8a165",
+    nacional: 235436, consumoPC: 0.81, exportacion: 130000, importacion: 2000,
+    precioRural: 16.98, precioConsumidor: 45,
+    destinos: {"Otros": 1},
+    estados: { "25": 181000, "26": 22000, "16": 18000, "11": 9671, "03": 3150, "12": 798, "14": 472, "20": 330, "22": 111, "13": 11 }
   }
 };

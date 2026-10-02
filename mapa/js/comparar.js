@@ -196,7 +196,7 @@
   function listaPaises() {
     return Object.keys(G()?.paises ?? {}).map(id => [id, nombrePais(id)]).sort((a, b) => a[1].localeCompare(b[1], "es"));
   }
-  const listaProdFAO = () => Object.keys(G()?.productos ?? {}).filter(k => ["Fruta", "Hortaliza"].includes(meta(k)?.tipo)).map(k => [k, nombreProd(k)]).sort((a, b) => a[1].localeCompare(b[1], "es"));
+  const listaProdFAO = () => Object.keys(G()?.productos ?? {}).filter(k => ["Fruta", "Hortaliza", "Grano"].includes(meta(k)?.tipo)).map(k => [k, nombreProd(k)]).sort((a, b) => a[1].localeCompare(b[1], "es"));
   const listaProdMX = () => Object.keys(window.PRODUCTOS ?? {}).map(k => [k, window.PRODUCTOS[k].nombre]).sort((a, b) => a[1].localeCompare(b[1], "es"));
   const listaEstados = () => (window.ESTADOS ?? []).map(e => [e.id, e.nombre]).sort((a, b) => a[1].localeCompare(b[1], "es"));
 

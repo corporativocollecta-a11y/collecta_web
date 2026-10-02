@@ -22,6 +22,9 @@
     "Berries (arándano, frambuesa, zarzamora)": "Berries (blueberry, raspberry, blackberry)",
     "Berries (arándano y frambuesa)": "Berries (blueberry and raspberry)", "Chile y morrón": "Chili and bell pepper",
     "Frutas": "Fruit", "Hortalizas": "Vegetables", "Fruta": "Fruit", "Hortaliza": "Vegetable",
+    "Maíz blanco": "White corn", "Maíz amarillo": "Yellow corn", "Frijol": "Dry beans", "Trigo": "Wheat", "Sorgo": "Sorghum",
+    "Arroz": "Rice", "Soya": "Soybeans", "Cebada": "Barley", "Garbanzo": "Chickpeas", "Granos": "Grains", "Grano": "Grain",
+    "Granos y leguminosas": "Grains and pulses", "Maíz": "Corn", "Maíz grano": "Corn (grain)",
     "tomate bola": "round tomato", "tomate saladette": "Roma tomato", "pimiento morrón": "bell pepper", "chile jalapeño": "jalapeño",
     "limón persa": "Persian lime", "limón amarillo": "lemon", "calabaza amarilla": "yellow squash", "lechuga iceberg": "iceberg lettuce",
     "lechuga romana": "romaine", "durazno": "peach", "nectarina": "nectarine", "arándano": "blueberry", "frambuesa": "raspberry",
@@ -42,6 +45,8 @@
     "Carolina del Norte": "North Carolina", "Dakota del Norte": "North Dakota", "Oregón": "Oregon", "Pensilvania": "Pennsylvania",
     "Carolina del Sur": "South Carolina", "Dakota del Sur": "South Dakota", "Virginia Occidental": "West Virginia",
     "Distrito de Columbia": "District of Columbia", "Los Ángeles": "Los Angeles", "Filadelfia": "Philadelphia",
+    // variedades de frijol del SNIIM: nombres propios (sin esto "mayo" se traduciría como mes)
+    "Flor de mayo": "Flor de mayo", "Flor de junio": "Flor de junio",
   };
 
   let nombres = null, regex = null, fijos = null;

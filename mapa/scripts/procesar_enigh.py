@@ -43,6 +43,11 @@ CLAVES = {
     "tomate_verde": ["011729"], "cebolla": ["011743"], "nopal": ["011746"], "zanahoria": ["011748"], "papa": ["011751"],
     # "Otras bayas" agrupa zarzamora, frambuesa y arándano: se usa el mismo índice para los tres
     "zarzamora": ["011642"], "frambuesa": ["011642"], "arandano": ["011642"],
+    # Granos: lo que compran los hogares de sus productos (el índice compara estados, no convierte a grano).
+    # Maíz amarillo, sorgo, soya y cebada son pecuarios o industriales: sin índice (demanda pareja por persona).
+    "maiz_blanco": ["011112", "011121", "011131", "011193", "011192"],   # grano, harina, tortilla, masa, tostadas
+    "frijol": ["011761", "011797"], "arroz": ["011111"], "garbanzo": ["011763"],
+    "trigo": ["011122", "011132", "011133", "011134", "011137", "011138", "011150"],   # harina, tortilla de harina, pan, pasta
 }
 
 

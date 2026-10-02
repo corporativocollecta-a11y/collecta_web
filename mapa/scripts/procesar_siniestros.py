@@ -108,6 +108,11 @@ def main(desde=2016, hasta=2025):
                 estados[e] = [round(prom_sem), [round(s[1] / s[0], 4) if s[0] > 0 else None for s in serie]]
         productos[k] = {"nacional": nac, "estados": estados,
                         **{m: round(v[1] / v[0], 4) for m, v in mod.items() if v[0] > 0}}
+    # Maíz grano: los cierres no separan colores; la proporción siniestrada es la misma para blanco y amarillo
+    if "maiz" in productos:
+        m = productos.pop("maiz")
+        productos["maiz_blanco"] = productos["maiz_amarillo"] = m
+        excluidos = [{**x, "k": "maiz_blanco"} if x["k"] == "maiz" else x for x in excluidos]
     salida = {"anios": anios, "fuente": f"SIAP, cierre de la producción agrícola municipal {anios[0]}–{anios[-1]}", "productos": productos,
               "excluidos": excluidos}
     for x in excluidos:

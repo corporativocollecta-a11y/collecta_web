@@ -98,7 +98,14 @@ CENTRALES = {
     306: ("Veracruz (Malibrán)", "30", 19.18, -96.14), 310: ("Mérida", "31", 20.97, -89.62),
     311: ("Oxkutzcab", "31", 20.30, -89.42), 312: ("Mérida (Casa del Pueblo)", "31", 20.96, -89.61),
     320: ("Zacatecas", "32", 22.77, -102.58),
+    # centrales que solo cotizan granos (otra lista de destinos del SNIIM); 173 es id propio (el SNIIM no le da uno)
+    11: ("Aguascalientes (Central de Abasto)", "01", 21.85, -102.26), 191: ("Monterrey (Guadalupe)", "19", 25.68, -100.21),
+    307: ("Xalapa (otros mayoristas)", "30", 19.53, -96.92), 173: ("Emiliano Zapata (Morelos)", "17", 18.85, -99.18),
 }
+DESTINOS_GRANOS = {"aguascalientes: central de abasto de aguascalientes": 11,
+                   "nuevo leon: central de abasto de guadalupe, nvo. leon": 191,
+                   "veracruz: otros centros mayoristas de xalapa": 307,
+                   'morelos: central de abasto "emiliano zapata"': 173}
 
 ALIAS_ESTADO = {"distrito federal": "09", "df": "09", "cdmx": "09", "mexico": "15", "edo. de mexico": "15",
                 "estado de mexico": "15", "coahuila de zaragoza": "05", "michoacan de ocampo": "16",
@@ -165,17 +172,70 @@ def descargar(anio, pid):
     return filas
 
 
+# Granos básicos: otra consulta del SNIIM, por semana (Semana 1–5 del mes), precio por kg en bulto de 50 kg. Se toman las
+# semanas 2 y 4 de cada mes (≈2 cotizaciones por central al mes; consultar todas las semanas de 13 variedades satura el
+# servidor). Sin trigo, sorgo, soya ni maíz amarillo: el SNIIM no los cotiza al mayoreo.
+GRANOS = {
+    "maiz_blanco": [(605, "Maíz blanco")],
+    "frijol": [(347, "Negro"), (352, "Pinto"), (350, "Peruano"), (340, "Flor de mayo"), (332, "Azufrado"), (334, "Bayo"),
+               (343, "Mayocoba")],
+    "arroz": [(3, "Pulido"), (2, "Pulido Sinaloa"), (1, "Pulido Morelos")],
+    "garbanzo": [(600, "Chico"), (601, "Grande")],
+}
+URL_GRANOS = (BASE + "ResultadosConsultaFechaGranos.aspx?Semana={s}&Mes={m}&Anio={a}&ProductoId={id}&OrigenId=-1&Origen=Todos"
+              "&DestinoId=-1&Destino=Todos&RegistrosPorPagina=5000")
+
+
+def descargar_granos(anio, pid, semanas=(2, 4)):
+    """Filas (fecha, "", origen, destino, mín, máx, frecuente) de las semanas elegidas del año. Caché por semana; las
+    semanas sin registros del año en curso no se guardan (se vuelven a pedir la próxima vez)."""
+    from datetime import date
+    anio = int(anio)
+    filas = []
+    for m in range(1, 13):
+        for s in semanas:
+            if date(anio, m, 1) > date.today():
+                continue
+            cache = RAIZ / "data" / "fuentes" / "sniim_granos" / f"{anio}_{pid}_{m:02d}_{s}.csv"
+            if cache.exists():
+                with open(cache, encoding="utf-8", newline="") as f:
+                    filas += [[reparar(c) for c in fila] for fila in csv.reader(f)]
+                continue
+            for intento in range(5):
+                try:
+                    with urllib.request.urlopen(URL_GRANOS.format(s=s, m=m, a=anio, id=pid), timeout=180) as r:
+                        t = html.unescape(decodificar(r.read()))
+                    break
+                except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+                    if intento == 4:
+                        raise
+                    time.sleep(15 * (intento + 1))
+            nuevas = []
+            for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", t, re.S):
+                c = [re.sub(r"<[^>]+>", "", x).strip() for x in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)]
+                if len(c) >= 6 and re.match(r"\d\d/\d\d/\d{4}", c[0]):
+                    nuevas.append([c[0], "", c[1], c[2], c[3], c[4], c[5]])
+            if nuevas or (anio, m) < (date.today().year, date.today().month - 1):
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                with open(cache, "w", encoding="utf-8", newline="") as f:
+                    csv.writer(f).writerows(nuevas)
+            filas += nuevas
+            time.sleep(1.2)
+    return filas
+
+
 def main(anio):
     edos = estados()
-    destinos = catalogo_destinos()
+    destinos = {**catalogo_destinos(), **{normalizar(n): i for n, i in DESTINOS_GRANOS.items()}}
     sin_mapear = defaultdict(int)
     salida = {}
 
-    for clave, variedades in VARIEDADES.items():
+    for clave, variedades in {**VARIEDADES, **GRANOS}.items():
         # una observación = (variedad, fecha, origen, central); se promedian presentaciones
         obs = defaultdict(list)
+        bajar = descargar_granos if clave in GRANOS else descargar
         for pid, var in variedades:
-            for fecha, _pres, origen, destino, pmin, pmax, pfrec in descargar(anio, pid):
+            for fecha, _pres, origen, destino, pmin, pmax, pfrec in bajar(anio, pid):
                 try:
                     precio = float(pfrec.replace(",", "")) or (float(pmin) + float(pmax)) / 2
                 except ValueError:

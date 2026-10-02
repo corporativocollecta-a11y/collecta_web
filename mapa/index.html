@@ -75,12 +75,13 @@
       </div>
       <label class="buscador">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <input id="buscar" type="search" placeholder="Buscar fruta u hortaliza" autocomplete="off">
+        <input id="buscar" type="search" placeholder="Buscar producto" autocomplete="off">
       </label>
       <div class="filtros" role="radiogroup" aria-label="Tipo de producto">
         <label><input type="radio" name="tipo" value="todos" checked>Todos</label>
         <label><input type="radio" name="tipo" value="Fruta">Frutas</label>
         <label><input type="radio" name="tipo" value="Hortaliza">Hortalizas</label>
+        <label><input type="radio" name="tipo" value="Grano">Granos</label>
       </div>
       <nav id="productos" class="lista-productos" aria-label="Lista de productos"></nav>
     </aside>
@@ -169,7 +170,7 @@
       <span class="etq">Guía rápida</span>
       <h2 id="guiaTitulo">Cómo leer este mapa</h2>
       <ol>
-        <li><b>Elige un producto</b> en la lista de la izquierda. Puedes buscarlo o filtrar frutas y hortalizas.</li>
+        <li><b>Elige un producto</b> en la lista de la izquierda. Puedes buscarlo o filtrar frutas, hortalizas y granos.</li>
         <li><b>Lee el mapa.</b> El color de cada estado dice si su producción alcanza para su población (naranja: le falta; verde: le sobra). Activa <i>Volumen</i> para ver cuánto produce, o cambia a <i>Municipios</i> para ver 2,475 municipios.</li>
         <li><b>Haz clic en un estado o municipio</b> para ver quién lo abastece, a dónde envía su excedente y qué produce.</li>
         <li><b>Usa el Simulador</b> para probar sequías, rutas directas o menos intermediación, y ver el efecto en el precio.</li>
@@ -287,6 +288,11 @@
   <script src="js/precios_canada.js"></script>
   <!-- Oferta, demanda y rutas de comercio en el mundo (FAOSTAT; scripts/analisis_oferta_demanda.py, carga diferida) -->
   <script src="js/oferta_global.js"></script>
+  <!-- Granos: balanzas del SIAP, balance del USDA (PSD) y precio internacional (Banco Mundial / FMI) -->
+  <script src="data/balanzas_siap.js"></script>
+  <script src="data/psd_granos.js"></script>
+  <script src="data/precios_granos.js"></script>
+  <script src="js/granos.js"></script>
   <!-- Vista por mercado de destino: proveedores de cada país comprador (scripts/procesar_mercados.py → data/mercados.js, carga diferida) -->
   <script src="js/mercado.js"></script>
   <script src="js/subnacional.js"></script>

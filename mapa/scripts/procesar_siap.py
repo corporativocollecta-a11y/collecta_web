@@ -60,7 +60,40 @@ CULTIVOS = {
     "nopal": ["nopalitos"],            # nopal verdura; excluye "nopal forrajero"
     "nuez": ["nuez"],                  # nuez pecanera (Carya illinoinensis), con cáscara; excluye "viveros de nuez"
     "zarzamora": ["zarzamora"],
+    # granos y leguminosas (excluye forrajeros en verde y "elote")
+    "maiz": ["maiz grano"],            # se separa en maiz_blanco y maiz_amarillo (ver separar_maiz)
+    "frijol": ["frijol"], "trigo": ["trigo grano"], "sorgo": ["sorgo grano"], "arroz": ["arroz palay"],
+    "soya": ["soya"], "cebada": ["cebada grano"], "garbanzo": ["garbanzo grano"],
 }
+
+
+def parte_amarillo(estados):
+    """({estado: parte amarilla del maíz grano}, parte nacional) con la cosecha del avance del SIAP por variedad
+    (data/avance_siap.js); estados sin dato del avance toman la parte nacional."""
+    t = (RAIZ / "data" / "avance_siap.js").read_text(encoding="utf-8")
+    A = json.loads(t[t.index("{", t.index("=")):t.rindex("}") + 1])["productos"]
+    bl = {e: sum(v) for e, v in A.get("maiz_blanco", {}).items()}
+    am = {e: sum(v) for e, v in A.get("maiz_amarillo", {}).items()}
+    nac = sum(am.values()) / ((sum(am.values()) + sum(bl.values())) or 1)
+    return {e: (am.get(e, 0) / (am.get(e, 0) + bl.get(e, 0)) if am.get(e, 0) + bl.get(e, 0) > 0 else nac) for e in estados}, nac
+
+
+def separar_maiz(por_estado, por_municipio, valor, vol_valor):
+    """El cierre municipal solo publica "Maíz grano". La parte blanca y amarilla de cada estado sale del avance mensual del
+    SIAP por variedad (data/avance_siap.js, cosecha del año agrícola); a sus municipios se les aplica la del estado.
+    Las demás variedades (azul, pozolero, de color: < 1%) quedan con el blanco."""
+    if "maiz" not in por_estado:
+        return
+    parte, nac = parte_amarillo(por_estado["maiz"])
+    tot = por_estado.pop("maiz")
+    mun = por_municipio.pop("maiz")
+    v, vv = valor.pop("maiz", 0), vol_valor.pop("maiz", 0)
+    for clave, f in (("maiz_amarillo", lambda e: parte[e]), ("maiz_blanco", lambda e: 1 - parte[e])):
+        por_estado[clave] = defaultdict(float, {e: t * f(e) for e, t in tot.items()})
+        por_municipio[clave] = defaultdict(lambda: [0.0, 0.0, 0.0], {m: [x * f(m[:2]) for x in d] for m, d in mun.items()})
+        p = sum(por_estado[clave].values()) / (sum(tot.values()) or 1)
+        valor[clave], vol_valor[clave] = v * p, vv * p   # mismo precio medio rural para los dos colores (el SIAP no lo separa)
+    print(f"  maíz: {nac:.1%} amarillo según el avance; {len([e for e in parte if parte[e] > 0.5])} estados con más amarillo que blanco")
 
 
 def normalizar(texto):
@@ -138,6 +171,7 @@ def main(ruta_csv):
             m[1] += numero(fila[c_ha]) or 0
             m[2] += val or 0
 
+    separar_maiz(por_estado, por_municipio, valor, vol_valor)
     salida_js = RAIZ / "data" / "produccion_siap.js"
     datos = {
         clave: {

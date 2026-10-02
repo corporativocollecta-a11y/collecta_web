@@ -31,9 +31,14 @@ from collections import defaultdict
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-CATEGORIAS = (b"Frutas Frescas", b"Hortalizas Frescas", b"Condimentos")
-# La nuez pecanera QQP la clasifica en "Condimentos"; de esa categoría solo se aceptan estos productos
-SOLO_EN_CATEGORIA = {"Condimentos": {"nuez"}}
+CATEGORIAS = (b"Frutas Frescas", b"Hortalizas Frescas", b"Condimentos", b"Tortillas y Derivados del Maiz", b"Legumbres Secas",
+              b"Arroz y Cereales Preparados", b"Galletas Pastas y Harinas de Trigo")
+# La nuez pecanera QQP la clasifica en "Condimentos"; de esa categoría solo se aceptan estos productos. Granos: el precio
+# al consumidor es el del producto que compra el hogar (tortilla de maíz a granel, frijol, arroz y garbanzo en bolsa,
+# harina de trigo), no el del grano a granel.
+SOLO_EN_CATEGORIA = {"Condimentos": {"nuez"}, "Tortillas y Derivados del Maiz": {"maiz_blanco"},
+                     "Legumbres Secas": {"frijol", "garbanzo"}, "Arroz y Cereales Preparados": {"arroz"},
+                     "Galletas Pastas y Harinas de Trigo": {"trigo"}}
 # Precio máximo plausible (MXN/kg) por producto; por omisión 500. La nuez en mitades supera ese valor.
 PRECIO_MAX = {"nuez": 1500}
 
@@ -49,6 +54,7 @@ PRODUCTOS = {
     "toronja": "toronja", "pera": "pera", "durazno": "durazno",  # "Perón" es otro producto y no se mapea
     "guayaba": "guayaba", "nopal": "nopal", "nuez": "nuez",
     "coliflor": "coliflor",  # se vende por pieza: kilos() la descarta
+    "tortilla de maiz": "maiz_blanco", "frijol": "frijol", "arroz": "arroz", "garbanzo": "garbanzo", "harina de trigo": "trigo",
     # arándano, berenjena, espárrago, frambuesa y zarzamora no se registran en QQP como producto fresco
 }
 # Variedades excluidas para comparar la misma canasta que la muestra de mayoreo del SNIIM

@@ -72,7 +72,7 @@
       const precioMX = mxExpT > 0 ? mxExpU / mxExpT : null;
       return { k, t, u, espejo, prov, precio, mxT, mxU, parteMX: u > 0 ? mxU / u : 0, libreU: Math.max(0, u - mxU),
         primero, mxExpU, precioMX, acc, relPrecio: precio && precioMX ? precio / precioMX : null };
-    }).filter(f => ["Fruta", "Hortaliza"].includes(meta(f.k)?.tipo));   // sin café ni cacao ("Otros cultivos")
+    }).filter(f => ["Fruta", "Hortaliza", "Grano"].includes(meta(f.k)?.tipo));   // sin café ni cacao ("Otros cultivos")
     const U = filas.reduce((s, f) => s + f.u, 0), T = filas.reduce((s, f) => s + f.t, 0);
     const mxU = filas.reduce((s, f) => s + f.mxU, 0);
     // Oportunidad: compra fuera de México ≥ US$5 M, México exporta ≥ US$20 M de ese producto al mundo, acceso no cerrado

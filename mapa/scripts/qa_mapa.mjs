@@ -28,6 +28,8 @@ const VISTAS = [
   "v=mx&p=jitomate&s=25&t=exportar", "v=mx&p=limon&s=30&t=entidad", "v=mx&p=jitomate&t=resumen", "v=mx&p=jitomate&t=simulador",
   "v=mx&p=jitomate&t=fuentes", "v=mx&p=jitomate&me=oferta",
   "v=latam&p=aguacate", "v=global&p=arandano", "v=global&p=jitomate&t=exportar&mc=124",
+  // granos: balanza, USDA, precio internacional e importación; maíz grano en la vista mundial
+  "v=mx&p=maiz_amarillo&t=balance", "v=mx&p=maiz_blanco&t=exportar", "v=mx&p=frijol&s=32&t=entidad", "v=global&p=maiz", "v=latam&p=frijol",
   ...(RAPIDO ? [] : ["v=us&p=jitomate", "v=br&p=naranja", "v=es&p=jitomate", "v=ca&p=papa", "v=global&p=uva&t=exportar&mc=276"])
 ];
 

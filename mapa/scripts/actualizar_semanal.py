@@ -24,6 +24,9 @@ def main():
              ["scripts/procesar_pronostico_sniim.py"],   # mayoreo en México (SNIIM), año en curso
              ["scripts/actualizar_sequia.py"],   # Monitor de Sequía de la CONAGUA (quincenal)
              ["scripts/procesar_precios_canada.py"],   # mayoreo en Toronto y Montreal (InfoHort, diario)
+             ["scripts/procesar_balanzas_siap.py"],   # granos: balanzas disponibilidad-consumo del SIAP (mensual)
+             ["scripts/procesar_psd.py"],             # granos: balance y proyección del USDA (WASDE, mensual)
+             ["scripts/procesar_precios_granos.py"],  # granos: precio internacional (Banco Mundial / FMI, mensual)
              ["scripts/procesar_clima_smn.py"],   # helada y lluvia de los próximos días (vence: conviene correrlo a diario)
              ["scripts/construir_alertas.py"],   # movimientos fuertes de la semana (usa los pronósticos)
              ["scripts/construir_frescura.py"]]   # al final: hasta qué fecha llega cada fuente

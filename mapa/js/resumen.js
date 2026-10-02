@@ -38,7 +38,7 @@
     const q = quitarAcentos(filtro.trim());
     const visibles = ind.filter(x => (tipo === "todos" || x.tipo === tipo) && (!q || quitarAcentos(x.nombre).includes(q)));
     if (!visibles.length) return `<p class="sin-resultados">No hay productos que coincidan con “${filtro}”.</p>`;
-    const grupos = [["Hortaliza", "Hortalizas"], ["Fruta", "Frutas"], ["Otro", "Otros cultivos"]];
+    const grupos = [["Hortaliza", "Hortalizas"], ["Fruta", "Frutas"], ["Grano", "Granos y leguminosas"], ["Otro", "Otros cultivos"]];
     return grupos.map(([t, titulo]) => {
       const items = visibles.filter(x => x.tipo === t).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
       if (!items.length) return "";
@@ -81,7 +81,7 @@
     return `
       <div class="resumen-cabeza">
         <span class="etq">Panorama nacional ${anio}</span>
-        <h2>${ind.length} frutas y hortalizas, de la parcela al plato</h2>
+        <h2>${ind.length} productos agrícolas, de la parcela al plato</h2>
         <p class="sub">Elige un producto en la lista o en la tabla para ver su mapa, su cadena de precio y sus escenarios.</p>
       </div>
       <div class="cifras-resumen">
@@ -107,7 +107,7 @@
         ${minP ? `<p class="hallazgo"><span><b>${minP.nombre}</b> es el producto donde menos llega al campo: $${Math.round(minP.alProductor * 100)} de cada $100 que paga el consumidor. En <b>${maxP.nombre}</b> llegan $${Math.round(maxP.alProductor * 100)}.</span></p>` : ""}
         ${topExp ? `<p class="hallazgo"><span><b>${topExp.nombre}</b> es el principal producto de exportación: ${usd(topExp.exportUSD)}, ${pct(topExp.exportUSD / totalUSD)} del total de estos productos.</span></p>` : ""}
         ${brechas.length ? `<p class="hallazgo"><span>En <b>${brechas.map(x => x.nombre.split(" ")[0].toLowerCase()).join(", ")}</b> la disponibilidad ${anio} quedó por debajo del consumo oficial (datos ${window.CONSUMO_OFICIAL?.anioDatos ?? ""}; hasta ${pct(-brechas[0].brecha)} menos): la cosecha bajó y la exportación se mantuvo.</span></p>` : ""}
-        ${deficit.length ? `<p class="hallazgo"><span>México importa una parte relevante de lo que consume en <b>${deficit.map(x => x.nombre.toLowerCase()).join(", ")}</b>.</span></p>` : ""}
+        ${deficit.some(x => x.auto < 0.9) ? `<p class="hallazgo"><span>México importa una parte relevante de lo que consume en <b>${deficit.filter(x => x.auto < 0.9).map(x => x.nombre.toLowerCase()).join(", ")}</b>.</span></p>` : ""}
       </div>`;
   }
 

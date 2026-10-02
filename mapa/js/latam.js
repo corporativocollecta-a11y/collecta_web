@@ -234,7 +234,7 @@
       <h2>${nombrePais(pa)}</h2>
       <p class="sub">Población ${pa.pob ? fmtP(pa.pob) : "—"} (FAOSTAT ${L().anio})</p>
       <div class="kpis">
-        <div class="kpi"><div class="v">${usd(expTot)}</div><div class="l">Exporta en estas ${filas.length} frutas y hortalizas</div></div>
+        <div class="kpi"><div class="v">${usd(expTot)}</div><div class="l">Exporta en estos ${filas.length} productos</div></div>
         <div class="kpi"><div class="v">${lider.length}</div><div class="l">${lider.length === 1 ? "producto en que es" : "productos en que es"} primer productor ${TX().adj}</div></div>
         ${lider.length ? `<div class="kpi destacado"><div class="v" style="font-size:15px">Líder ${TX().adj} en ${lider.join(", ")}</div></div>` : ""}
       </div>
@@ -271,7 +271,7 @@
     return `
       <div class="resumen-cabeza">
         <span class="etq">${TX().etiqueta} · FAOSTAT ${anio}</span>
-        <h2>${ind.length} frutas y hortalizas en ${Object.keys(L().paises).length} países</h2>
+        <h2>${ind.length} productos agrícolas en ${Object.keys(L().paises).length} países</h2>
         <p class="sub">Elige un producto para ver quién produce, quién exporta y quién depende de importaciones. Haz clic en un país para ver su portafolio.</p>
       </div>
       <div class="cifras-resumen">
@@ -299,7 +299,7 @@
           if (!C() || esGlobal()) return "";
           const { tot, destinos } = destinoRegional();
           const g = n => destinos.find(d => d[0] === n)?.[1] ?? 0;
-          return `<p class="hallazgo"><span>De lo que exporta la región en estas frutas y hortalizas, <b>${pct(g("Estados Unidos") / tot)}</b> va a Estados Unidos,
+          return `<p class="hallazgo"><span>De lo que exporta la región en estos productos, <b>${pct(g("Estados Unidos") / tot)}</b> va a Estados Unidos,
             <b>${pct(g("Europa") / tot)}</b> a Europa, <b>${pct(g("Latinoamérica") / tot)}</b> se queda en Latinoamérica y <b>${pct(g("Asia y Oceanía") / tot)}</b> va a Asia (FAOSTAT ${C().anio}).</span></p>`;
         })()}
         <p class="hallazgo"><span>Las cifras de FAOSTAT para México pueden diferir de las del SIAP por revisiones y definiciones; en la vista México se usan las del SIAP.</span></p>
@@ -408,7 +408,7 @@
     return `
       ${ventas.length ? `<h3>A quién le vende ${nombreP}</h3>${ventas.slice(0, 6).map(f => fila(nombreNodo(f[1]), f[3], ventas[0][3], usd(f[3]))).join("")}` : ""}
       ${compras.length ? `<h3>A quién le compra ${nombreP}</h3>${compras.slice(0, 6).map(f => fila(nombreNodo(f[0]), f[2], compras[0][2], fmtT(f[2]))).join("")}` : ""}
-      ${principales.length ? `<h3>Sus principales clientes (todas estas frutas y hortalizas)</h3>
+      ${principales.length ? `<h3>Sus principales clientes (todos estos productos)</h3>
         ${principales.slice(0, 6).map(([d, v]) => fila(nombreNodo(d), v, principales[0][1], pct(v / suma))).join("")}` : ""}`;
   }
 

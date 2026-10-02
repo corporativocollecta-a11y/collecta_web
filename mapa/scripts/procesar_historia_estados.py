@@ -23,7 +23,7 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from procesar_siap import CULTIVOS, abrir_csv, columna, normalizar, numero  # noqa: E402
+from procesar_siap import CULTIVOS, abrir_csv, columna, normalizar, numero, parte_amarillo  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
 CARPETA = RAIZ / "data" / "fuentes" / "siap_historia"
@@ -97,6 +97,13 @@ def main(desde=2016, hasta=2025):
             e: [[valor(a, e, 0) for a in anios], [valor(a, e, 1) for a in anios]]
             for e in estados if any(por_anio[a].get(clave, {}).get(e, [0, 0])[0] > 0 for a in anios)
         }
+    # Maíz grano por color: los cierres no lo separan; se usa la parte amarilla de cada estado del avance más reciente
+    # (aproximación: el reparto entre colores cambia poco de un año a otro)
+    if "maiz" in productos:
+        m = productos.pop("maiz")
+        parte, _ = parte_amarillo(m)
+        for clave, f in (("maiz_amarillo", lambda e: parte[e]), ("maiz_blanco", lambda e: 1 - parte[e])):
+            productos[clave] = {e: [[None if x is None else round(x * f(e)) for x in serie] for serie in v] for e, v in m.items()}
     destino = RAIZ / "data" / "historia_estados.js"
     destino.write_text(
         f"// Generado por scripts/procesar_historia_estados.py — SIAP, cierre agrícola municipal {desde}–{hasta}, sumado por estado\n"
@@ -109,6 +116,10 @@ def main(desde=2016, hasta=2025):
     # balance: compararla con la del Panorama (otra publicación y otra definición, p. ej. chile 3.22 Mt) exageraba caídas
     ant = hasta - 1
     nac = {k: sum(por_anio[ant].get(k, {}).get(e, [0, 0])[0] for e in por_anio[ant].get(k, {})) for k in CULTIVOS if por_anio[ant].get(k)}
+    if "maiz" in nac:
+        parte, _ = parte_amarillo(por_anio[ant]["maiz"])
+        am = sum(v[0] * parte[e] for e, v in por_anio[ant]["maiz"].items())
+        nac["maiz_amarillo"], nac["maiz_blanco"] = am, nac.pop("maiz") - am
     destino2 = RAIZ / "data" / "produccion_anterior.js"
     destino2.write_text(
         f"// Generado por scripts/procesar_historia_estados.py — producción nacional SIAP (cierre agrícola) de {ant}, en toneladas\n"
