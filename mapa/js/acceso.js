@@ -16,6 +16,7 @@
   const en = () => document.documentElement.lang === "en";
   const req = e => en() && e.requisito_en ? e.requisito_en : e.requisito;
   const arancel = e => en() && e.arancel_en ? e.arancel_en : e.arancel;
+  const tn = () => en() ? ' translate="no"' : "";   // texto que ya viene en inglés de los datos
   const nombreMercado = info => en() && info.nombre_en ? info.nombre_en : info.nombre;
 
   function html(k) {
@@ -26,8 +27,8 @@
       <table class="acceso">
         <tr><th>Mercado</th><th>Situación</th><th class="num">Arancel</th></tr>
         ${Object.entries(A().mercados).map(([m, info]) => { const e = P[m]; return e ? `
-          <tr><td><b>${nombreMercado(info)}</b><br><span class="est">${req(e)}</span> <a href="${e.url}" target="_blank" rel="noopener">fuente</a></td>
-          <td>${etiqueta(e)}</td><td class="num">${arancel(e) ?? "—"}${e.url_arancel ? ` <a href="${e.url_arancel}" target="_blank" rel="noopener">↗</a>` : ""}</td></tr>` : ""; }).join("")}
+          <tr><td><b${tn()}>${nombreMercado(info)}</b><br><span class="est"${tn()}>${req(e)}</span> <a href="${e.url}" target="_blank" rel="noopener">fuente</a></td>
+          <td>${etiqueta(e)}</td><td class="num"><span${tn()}>${arancel(e) ?? "—"}</span>${e.url_arancel ? ` <a href="${e.url_arancel}" target="_blank" rel="noopener">↗</a>` : ""}</td></tr>` : ""; }).join("")}
       </table>
       <p class="sub">Acceso fitosanitario y arancel para producto fresco de origen México. "Abierto" en UE, Japón y Corea significa que no figura entre los productos prohibidos ni con requisitos especiales. No incluye límites de residuos de plaguicidas, normas de comercialización ni registro de huertos. Los protocolos cambian: verificar antes de embarcar.</p>`;
   }
@@ -48,8 +49,8 @@
   function mercadoHTML(k, iso) {
     const m = mercadoDe(iso), e = celda(k, iso);
     if (!e) return "";
-    return `<div class="acceso-mercado">${etiqueta(e)} <b>${nombreMercado(A().mercados[m])}</b> · arancel ${arancel(e) ?? "—"}
-      <br><span class="est">${req(e)}</span> <a href="${e.url}" target="_blank" rel="noopener">fuente</a></div>`;
+    return `<div class="acceso-mercado">${etiqueta(e)} <b${tn()}>${nombreMercado(A().mercados[m])}</b> · arancel <span${tn()}>${arancel(e) ?? "—"}</span>
+      <br><span class="est"${tn()}>${req(e)}</span> <a href="${e.url}" target="_blank" rel="noopener">fuente</a></div>`;
   }
 
   // Resumen de un solo mercado: situación y arancel (en inglés se usan los campos *_en)
@@ -57,8 +58,8 @@
     const e = celda(k, iso);
     if (!e) return "";
     const est = { abierto: ["Abierto", "Open"], con_condiciones: ["Con condiciones", "With conditions"], cerrado: ["Cerrado", "Closed"] }[e.estado] ?? ["Sin dato", "No data"];
-    return `${est[en() ? 1 : 0]} · ${en() ? "tariff" : "arancel"} ${arancel(e) ?? "—"}`;
+    return `<span${tn()}>${est[en() ? 1 : 0]} · ${en() ? "tariff" : "arancel"} ${arancel(e) ?? "—"}</span>`;
   }
 
-  window.Acceso = { html, celda, etiqueta, mercadoDe, resumen, resumenMercado, mercadoHTML, estado: (k, iso) => celda(k, iso)?.estado ?? null };
+  window.Acceso = { html, arancel, tn, celda, etiqueta, mercadoDe, resumen, resumenMercado, mercadoHTML, estado: (k, iso) => celda(k, iso)?.estado ?? null };
 })();

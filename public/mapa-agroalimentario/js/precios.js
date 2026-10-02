@@ -143,7 +143,7 @@
       const tot = Object.values(porOrigen).reduce((s, n) => s + n, 0);
       const orden = Object.entries(porOrigen).sort((a, b) => b[1] - a[1]).slice(0, 6);
       html += `<h3>Quién abastece sus centrales (observado, SNIIM)</h3>
-        <p class="sub">${ids.map(id => `${central(id).nombre}: <b>${mxn(d.mercados[id][0])}/kg</b> (${pct(d.mercados[id][0] / d.precio)} del promedio)`).join(" · ")}</p>
+        <p class="sub">${ids.map(id => `<span translate="no">${central(id).nombre}</span>: <b>${mxn(d.mercados[id][0])}/kg</b> (${pct(d.mercados[id][0] / d.precio)} del promedio)`).join(" · ")}</p>
         ${orden.map(([o, n]) => `<div class="barra-h"><span class="n">${nombreOrigen(o)}</span><span class="b"><i style="width:${n / tot * 100}%"></i></span><span class="x">${pct(n / tot)}</span></div>`).join("")}
         <p class="sub">% de los días-reporte en que cada origen surtió a sus centrales (frecuencia, no volumen).</p>`;
     }

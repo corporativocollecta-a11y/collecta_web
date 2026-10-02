@@ -303,9 +303,9 @@
     return `<div class="ficha-decision">
       <span class="etq">Lo esencial para decidir · ${f.nombre}</span>
       <div class="kpis">
-        ${acc ? `<div class="kpi"><div class="v" style="font-size:15px">${window.Acceso.etiqueta(acc)}</div><div class="l">Acceso a EE. UU.: ${acc.arancel ?? ""}</div></div>` : ""}
-        ${exp ? `<div class="kpi${gana === "exp" ? " destacado" : ""}"><div class="v">${mxn2(exp.neto)}/kg</div><div class="l">exportando por ${exp.nombre.split(",")[0]} (precio en la frontera menos flete${exp.ad ? " y antidumping" : ""}; mediana del año)</div></div>` : ""}
-        ${nac ? `<div class="kpi${gana === "nac" ? " destacado" : ""}"><div class="v">${mxn2(nac.n)}/kg</div><div class="l">vendiendo en el mercado nacional: típico de ${nac.centrales} centrales de abasto (mayoreo menos 25% de margen del mayorista y el flete); hasta ${mxn2(nac.mejor.n)} en ${nac.mejor.central}</div></div>` : ""}
+        ${acc ? `<div class="kpi"><div class="v" style="font-size:15px">${window.Acceso.etiqueta(acc)}</div><div class="l">Acceso a EE. UU.: <span${window.Acceso.tn()}>${window.Acceso.arancel(acc) ?? ""}</span></div></div>` : ""}
+        ${exp ? `<div class="kpi${gana === "exp" ? " destacado" : ""}"><div class="v">${mxn2(exp.neto)}/kg</div><div class="l">exportando por <span translate="no">${exp.nombre.split(",")[0]}</span> (precio en la frontera menos flete${exp.ad ? " y antidumping" : ""}; mediana del año)</div></div>` : ""}
+        ${nac ? `<div class="kpi${gana === "nac" ? " destacado" : ""}"><div class="v">${mxn2(nac.n)}/kg</div><div class="l">vendiendo en el mercado nacional: típico de ${nac.centrales} centrales de abasto (mayoreo menos 25% de margen del mayorista y el flete); hasta ${mxn2(nac.mejor.n)} en <span translate="no">${nac.mejor.central}</span></div></div>` : ""}
       </div>
       ${!exp && nac ? `<p class="sub">El USDA no publica un precio en la frontera para ${res.producto.nombre.toLowerCase()}: no se puede calcular el neto de exportar.</p>` : ""}
       ${meses ? `<p class="sub">${meses} en EE. UU. Mes a mes, en <i>Planear la venta</i>.</p>` : `<p class="sub">Mes a mes, en <i>Planear la venta</i>.</p>`}
@@ -473,9 +473,9 @@
     return `<div class="nota" style="border-color:#e67e22"><b>Consumo oficial vs. disponibilidad ${window.POBLACION_CONAPO?.anio ?? ""}:</b>
       el Panorama reporta ${p.consumoPC} kg por persona (datos ${window.CONSUMO_OFICIAL.anioDatos}), pero con la producción y el comercio
       ${window.POBLACION_CONAPO?.anio ?? ""} la disponibilidad interna alcanza para <b>${res.pcAparente.toFixed(1)} kg</b> (${brecha > 0 ? "+" : ""}${pct(brecha)}).
-      ${cambioProd != null ? `Según el cierre del SIAP, la producción pasó de ${fmtT(prodAnt)} (${prev.anio}) a ${fmtT(p.nacional)} (${cambioProd > 0 ? "+" : ""}${pct(cambioProd)}).` : ""}
-      ${otraDef ? `Ojo: el Panorama calcula su consumo con una producción ${prev.anio} de ${fmtT(p.produccionRef)}, distinta de la del cierre del SIAP (${fmtT(prodAnt)}; otra definición del producto), así que su consumo por persona no es del todo comparable con estas cifras.` : ""}
-      ${brecha < 0 ? "Con el consumo oficial, el modelo muestra un faltante que no se cubrió con importaciones: el mercado interno recibió menos producto." : "Hay más producto disponible que el consumo oficial: excedente para merma, industria o inventario."}
+      ${cambioProd != null ? `<span>Según el cierre del SIAP, la producción pasó de ${fmtT(prodAnt)} (${prev.anio}) a ${fmtT(p.nacional)} (${cambioProd > 0 ? "+" : ""}${pct(cambioProd)}).</span>` : ""}
+      ${otraDef ? `<span>Ojo: el Panorama calcula su consumo con una producción ${prev.anio} de ${fmtT(p.produccionRef)}, distinta de la del cierre del SIAP (${fmtT(prodAnt)}; otra definición del producto), así que su consumo por persona no es del todo comparable con estas cifras.</span>` : ""}
+      <span>${brecha < 0 ? "Con el consumo oficial, el modelo muestra un faltante que no se cubrió con importaciones: el mercado interno recibió menos producto." : "Hay más producto disponible que el consumo oficial: excedente para merma, industria o inventario."}</span>
       Cambia la base en <i>Simulador</i>.</div>`;
   }
 
@@ -529,7 +529,7 @@
         ? `<p class="sub"><a href="#" data-ir-tab="exportar">Si ${f.nombre} exporta a EE. UU.: ${PreciosEUA.netoResumen(res.clave, f, res.producto.precioRural, escenario().tarifa).split(": ")[1]} → Exportar</a></p>` : ""}
       ${Precios.entidadHTML(res, f.id)}
       <div class="ctrl">
-        <label>Escenario: variación de producción en ${f.abr} <b id="lblFactor">${pctVar(esc.factorProd[f.id] ?? 1)}</b></label>
+        <label>Escenario: variación de producción en <span translate="no">${f.abr}</span> <b id="lblFactor">${pctVar(esc.factorProd[f.id] ?? 1)}</b></label>
         <input type="range" id="rngFactor" min="0" max="2" step="0.05" value="${esc.factorProd[f.id] ?? 1}">
         <p class="sub">Simula sequía, helada, plaga (−) o expansión de superficie / tecnificación (+).</p>
       </div>
@@ -1175,7 +1175,7 @@
   // Para el modo presentación (js/recorrido.js): ir a una vista descrita como enlace directo y volver a escribir la URL
   window.App = {
     irA: vista => { aplicarVista(new URLSearchParams(vista)); encuadrar(true); },
-    guardarURL, abrirHoja,
+    guardarURL, abrirHoja, render,
     plegarCatalogo: plegado => { if (escenarioEl.classList.contains("sin-catalogo") !== plegado) plegar("sin-catalogo"); },
     catalogoPlegado: () => escenarioEl.classList.contains("sin-catalogo")
   };

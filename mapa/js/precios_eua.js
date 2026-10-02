@@ -6,7 +6,9 @@
 (function () {
   const usd = n => n == null ? "—" : "US$" + n.toFixed(2);
   const pct = x => (x * 100).toFixed(0) + "%";
-  const MESES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  // Iniciales de los meses; en inglés enero es "J" (se lee al pintar, después de elegir el idioma)
+  const MESES = new Proxy(["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+    { get: (a, i) => i === "0" && document.documentElement.lang === "en" ? "J" : Reflect.get(a, i) });
 
   const E = () => window.PRECIOS_EUA;
   const datos = k => E()?.productos?.[k];
@@ -251,7 +253,7 @@
       ${opciones.length > 1 ? opciones.map(o => `<div class="ruta"><span>${o.nombre}</span><span class="x">${Math.round(o.km).toLocaleString("es-MX")} km</span><span class="x">${mxn(o.neto)}/kg</span></div>`).join("") : ""}
       ${filas ? netoTablaHTML(k, filas, tarifa, entidad.id) : ""}
       <div data-neto-semanal data-k="${k}" data-e="${entidad.id}" data-tarifa="${tarifa ?? ""}"></div>
-      <p class="sub">Referencia: ${f.mercancia}, ${window.Paleta.usdaES(f.empaque)}. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.${mejor.ad ? ` Descuenta la cuota antidumping de EE. UU. de ${(mejor.ad * 100).toFixed(2)}% sobre el valor, que paga el importador.` : ""}</p>`;
+      <p class="sub">Referencia: ${f.mercancia}, <span${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(f.empaque)}</span>. Flete con la tarifa del simulador (${tarifa ?? 2.2} pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: ${E().tipoCambio.fuente}.${mejor.ad ? ` Descuenta la cuota antidumping de EE. UU. de ${(mejor.ad * 100).toFixed(2)}% sobre el valor, que paga el importador.` : ""}</p>`;
   }
   // ---------- Precio neto por semana y mejor semana para vender (data/neto_semanal.js, carga diferida) ----------
   // FOB semanal del cruce en pesos (USDA × tipo de cambio de esa semana) menos el flete del estado al cruce con la
@@ -418,7 +420,7 @@
           pane: "markerPane", radius: 6 + 8 * Math.sqrt(n / maxN), color: t.sel, weight: 1.5,
           fillColor: colorRel(p / d.precio), fillOpacity: 0.95
         }).bindTooltip(`<b>${m.nombre}</b> · mercado terminal<br>Mayoreo: <b>${usd(p)}/kg</b> (${pct(p / d.precio)} de la mediana)<br>
-          Origen mexicano: ${pct(mx)} de las cotizaciones<br><span style="opacity:.7">${d.mercancia}, ${window.Paleta.usdaES(d.empaque)}</span>`).addTo(grupo);
+          Origen mexicano: ${pct(mx)} de las cotizaciones<br><span style="opacity:.7">${d.mercancia}, <span${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(d.empaque)}</span></span>`).addTo(grupo);
       });
       const f = d.frontera;
       rutasCadena(k).forEach(r => {
@@ -434,7 +436,7 @@
           icon: window.L.divIcon({ className: "cruce", iconSize: null,
             html: `<i style="--s:${tCruce ? 1 + 1.4 * Math.sqrt(tCruce / (d.volumen.total || 1)) : 1}"></i><span>${c.nombre.split(",")[0]}${v ? " · " + usd(v[0]) : ""}${tCruce ? " · " + fmtT(tCruce) : ""}</span>` })
         }).bindTooltip(`<b>Cruce ${c.nombre}</b>${tCruce ? `<br>Cruzan <b>${fmtT(tCruce)}</b> al año (${pct(tCruce / d.volumen.total)} de lo registrado)` : ""}
-          ${v ? `<br>Precio FOB del producto mexicano: <b>${usd(v[0])}/kg</b><br><span style="opacity:.7">${f.mercancia}, ${window.Paleta.usdaES(f.empaque)} · ${v[1]} cotizaciones</span>` : ""}`).addTo(grupo);
+          ${v ? `<br>Precio FOB del producto mexicano: <b>${usd(v[0])}/kg</b><br><span style="opacity:.7">${f.mercancia}, <span${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(f.empaque)}</span> · ${v[1]} cotizaciones</span>` : ""}`).addTo(grupo);
       });
     }
     return {
@@ -486,7 +488,7 @@
           <div class="l">Precio FOB en la frontera (${Object.entries(f.cruces).map(([c, v]) => `${E().cruces[c].nombre.split(",")[0]} ${usd(v[0])}`).join(" · ")}).
           ${brecha != null ? `En los mercados terminales el producto mexicano se vende ${brecha >= 0 ? pct(brecha) + " más caro" : pct(-brecha) + " más barato"} que en la frontera: flete, merma y margen del mayorista.` : ""}</div></div>` : ""}
       </div>
-      <p class="sub">Referencia: ${d.mercancia}, ${window.Paleta.usdaES(d.empaque)} (${d.kgEmpaque} kg)${f && f.empaque !== d.empaque ? `; en la frontera, ${f.mercancia}, ${window.Paleta.usdaES(f.empaque)}` : ""}.</p>
+      <p class="sub">Referencia: ${d.mercancia}, <span${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(d.empaque)}</span> (${d.kgEmpaque} kg)${f && f.empaque !== d.empaque ? `; en la frontera, ${f.mercancia}, <span${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(f.empaque)}</span>` : ""}.</p>
       <h4 class="mini">Precio por ciudad</h4>
       ${ciudades.map(([id, [p, , mx]]) => `<div class="barra-h"><span class="n">${E().mercados[id].nombre}</span><span class="b"><i style="width:${p / maxP * 100}%;background:${colorRel(p / d.precio)}"></i></span><span class="x">${usd(p)}</span></div>`).join("")}
       <h4 class="mini">De dónde viene lo que se vende</h4>

@@ -6,6 +6,7 @@ sustituye EN ORDEN, así que cada traducción debe conservar exactamente la mism
 Entrada: data/fuentes/plantillas_es.json. Uso: python scripts/traducir_en.py
 """
 import json
+import re
 import os
 import sys
 
@@ -1562,6 +1563,204 @@ EXTRA.update({
     "Generado el # @; vence en pocos días.": "Generated on # @; it expires within days.",
 })
 EXTRA[": kilos comprados por los hogares en la semana de referencia, por producto y estado, con el factor de expansión. Da un índice del consumo por persona de cada estado frente al nacional (con pocos hogares en la muestra se acerca a #) que reparte la demanda nacional entre estados sin cambiar el total. Mide lo que compran los hogares: no incluye restaurantes ni industria. Se puede apagar en el simulador."] = ": kilograms bought by households in the reference week, by product and state, with the expansion factor. It gives an index of each state's per-capita consumption versus the national one (with few households in the sample it moves toward #) that splits national demand among states without changing the total. It measures what households buy: it excludes restaurants and industry. It can be turned off in the simulator."
+# Ronda 7 (revisión del idioma, 1 oct 2026): ficha de decisión, planeador, costos FIRA, siniestros, frescura, alertas,
+# pronósticos en lenguaje llano y notas de la auditoría. Las claves ya van con los espacios reducidos (ver main).
+EXTRA.update({
+    '"Al día" = la fuente no ha publicado nada más reciente según su calendario habitual (incluido su retraso normal de publicación). Revisado el # @ #; los datos semanales se actualizan solos cada martes.':
+        '"Up to date" = the source has published nothing newer according to its usual schedule (including its normal publication lag). Checked on # @ #; weekly data update automatically every Tuesday.',
+    "# @": "# @", "# @ – # @": "# @ – # @", "# de @ de #": "# @ #", "@ de #": "@ #", "@:": "@:",
+    "# mil t · MX #—": "# thousand t · MX #—",
+    "# países con datos · @ total (mesa, vino y pasa).": "# countries with data · total @ (table, wine and raisin).",
+    "# países con datos · Agrupa @ (#), @ (#) y otros berries (#): FAOSTAT registra en la # la mayor parte del comercio de berries.":
+        "# countries with data · Groups @ (#), @ (#) and other berries (#): FAOSTAT records most berry trade under #.",
+    "# señales en # productos. Umbrales: precio ±#% en dos semanas, ±#% contra hace un año; pronóstico ±#% en # semanas (solo si suele fallar menos de ±#%); embarques de @ ±#% contra hace un año. Detalle en cada producto.":
+        "# signals in # products. Thresholds: price ±#% in two weeks, ±#% vs. a year ago; forecast ±#% in # weeks (only if it is usually off by less than ±#%); shipments from @ ±#% vs. a year ago. Details in each product.",
+    # aranceles (respaldo: con el repintado en inglés salen de los campos *_en de data/acceso.js)
+    "#% (@) (tasa básica, sin TLC)": "#% (@) (base rate, no FTA)", "#% (AAE @-@)": "#% (@-@ EPA)", "#% (NMF)": "#% (MFN)",
+    "#% (NMF; sin preferencia para @)": "#% (MFN; no preference for @)", "#% (T-MEC)": "#% (USMCA)",
+    "#% (T-MEC) + antidumping #% (orden AD desde #-@#)": "#% (USMCA) + antidumping #% (AD order since #-@#)",
+    "#% (TLCUEM)": "#% (EU-Mexico FTA)", "#% (acuerdo RU-@)": "#% (UK-@ agreement)", "#% (tasa básica, sin TLC)": "#% (base rate, no FTA)",
+    "#% (tasa provisional NMF; NMF #%)": "#% (provisional MFN rate; MFN #%)",
+    "#% NMF con precio de entrada (al #-@#; estacional); sin preferencia para @": "#% MFN with entry price (as of #-@#; seasonal); no preference for @",
+    "#% con precio de entrada (TLCUEM)": "#% with entry price (EU-Mexico FTA)",
+    "#% dentro de cupo (TLCUEM); fuera de cupo #%": "#% in-quota (EU-Mexico FTA); out-of-quota #%",
+    "· arancel": "· tariff", "Acceso a @:": "Access to @:",
+    "#% o menos (mucha menos oferta)": "#% or less (much less supply)", "#% o más (mucha más oferta)": "#% or more (much more supply)",
+    "$# millones": "$# million", "+$# millones": "+$# million",
+    "(#% del promedio) ·": "(#% of average) ·", "(#% del promedio)": "(#% of average)",
+    # balance: consumo oficial contra disponibilidad (cada frase en su propio nodo)
+    "Con el consumo oficial, el modelo muestra un faltante que no se cubrió con importaciones: el mercado interno recibió menos producto.":
+        "With official consumption, the model shows a shortfall not covered by imports: the domestic market received less product.",
+    "Hay más producto disponible que el consumo oficial: excedente para merma, industria o inventario.":
+        "More product is available than official consumption: surplus for waste, processing or inventory.",
+    "Cambia la base en": "Change the baseline in",
+    # relación precio–cosecha en palabras
+    "($#). Cuando hay menos cosecha el precio tiende a subir, aunque no siempre (relación moderada).":
+        "($#). When the harvest is smaller the price tends to rise, though not always (moderate relationship).",
+    "($#). El precio no sigue a la cosecha nacional: pesan más las importaciones, el almacenamiento, la calidad o la exportación.":
+        "($#). The price does not follow the national harvest: imports, storage, quality or exports weigh more.",
+    "($#). El precio sigue claramente a la cosecha: sube cuando la producción nacional baja.":
+        "($#). The price clearly follows the harvest: it rises when national production falls.",
+    # estado por omisión
+    "Las secciones por estado muestran": "The state sections show",
+    ", el que más produce @. Toca tu estado en el mapa para verlas con el tuyo.": ", the top producer of @. Tap your state on the map to see them for yours.",
+    "Es el estado que más produce @. Toca otro estado en el mapa para verlo.": "It is the top-producing state for @. Tap another state on the map to see it.",
+    "@ importa una parte relevante de lo que consume en": "@ imports a relevant share of what it consumes in",
+    # orígenes del USDA (ya en inglés)
+    "Central America, Peru, South America, Brazil, @ And Peru": "Central America, Peru, South America, Brazil, @ And Peru",
+    "Peru, @, Central America, @": "Peru, @, Central America, @",
+    "col, @, chile, @, @, @, @, @, @, @, @, chile, @, @, @, berries": "cabbage, @, chili, @, @, @, @, @, @, @, @, chili, @, @, @, berries",
+    "Cifras de FAOSTAT (hasta #) para comparar con otros países: pueden diferir del SIAP y de la estadística de comercio # que usa el resto del panel.":
+        "FAOSTAT figures (up to #) to compare with other countries: they may differ from SIAP and from the # trade statistics used in the rest of the panel.",
+    # ficha de decisión y planeador
+    "Lo esencial para decidir · @": "Key facts to decide · @",
+    "exportando por": "exporting through", "por": "via", "por @": "via @",
+    "(precio en la frontera menos flete y antidumping; mediana del año)": "(border price minus freight and antidumping; annual median)",
+    "(precio en la frontera menos flete; mediana del año)": "(border price minus freight; annual median)",
+    "vendiendo en el mercado nacional: típico de # centrales de abasto (mayoreo menos #% de margen del mayorista y el flete); hasta $# en":
+        "selling in the domestic market: typical of # wholesale markets (wholesale minus #% wholesaler margin and freight); up to $# in",
+    "Mes a mes, en": "Month by month, in",
+    "Planear la venta": "Plan the sale", "Planear la venta de @": "Plan the sale of @",
+    "Exportar o vender en @, mes a mes, con el volumen que esperas": "Export or sell in @, month by month, with your expected volume",
+    "Volumen a vender en el año (toneladas)": "Volume to sell in the year (tonnes)",
+    "Margen del mayorista en la central": "Wholesaler margin at the market",
+    "ingreso estimado vendiendo cada mes por el canal que más deja": "estimated revenue selling each month through the best-paying channel",
+    "contra vender todo en el mercado nacional": "vs. selling everything in the domestic market",
+    "Mes": "Month", "Exportar $/kg": "Export $/kg", "Nacional $/kg": "Domestic $/kg", "Conviene": "Best", "Ingreso": "Revenue",
+    "Mercado nacional": "Domestic market",
+    "El USDA no publica un precio en la frontera para @ con el que calcular el neto de exportar: la tabla solo compara centrales de abasto. Que no aparezca exportar no significa que no convenga.":
+        "USDA does not publish a border price for @ to compute the export net: the table only compares wholesale markets. Exporting not showing up does not mean it is not worthwhile.",
+    "El USDA no publica un precio en la frontera para @: no se puede calcular el neto de exportar.":
+        "USDA does not publish a border price for @: the export net cannot be computed.",
+    "Reparto del volumen: cosecha mensual del estado (avance del SIAP); los meses con menos de #% de su cosecha se omiten.":
+        "Volume split: the state's monthly harvest (SIAP progress report); months with less than #% of its harvest are left out.",
+    "Reparto del volumen: partes iguales (sin calendario de cosecha del estado).": "Volume split: equal parts (no state harvest calendar).",
+    "Exportar: neto típico en la frontera (precio FOB del USDA × tipo de cambio, mediana de años anteriores) menos el flete al cruce y la cuota antidumping de #%.":
+        "Export: typical net at the border (USDA FOB price × exchange rate, median of previous years) minus freight to the crossing and the #% antidumping duty.",
+    "Exportar: neto típico en la frontera (precio FOB del USDA × tipo de cambio, mediana de años anteriores) menos el flete al cruce.":
+        "Export: typical net at the border (USDA FOB price × exchange rate, median of previous years) minus freight to the crossing.",
+    "Mercado nacional: precio frecuente del SNIIM en la central que más deja (mediana # × estacionalidad del mes, centrales con al menos # cotizaciones), menos #% de margen del mayorista (el SNIIM registra su precio de reventa) y el flete del estado a esa central.":
+        "Domestic market: SNIIM most-frequent price at the best-paying wholesale market (# median × the month's seasonality, markets with at least # quotes), minus #% wholesaler margin (SNIIM records its resale price) and freight from the state to that market.",
+    "Flete de # pesos por tonelada-km.": "Freight of # pesos per tonne-km.",
+    "Es un techo para comparar canales: ambos precios incluyen empaque, comercialización y márgenes que no se descuentan, y no considera calidad, contratos ni acceso fitosanitario.":
+        "It is a ceiling to compare channels: both prices include packing, marketing and margins that are not deducted, and it does not consider quality, contracts or phytosanitary access.",
+    "Escenario: variación de producción en": "Scenario: production change in",
+    # neto de exportación
+    "Precio en la frontera $#/kg (US$# × #), menos #% de antidumping, menos flete de # km ($#/kg). Es":
+        "Border price MX$#/kg (US$# × #), minus #% antidumping, minus # km of freight (MX$#/kg). That is",
+    "Descuenta la cuota antidumping de @ de #% sobre el precio FOB, que paga el importador.":
+        "Deducts the @ antidumping duty of #% on the FOB price, paid by the importer.",
+    "Referencia: @, # lb cajas a granel (# kg).": "Reference: @, # lb loose cartons (# kg).",
+    "Referencia: @, # lb cajas a granel. Flete con la tarifa del simulador (# pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: Reserva Federal (H.# DEXMXUS), promedio # Descuenta la cuota antidumping de @ de #% sobre el valor, que paga el importador.":
+        "Reference: @, # lb loose cartons. Freight at the simulator rate (# pesos per tonne-km). The FOB price includes packing, cooling, customs broker and exporter margin, which are not deducted here: it is the ceiling of what could reach the producer. Exchange rate: Federal Reserve (H.# DEXMXUS), average # Deducts the @ antidumping duty of #% on the value, paid by the importer.",
+    "Referencia: @, # lb cajas. Flete con la tarifa del simulador (# pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: Reserva Federal (H.# DEXMXUS), promedio #":
+        "Reference: @, # lb cartons. Freight at the simulator rate (# pesos per tonne-km). The FOB price includes packing, cooling, customs broker and exporter margin, which are not deducted here: it is the ceiling of what could reach the producer. Exchange rate: Federal Reserve (H.# DEXMXUS), average #",
+    "La mejor ciudad cada mes": "The best city each month",
+    "Medianas mensuales # del mismo empaque en la frontera y en cada ciudad, con el flete de ese mes. Mayor diferencia del año: @ en @.":
+        "Monthly # medians for the same pack at the border and in each city, with that month's freight. Largest gap of the year: @ in @.",
+    "Diferencia": "Difference",
+    # embarques y pronósticos
+    "Embarques semanales que el USDA registra en los cruces con @ (reporte National Shipping Point Trends, # cwt = # t). No cubre todos los pasos: este año registró #% de lo que @ reporta exportar a @":
+        "Weekly shipments USDA records at the crossings with @ (National Shipping Point Trends report, # cwt = # t). It does not cover every crossing: this year it recorded #% of what @ reports exporting to the @",
+    "Embarques semanales que el USDA registra en los cruces con @ (reporte National Shipping Point Trends, # cwt = # t). No cubre todos los pasos: este año registró #% de lo que @ reporta exportar a @ (más de #%: la estadística mexicana subregistra parte de lo que cruza)":
+        "Weekly shipments USDA records at the crossings with @ (National Shipping Point Trends report, # cwt = # t). It does not cover every crossing: this year it recorded #% of what @ reports exporting to the @ (over #%: Mexican statistics under-record part of what crosses)",
+    "Hoy el precio está #% abajo de lo normal para estas fechas.": "Today the price is #% below normal for this time of year.",
+    "Hoy el precio está #% arriba de lo normal para estas fechas.": "Today the price is #% above normal for this time of year.",
+    "Hoy el precio está en su nivel normal para estas fechas.": "Today the price is at its normal level for this time of year.",
+    "Pronóstico y rango probable (el precio real cayó ahí # de cada # veces)": "Forecast and likely range (the actual price fell there # out of # times)",
+    # alertas
+    "Movimientos de la semana · USDA al # @ · SNIIM al # @": "This week's moves · USDA as of # @ · SNIIM as of # @",
+    "Precios y embarques que se movieron fuerte": "Prices and shipments that moved sharply",
+    "Mucha menos oferta por venir": "Much less supply coming", "Mucha más oferta por venir": "Much more supply coming",
+    "Mucha menos oferta por venir: superficie por cosechar #% contra el promedio #–#": "Much less supply coming: area left to harvest #% vs. the #–# average",
+    "Mucha más oferta por venir: superficie por cosechar #% contra el promedio #–#": "Much more supply coming: area left to harvest #% vs. the #–# average",
+    "SIAP, Avance de Siembras y Cosechas, situación al # de @ de # contra el promedio de los dos años anteriores al mismo corte (ciclos otoño-invierno y primavera-verano más perennes; riego y temporal). La superficie por cosechar (sembrada − cosechada − siniestrada) es lo que falta por salir al mercado en los próximos meses; lo ya cosechado a la fecha puede ir arriba aunque falte menos por cosechar (la cosecha se adelantó). Sin señal cuando la base es muy chica (menos de # ha por cosechar o # t). Mide oferta, no anticipa precios: en una prueba con #–# esta señal no anticipó el precio de mayoreo en @. No considera rendimientos, clima ni demanda. En el mapa, elige":
+        "SIAP, Planting and Harvest Progress, status as of # @ # vs. the average of the two previous years at the same cutoff (fall-winter and spring-summer cycles plus perennials; irrigated and rain-fed). The area left to harvest (planted − harvested − lost) is what is still to reach the market in the coming months; what has been harvested to date may be higher even if less is left (the harvest came early). No signal when the base is very small (less than # ha to harvest or # t). It measures supply, it does not anticipate prices: in a #–# test this signal did not anticipate the wholesale price in @. It does not consider yields, weather or demand. On the map, choose",
+    "Menos de #% de la producción con helada o lluvia fuerte (# municipios con alerta)": "Less than #% of production with frost or heavy rain (# municipalities with alerts)",
+    "Menos de #% de la producción con helada o lluvia fuerte (# municipio con alerta)": "Less than #% of production with frost or heavy rain (# municipality with an alert)",
+    # costos FIRA
+    "Costo de producción contra precio al productor": "Production cost vs. farm-gate price",
+    "El precio rural cubre el costo en # de # caso (estado y tipo de cultivo) con costo FIRA": "The farm-gate price covers the cost in # of # case (state and crop type) with a FIRA cost",
+    "El precio rural cubre el costo en # de # casos (estado y tipo de cultivo) con costo FIRA": "The farm-gate price covers the cost in # of # cases (state and crop type) with a FIRA cost",
+    "Costo $/kg": "Cost $/kg", "Precio rural $/kg": "Farm-gate $/kg", "Margen sobre el precio": "Margin over price", "Tipo": "Type",
+    "cielo abierto": "open field", "protegida": "protected", "FIRA # · # t/ha": "FIRA # · # t/ha",
+    "Costo: FIRA Agrocostos, costo paramétrico por hectárea entre el rendimiento esperado, del año más reciente con dato (#), llevado a pesos de ## con la inflación (OCDE/FRED hasta ##; después #% anual).":
+        "Cost: FIRA Agrocostos, parametric cost per hectare divided by expected yield, from the latest year with data (#), brought to ## pesos with inflation (OECD/FRED through ##; then #% a year).",
+    "Costo: FIRA Agrocostos, costo paramétrico por hectárea entre el rendimiento esperado, del año más reciente con dato (#–#), llevado a pesos de ## con la inflación (OCDE/FRED hasta ##; después #% anual).":
+        "Cost: FIRA Agrocostos, parametric cost per hectare divided by expected yield, from the latest year with data (#–#), brought to ## pesos with inflation (OECD/FRED through ##; then #% a year).",
+    "Precio: precio medio rural del SIAP # en el estado (todas las calidades y destinos).": "Price: SIAP # average farm-gate price in the state (all grades and destinations).",
+    "FIRA advierte que son pocas observaciones y no representan al estado: sirven como orden de magnitud.":
+        "FIRA warns these are few observations and do not represent the state: use them as an order of magnitude.",
+    "La agricultura protegida (invernadero, malla) suele venderse más cara que el promedio rural, sobre todo para exportar: su margen aquí sale castigado.":
+        "Protected agriculture (greenhouse, shade house) usually sells above the rural average, especially for export: its margin comes out penalized here.",
+    "costo de producir $#/kg (FIRA # cielo abierto) contra $#/kg de precio rural (#%)": "production cost $#/kg (FIRA # open field) vs. $#/kg farm-gate price (#%)",
+    "costo de producir $#/kg (FIRA # protegida) contra $#/kg de precio rural (#%)": "production cost $#/kg (FIRA # protected) vs. $#/kg farm-gate price (#%)",
+    "costo de producir en el estado: $#/kg (FIRA #)": "production cost in the state: $#/kg (FIRA #)",
+    # siniestros
+    "Pérdidas por siniestro en diez años": "Crop losses over ten years", "Estados donde más se pierde": "States with the largest losses",
+    "Pérdida promedio": "Average loss", "Peor año": "Worst year", "Sembrada (ha/año)": "Planted (ha/year)", "Parte": "Share",
+    "Casi sin pérdidas registradas en #–#": "Almost no losses recorded in #–#",
+    "Se pierde en promedio #% de lo sembrado · peor año # (#%)": "On average #% of the planted area is lost · worst year # (#%)",
+    "pierde en promedio #% de lo sembrado (SIAP #–#)": "loses on average #% of the planted area (SIAP #–#)",
+    "pérdida promedio en riego": "average loss, irrigated", "pérdida promedio en temporal": "average loss, rain-fed",
+    "Superficie siniestrada entre superficie sembrada (SIAP, cierre municipal #–#): lo que se sembró y no llegó a cosecharse por un daño. El SIAP no publica la causa (helada, granizo, lluvia, sequía o plaga). En perennes casi no registra siniestros. Se excluyen # registros municipales que parecen errores de captura (siembran más de # veces lo normal y pierden casi todo). Estados con al menos # ha sembradas al año.":
+        "Lost area divided by planted area (SIAP, municipal closing data #–#): what was planted and never harvested because of damage. SIAP does not publish the cause (frost, hail, rain, drought or pests). For perennials it records almost no losses. # municipal records that look like data-entry errors are excluded (they plant more than # times the usual and lose almost everything). States with at least # ha planted per year.",
+    # resumen, simulador y fuentes
+    "Producción entre consumo, antes de exportar. La producción alcanzaría para": "Production divided by consumption, before exports. Production would be enough for",
+    "Produce #% del mundo (# mil t) y aporta #% de su exportación. Le sigue": "It produces #% of the world total (# thousand t) and supplies #% of its exports. Next is",
+    "de cada $#": "out of every $#",
+    "de cada $# que paga el consumidor llegan al productor, según el producto": "of every $# the consumer pays reaches the producer, depending on the product",
+    "lo que queda en el país cubre #% del consumo de referencia": "what stays in the country covers #% of reference consumption",
+    "lo que queda en el país cubre su consumo": "what stays in the country covers its consumption",
+    "lo que queda en el país supera #% el consumo de referencia": "what stays in the country exceeds reference consumption by #%",
+    "Incluye el tomate para industria (sobre todo en @), como la FAO.": "Includes processing tomato (mostly in @), like FAO.",
+    "Toda la @ (fresca, industria y semilla); Statistics Canada no separa el destino en la producción.":
+        "All @ (fresh, processing and seed); Statistics Canada does not split production by use.",
+    "Ojo: @, @ y otros centros logísticos compran para reexportar a toda Europa. Es un punto de partida: los países con acceso cerrado para el producto mexicano van al final; el arancel y los requisitos están en la columna Acceso. Elige":
+        "Note: @, @ and other logistics hubs buy to re-export across Europe. It is a starting point: countries with closed access for the Mexican product go last; the tariff and requirements are in the Access column. Choose",
+    "al año (el ahorro en márgenes se aplica a todo el consumo nacional; el de transporte, solo a las # Mt que se mueven entre estados). El productor mantiene su precio; parte del ahorro podría destinarse a pagarle mejor.":
+        "per year (the margin savings apply to all national consumption; the transport savings only to the # Mt moved between states). The producer keeps their price; part of the savings could go to paying them better.",
+    "al año (el ahorro en márgenes se aplica a todo el consumo nacional; el de transporte, solo a las # mil t que se mueven entre estados). El productor mantiene su precio; parte del ahorro podría destinarse a pagarle mejor.":
+        "per year (the margin savings apply to all national consumption; the transport savings only to the # thousand t moved between states). The producer keeps their price; part of the savings could go to paying them better.",
+    "del año analizado ((producción − exportación + importación) ÷ población). Cuando difieren más de #%, el balance lo señala: en la mayoría de las @ coinciden de cerca (@ y @ quedan por arriba del consumo oficial); en @, chile y @ la producción # cayó frente a # sin que bajaran las exportaciones.":
+        "of the analyzed year ((production − exports + imports) ÷ population). When they differ by more than #%, the balance flags it: for most @ they match closely (@ and @ are above official consumption); in @, chili and @ production in # fell versus # without exports falling.",
+    "la producción por entidad y el precio medio rural provienen del SIAP (cierre agrícola municipal). Exportación, importación y países provienen de la estadística oficial de comercio exterior (INEGI/SE vía UN Comtrade). Los precios de mayoreo son del SNIIM y los precios al consumidor de PROFECO. El consumo per cápita es el del Panorama Agroalimentario del SIAP y la población, la proyección CONAPO del año analizado. Todas las cifras en uso provienen de fuentes oficiales.":
+        "production by state and the average farm-gate price come from SIAP (municipal agricultural closing data). Exports, imports and countries come from official foreign trade statistics (INEGI/SE via UN Comtrade). Wholesale prices are from SNIIM and consumer prices from PROFECO. Per-capita consumption is from the SIAP Agri-Food Panorama and population is the CONAPO projection for the analyzed year. All figures in use come from official sources.",
+})
+# Referencia del USDA con el empaque en su propio nodo (en inglés se deja como lo publica el USDA)
+_REF_FOB = (". Flete con la tarifa del simulador (# pesos por tonelada-km). El precio FOB incluye empaque, enfriado, agente aduanal y margen del exportador, que no se descuentan aquí: es el techo de lo que podría llegarle al productor. Tipo de cambio: Reserva Federal (H.# DEXMXUS), promedio #",
+            ". Freight at the simulator rate (# pesos per tonne-km). The FOB price includes packing, cooling, customs broker and exporter margin, which are not deducted here: it is the ceiling of what could reach the producer. Exchange rate: Federal Reserve (H.# DEXMXUS), average #")
+EXTRA.update({
+    "Referencia: @,": "Reference: @,", "@,": "@,", "(# kg); en la frontera, @,": "(# kg); at the border, @,",
+    _REF_FOB[0]: _REF_FOB[1],
+    _REF_FOB[0] + " Descuenta la cuota antidumping de @ de #% sobre el valor, que paga el importador.":
+        _REF_FOB[1] + " Deducts the @ antidumping duty of #% on the value, paid by the importer.",
+    "· # cotizaciones": "· # quotes",
+})
+# Variantes con unidades (Mt, mil t, t) y listas de meses o estados
+_U = [("Mt", "Mt"), ("mil t", "thousand t"), ("t", "t")]
+for _a, _ae in _U:
+    for _b, _be in _U:
+        EXTRA[f"Según el cierre del SIAP, la producción pasó de # {_a} (#) a # {_b} (#%)."] = (
+            f"According to the SIAP closing data, production went from # {_ae} (#) to # {_be} (#%).")
+        EXTRA[f"Ojo: el Panorama calcula su consumo con una producción # de # {_a}, distinta de la del cierre del SIAP (# {_b}; otra definición del producto), así que su consumo por persona no es del todo comparable con estas cifras."] = (
+            f"Note: the Panorama computes its consumption with a # production of # {_ae}, different from the SIAP closing figure (# {_be}; another product definition), so its per-capita consumption is not fully comparable with these figures.")
+_LISTA = {1: ("@", "@"), 2: ("@ y @", "@ and @"), 3: ("@, @ y @", "@, @ and @"), 4: ("@, @, @ y @", "@, @, @ and @")}
+for _n, (_es, _en) in _LISTA.items():
+    EXTRA[f"Mejores precios con producto mexicano: {_es} en @ Mes a mes, en"] = f"Best prices with Mexican product: {_en} in the @ Month by month, in"
+    EXTRA[f"Mejores precios con producto mexicano: {_es} en @"] = f"Best prices with Mexican product: {_en} in the @"
+    EXTRA[f"Mejores precios con producto mexicano: {_es} · @ aporta #% de todo lo que se embarca en @ (incluida su producción)"] = (
+        f"Best prices with Mexican product: {_en} · @ supplies #% of everything shipped in the @ (including its own production)")
+    EXTRA[f"No entran al total nacional {_es}: en algún año su avance registra más cosecha o superficie de la que el estado produce en todo el año (probable error de captura del SIAP)."] = (
+        f"Not included in the national total: {_en}. In some year their progress report records more harvest or area than the state produces in a whole year (probable SIAP data-entry error).")
+EXTRA["@ aporta #% de todo lo que se embarca en @ (incluida su producción)"] = "@ supplies #% of everything shipped in the @ (including its own production)"
+# "Mejores meses" del USDA: cada mes con su precio, con producto mexicano o fuera de su temporada
+import itertools as _it
+_A = ("@ (US$#/kg, @ #% de lo embarcado)", "@ (US$#/kg, @ #% of shipments)")
+_B = ("@ (US$#/kg, fuera de la temporada de @)", "@ (US$#/kg, outside @ season)")
+for _n in range(1, 5):
+    for _comb in _it.product((_A, _B), repeat=_n):
+        EXTRA[" · ".join(c[0] for c in _comb) + ". Precio mediano del año: US$#/kg."] = " · ".join(c[1] for c in _comb) + ". Median price of the year: US$#/kg."
 # RONDA5-FIN
 for _k, _v in list(EXTRA.items()):
     assert fichas(_k) == fichas(_v), (_k, _v)
@@ -1589,6 +1788,8 @@ def main():
     assert len(T) == len(plantillas)
     salida = {p: T[p] for p in plantillas}
     salida.update(EXTRA)   # plantillas añadidas después de la recolección (plural correcto del nivel regional)
+    # el navegador compara con los espacios y saltos de línea reducidos a un espacio (js/idioma.js, normalizar)
+    salida = {re.sub(r"\s+", " ", k): v for k, v in salida.items()}
     with open(SALIDA, "w", encoding="utf-8", newline="\n") as f:
         f.write("// Plantillas de traducción al inglés (ver js/idioma.js). Generado por scripts/traducir_en.py\n")
         f.write("window.TRADUCCION_EN = " + json.dumps(salida, ensure_ascii=False, indent=0) + ";\n")

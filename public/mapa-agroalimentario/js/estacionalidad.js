@@ -4,7 +4,9 @@
 // cosecha de cada mes; escenario de escalonamiento de cosecha / almacenamiento.
 // ============================================================================
 (function () {
-  const MES = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  // Iniciales de los meses; en inglés enero es "J" (se lee al pintar, después de elegir el idioma)
+  const MES = new Proxy(["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+    { get: (a, i) => i === "0" && document.documentElement.lang === "en" ? "J" : Reflect.get(a, i) });
   const MES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
   const mxn = n => "$" + n.toFixed(2);
   const pct = x => (x * 100).toFixed(0) + "%";

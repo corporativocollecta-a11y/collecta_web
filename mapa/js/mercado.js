@@ -116,7 +116,7 @@
           <tr><th>Producto</th><th class="num">Compra fuera de México</th><th>Acceso</th></tr>
           ${R.opp.map(o => `<tr class="clic" data-mc-prod="${o.k}"><td><span class="prod"><i style="background:${color(o.k)}"></i>${nombreProd(o.k)}</span><span class="est razon">${razon(o)}</span></td>
             <td class="num">${usd(o.libreU)}</td>
-            <td>${etiquetaAcceso(o)}${arancel(o) ? `<span class="est razon">${arancel(o)}</span>` : ""}</td></tr>`).join("")}
+            <td>${etiquetaAcceso(o)}${arancel(o) ? `<span class="est razon"${window.Acceso.tn()}>${arancel(o)}</span>` : ""}</td></tr>`).join("")}
         </table></div>
         <p class="sub">Productos que ${nombre} compra a otros proveedores por al menos US$5 M, que México ya exporta (al menos US$20 M al año) y sin acceso cerrado para México. Se ordenan por lo que compra fuera de México y por lo que paga frente al precio medio de exportación de México; "con condiciones" pesa menos. Toca un producto para verlo en el mapa.</p>`,
         `${nombreProd(R.opp[0].k)}: ${usd(R.opp[0].libreU)} fuera de México`, { abierta: true }) : ""}
@@ -143,7 +143,7 @@
       ${accesoResumen ? S("acceso", `<h3>Acceso y aranceles para México</h3>
         <div class="desplaza"><table class="acceso compacta">
           <tr><th>Producto</th><th>Situación</th><th>Arancel</th></tr>
-          ${R.filas.filter(x => x.acc).map(x => `<tr><td>${nombreProd(x.k)}</td><td>${window.Acceso.etiqueta(x.acc)}</td><td class="est">${arancel(x)}</td></tr>`).join("")}
+          ${R.filas.filter(x => x.acc).map(x => `<tr><td>${nombreProd(x.k)}</td><td>${window.Acceso.etiqueta(x.acc)}</td><td class="est"${window.Acceso.tn()}>${arancel(x)}</td></tr>`).join("")}
         </table></div>
         <p class="sub">Revisión de acceso fitosanitario y arancel para producto fresco de origen México (${window.ACCESO.actualizado}). En la pestaña Exportar de cada producto está el requisito y la fuente.</p>`,
         `Abierto en ${accesoResumen.abierto}, con condiciones en ${accesoResumen.con_condiciones} y cerrado en ${accesoResumen.cerrado} productos`) : ""}

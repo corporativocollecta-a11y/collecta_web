@@ -44,7 +44,16 @@
     "Distrito de Columbia": "District of Columbia", "Los Ángeles": "Los Angeles", "Filadelfia": "Philadelphia",
   };
 
-  let nombres = null, regex = null;
+  let nombres = null, regex = null, fijos = null;
+  // Nombres propios que solo aparecen solos en su celda (municipios, centrales de abasto, cruces, siglas de fuentes):
+  // no se traducen ni cuentan como pendientes. No entran a la expresión de nombres porque varios son palabras comunes
+  // ("Rosario", "Buenavista", "Salinas") que romperían plantillas de frases.
+  function construirFijos() {
+    fijos = new Set(["FAOSTAT", "SIAP", "SMN", "USDA", "SNIIM", "FIRA", "INEGI", "USDA · SNIIM · SIAP", "FIRA · SIAP", "McAllen", "Otay Mesa", "Nogales", "Peru"]);
+    Object.values(window.MUNICIPIOS_NOMBRES ?? {}).forEach(n => fijos.add(n));
+    Object.values(window.PRECIOS_SNIIM?.centrales ?? {}).forEach(c => fijos.add(c.nombre));
+  }
+  const esFijo = t => { if (!fijos) construirFijos(); return fijos.has(t) || fijos.has(t.replace(/:$/, "")); };
   function construirNombres() {
     nombres = { ...ESTADOS_EUA_EN };
     Object.entries(PRODUCTOS_EN).forEach(([es, en]) => { nombres[es] = en; nombres[es.toLowerCase()] = en.toLowerCase(); });
@@ -61,7 +70,7 @@
     Object.values(window.SUBNACIONAL ?? {}).forEach(d => Object.values(d.regiones).forEach(r => propios.add(r.nombre)));
     Object.values(window.PRECIOS_EUA?.mercados ?? {}).forEach(m => propios.add(m.nombre));
     propios.forEach(n => { if (!(n in nombres)) nombres[n] = n; });
-    Object.entries(MESES_EN).forEach(([es, en]) => { nombres[es] = en; });
+    Object.entries(MESES_EN).forEach(([es, en]) => { nombres[es] = en; if (es.length > 3) nombres[es[0].toUpperCase() + es.slice(1)] = en; });
     const claves = Object.keys(nombres).filter(k => k.length > 2).sort((a, b) => b.length - a.length)
       .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
     regex = new RegExp(`(?<![\\p{L}])(${claves.join("|")})(?![\\p{L}])`, "gu");
@@ -70,7 +79,7 @@
   function normalizar(t) {
     if (!regex) construirNombres();
     const noms = [], nums = [];
-    const s = t.replace(regex, m => { noms.push(m); return "@"; }).replace(/[+−-]?\d[\d.,]*/g, m => { nums.push(m); return "#"; });
+    const s = t.replace(regex, m => { noms.push(m); return "@"; }).replace(/[+−-]?\d[\d.,]*/g, m => { nums.push(m); return "#"; }).replace(/\s+/g, " ");   // los saltos de línea del HTML no cuentan
     return { s, noms, nums };
   }
   function traducir(t) {
@@ -132,7 +141,11 @@
     if (b) b.textContent = activo ? "ES" : "EN";
     // Las plantillas (≈130 kB) se cargan la primera vez que se pide el inglés
     if (activo) window.Paleta.cargar("data/traduccion_en.js", () => !!window.TRADUCCION_EN)
-      .then(() => { obs.disconnect(); traducirNodo(document.body); conectar(); });
+      .then(() => {
+        // se repinta para que lo que trae su propio texto en inglés (requisitos y aranceles de acceso) salga en inglés
+        try { window.App?.render?.(); } catch (e) { /* vista sin repintado */ }
+        obs.disconnect(); traducirNodo(document.body); conectar();
+      });
     else location.reload();   // volver al español: el texto original se pinta de nuevo
   }
 
@@ -145,7 +158,7 @@
       const t = (originales.get(n) ?? n.nodeValue).trim();
       if (!t || !/\p{L}{3}/u.test(t) || n.parentElement.closest("script,style,[translate=no]")) continue;
       const { s } = normalizar(t);
-      if (!(s in (window.TRADUCCION_EN ?? {})) && !(t in nombres)) faltan.add(s);
+      if (!(s in (window.TRADUCCION_EN ?? {})) && !(t in nombres) && !esFijo(t)) faltan.add(s);
     }
     return [...faltan];
   }

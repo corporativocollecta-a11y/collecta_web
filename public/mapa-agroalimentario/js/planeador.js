@@ -67,8 +67,8 @@
       if (o.nac) { soloNac += vol * 1000 * o.nac.n; hayNac = true; }
       if (o.exp) { soloExp += vol * 1000 * o.exp.n; hayExp = true; }
       return `<tr><td>${nombre}</td><td class="num">${fmt(vol)} t</td>
-        <td class="num">${o.exp ? `${mxn(o.exp.n)}<br><span class="est">por ${PreciosEUA.nombreCruce(o.exp.c).split(",")[0].split(" (")[0]}</span>` : "—"}</td>
-        <td class="num">${o.nac ? `${mxn(o.nac.n)}<br><span class="est">${o.nac.central}</span>` : "—"}</td>
+        <td class="num">${o.exp ? `${mxn(o.exp.n)}<br><span class="est">por <span translate="no">${PreciosEUA.nombreCruce(o.exp.c).split(",")[0].split(" (")[0]}</span></span>` : "—"}</td>
+        <td class="num">${o.nac ? `${mxn(o.nac.n)}<br><span class="est" translate="no">${o.nac.central}</span>` : "—"}</td>
         <td><span class="tag ${mejorExp ? "ok" : "alerta-tag"}">${mejorExp ? "Exportar" : "Mercado nacional"}</span></td>
         <td class="num">${millones(vol * 1000 * neto)}</td></tr>`;
     }).join("");
