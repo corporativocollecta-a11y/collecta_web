@@ -48,7 +48,7 @@
     if (listo()) return Promise.resolve();
     return (cargas[src] ??= new Promise((ok, mal) => {
       const s = document.createElement("script");
-      s.src = src; s.onload = () => ok(); s.onerror = () => { delete cargas[src]; mal(new Error("No se pudo cargar " + src)); };
+      s.src = src + (window.VERSIONES?.[src] ? "?v=" + window.VERSIONES[src] : ""); s.onload = () => ok(); s.onerror = () => { delete cargas[src]; mal(new Error("No se pudo cargar " + src)); };
       document.head.appendChild(s);
     }));
   }

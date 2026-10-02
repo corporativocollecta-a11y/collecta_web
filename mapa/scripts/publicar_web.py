@@ -13,6 +13,7 @@ X-Robots-Tag: noindex. Publicar = commit + push del repo del sitio (Vercel despl
 Uso:
   python scripts/publicar_web.py [ruta del repo del sitio=C:/Users/DELL/dev/collecta_web] [ruta del reporte] [--sin-traer]
 """
+import json
 import re
 import shutil
 import sys
@@ -85,6 +86,11 @@ def main():
         v = hashlib.md5(ruta.read_bytes()).hexdigest()[:8] if ruta.exists() else None
         return f'{m.group(1)}="{m.group(2)}?v={v}"' if v else m.group(0)
     html = re.sub(r'(src|href)="((?:js|css|data|img)/[^"?]+)"', version, html)
+    # Los datos que se cargan bajo demanda (Paleta.cargar: traducción, pronósticos, neto semanal…) no están en el HTML:
+    # su huella va en window.VERSIONES para que una actualización no se quede en la caché del navegador
+    huellas = {f"data/{f.name}": hashlib.md5(f.read_bytes()).hexdigest()[:8] for f in sorted((DESTINO / "data").glob("*.js"))}
+    html = html.replace(f'<base href="/{RUTA}/">',
+                        f'<base href="/{RUTA}/">\n  <script>window.VERSIONES = {json.dumps(huellas)};</script>', 1)
     assert f'<base href="/{RUTA}/">' in html and "claude.ai" not in html
     (DESTINO / "index.html").write_text(html, encoding="utf-8")
 
