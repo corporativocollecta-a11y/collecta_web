@@ -104,7 +104,7 @@
     const corto = { mx_tx: "Texas", mx_nog: "Nogales", mx_otay: "Otay Mesa", mx_cal: "Calexico/San Luis" };
     return `<h4 class="mini">De qué estados viene lo que cruzó (estimado)</h4>
       ${lista.slice(0, 8).map(x => `<div class="barra-h"><span class="n">${x.nombre}</span><span class="b"><i style="width:${x.t / lista[0].t * 100}%;background:var(--c-importa)"></i></span><span class="x">${pct(x.t / tot)}</span></div>`).join("")}
-      <p class="sub">${lista.registro ? `El USDA reporta el cruce, no el estado de origen. Se reparte según lo que la Secretaría de Economía registra que cada estado exportó a EE. UU. en ${MESES_L[lista.registro.mes - 1]} de ${lista.registro.anio}${lista.registro.propio ? "" : " (el mes de esta semana aún no se publica)"}, en valor y por domicilio del exportador; cada estado se asigna a los cruces por cercanía${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a Estados Unidos" : ""}` : `Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente ${window.AVANCE_SIAP?.productos?.[k] ? `(cosecha del mes según el avance mensual del SIAP ${window.AVANCE_SIAP.anio}, menos su consumo)` : `(producción SIAP ${window.PRODUCCION_SIAP?.anio ?? ""} menos su consumo)`} según su cercanía a cada cruce${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a EE. UU." : ""}`}. Principal ruta de ${lista[0].nombre}: ${corto[Object.entries(lista[0].cruces).sort((a, b) => b[1] - a[1])[0][0]]}.</p>`;
+      <p class="sub">${lista.registro ? `El USDA reporta el cruce, no el estado de origen. Se reparte según lo que la Secretaría de Economía registra que cada estado exportó a EE. UU. en ${MESES_L[lista.registro.mes - 1]} de ${lista.registro.anio}${lista.registro.propio ? "" : " (el mes de esta semana aún no se publica)"}, en valor y por domicilio del exportador; cada estado se asigna a los cruces por cercanía${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a Estados Unidos" : ""}` : `Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente ${window.AVANCE_SIAP?.productos?.[k] ? `(cosecha del mes según el avance mensual del SIAP ${window.AVANCE_SIAP.anio}, menos su consumo)` : `(producción SIAP ${window.PRODUCCION_SIAP?.anio ?? ""} menos su consumo)`} según su cercanía a cada cruce${AUTORIZADOS[k] ? "; solo estados autorizados para exportar a EE. UU." : ""}`}. Principal ruta de ${lista[0].nombre}: <span translate="no">${corto[Object.entries(lista[0].cruces).sort((a, b) => b[1] - a[1])[0][0]]}</span>.</p>`;
   }
 
   // ---------- Oferta: quién abastece a EE. UU. en la semana elegida y en las últimas 52 ----------
@@ -139,7 +139,7 @@
       <div class="leyenda-cadena">${Object.entries(GRUPOS).filter(([gr]) => tot52.some(x => x[gr] > 0)).map(([, [n, c]]) => `<span><i style="background:${c}"></i>${n}</span>`).join("")}</div>
       <div class="desplaza"><table class="compacta">
         <tr><th>Origen</th><th class="num">Semana</th><th class="num">Año anterior</th><th class="num">Parte</th></tr>
-        ${lista.slice(0, 10).map(x => `<tr${x.meta[3] === "mx" ? ' class="resaltado"' : ""}><td><i class="cmp-punto" style="background:${GRUPOS[x.meta[3]][1]}"></i><span translate="no">${nombreOrigen(x.meta)}</span>${x.meta[6] ? `<br><span class="est">${x.meta[6].join(", ")}</span>` : ""}</td>
+        ${lista.slice(0, 10).map(x => `<tr${x.meta[3] === "mx" ? ' class="resaltado"' : ""}><td><i class="cmp-punto" style="background:${GRUPOS[x.meta[3]][1]}"></i><span translate="no">${nombreOrigen(x.meta)}</span>${x.meta[6] ? `<br><span class="est"${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(x.meta[6].join(", "))}</span>` : ""}</td>
           <td class="num">${fmtT(x.t)}</td><td class="num">${x.antes ? fmtT(x.antes) : "—"}</td><td class="num">${total ? pct(x.t / total) : "—"}</td></tr>`).join("")}
       </table></div>
       ${vista === "mx" ? estadosHTML(k, i) : ""}
@@ -251,7 +251,7 @@
         const [nombre, lat, lon, tipo] = x.meta;
         const color = tipo === "mx" ? t.importa : tipo === "imp" ? getComputedStyle(document.documentElement).getPropertyValue("--minorista").trim() : tipo === "mixto" ? getComputedStyle(document.documentElement).getPropertyValue("--transporte").trim() : t.exc;
         window.L.circleMarker([lat, lon], { pane: "markerPane", radius: 4 + 26 * Math.sqrt(x.t / max), color, weight: 1.5, fillColor: color, fillOpacity: 0.45 })
-          .bindTooltip(`<b>${nombreOrigen(x.meta)}</b><br>Semana del ${fecha(i)}: <b>${fmtT(x.t)}</b>${x.antes ? `<br>Misma semana del año anterior: ${fmtT(x.antes)}` : ""}${x.meta[6] ? `<br><span style="opacity:.7">${x.meta[6].join(", ")}</span>` : ""}`)
+          .bindTooltip(`<b>${nombreOrigen(x.meta)}</b><br>Semana del ${fecha(i)}: <b>${fmtT(x.t)}</b>${x.antes ? `<br>Misma semana del año anterior: ${fmtT(x.antes)}` : ""}${x.meta[6] ? `<br><span style="opacity:.7"${window.Acceso?.tn?.() ?? ""}>${window.Paleta.usdaES(x.meta[6].join(", "))}</span>` : ""}`)
           .addTo(grupo);
       });
     }

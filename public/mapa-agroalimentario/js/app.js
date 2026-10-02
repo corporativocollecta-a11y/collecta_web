@@ -273,12 +273,16 @@
     if (n.produccion > 0 && lider?.prod > 0) partes.push(`${fmtT(n.produccion)} al año, ${pct(lider.prod / n.produccion)} en ${lider.nombre}`);
     const exp = p.exportacion / (n.produccion || 1);
     const dest = Object.entries(p.destinos ?? {}).sort((a, b) => b[1] - a[1])[0];
-    if (p.exportacion > 0 && exp >= 0.01) partes.push(dest ? `exporta ${pct(Math.min(1, exp))}, ${pctFino(dest[1])} de eso a ${dest[0]}` : `exporta ${pct(Math.min(1, exp))}`);
+    // Si la exportación oficial pasa de la producción del SIAP las dos cifras no cuadran (pepino, calabacita, berenjena):
+    // se dice en toneladas en vez de dar un porcentaje sin sentido
+    const noCuadra = p.exportacion >= n.produccion * 0.95;
+    if (noCuadra) partes.push(`exporta ${fmtT(p.exportacion)}${dest ? `, ${pctFino(dest[1])} a ${dest[0]}` : ""}: más de lo que el SIAP registra como producción`);
+    else if (p.exportacion > 0 && exp >= 0.01) partes.push(dest ? `exporta ${pct(Math.min(1, exp))}, ${pctFino(dest[1])} de eso a ${dest[0]}` : `exporta ${pct(Math.min(1, exp))}`);
     // Con las cifras oficiales (las mismas del encabezado): lo que queda en el país = producción − exportación + importación
     const disp = n.produccion - (p.exportacion ?? 0) + (p.importacion ?? 0), imp = (p.importacion ?? 0) / (disp || 1);
     if (imp >= 0.05) partes.push(`importa ${pct(Math.min(1, imp))} de lo que consume`);
     const cubre = disp / (n.demanda || 1);
-    partes.push(cubre < 0.9 ? `lo que queda en el país cubre ${pct(cubre)} del consumo de referencia`
+    if (!noCuadra) partes.push(cubre < 0.9 ? `lo que queda en el país cubre ${pct(cubre)} del consumo de referencia`
       : cubre > 1.1 ? `lo que queda en el país supera ${pct(cubre - 1)} el consumo de referencia` : "lo que queda en el país cubre su consumo");
     const al = window.Alerta?.disponible(res.clave) ? Alerta.calcular(res.clave) : null;
     if (al?.s != null) {
@@ -296,7 +300,9 @@
     const acc = window.Acceso?.celda(k, "US");
     const exp = window.PreciosEUA?.netoMejor(k, f, tarifa);
     const nac = window.Planeador?.centralAnual(k, f, tarifa);
-    const meses = window.PreciosEUA?.calendarioResumen(k)?.split(" · ")[0];
+    const r = window.PreciosEUA?.calendarioResumen(k) ?? "";
+    // solo la parte de "Mejores precios…" (si no hay meses con producto mexicano, el resumen empieza con la participación)
+    const meses = r.startsWith("Mejores precios") ? r.split(" · ")[0] : "";
     if (!acc && !exp && !nac) return "";
     const mxn2 = n => "$" + n.toFixed(2);
     const gana = exp && nac ? (exp.neto >= nac.n ? "exp" : "nac") : null;
@@ -313,6 +319,17 @@
   }
 
   // ---------- Panel: Balance nacional ----------
+  // Producción mínima que hace falta para exportar lo registrado y cubrir el consumo, y la cifra de FAOSTAT para comparar
+  function minimaImplicita(res) {
+    const p = res.producto, n = res.nacional;
+    const minima = p.exportacion + n.demanda - (p.importacion ?? 0);
+    if (minima <= n.produccion) return "";
+    const fao = window.GLOBAL?.productos?.[res.clave]?.datos?.["484"]?.[0];
+    return `<br>Para exportar ${fmtT(p.exportacion)} y cubrir el consumo nacional (${fmtT(n.demanda)}) se necesitan al menos
+      <b>${fmtT(minima)}</b>, ${pct(minima / n.produccion - 1)} más de lo que registra el SIAP${fao ? `; FAOSTAT ${window.GLOBAL.anio} estima ${fmtT(fao)}` : ""}.
+      Lo más probable es que la producción real esté más cerca de esa cifra.`;
+  }
+
   function renderBalance() {
     const n = res.nacional, p = res.producto;
     const top = [...res.filas].sort((a, b) => b.prod - a.prod).slice(0, 12);
@@ -320,7 +337,7 @@
       ? `<div class="nota" style="border-color:#c0392b">⚠ La exportación ${p.fuenteComercio ? "oficial" : "preliminar"} (${fmtT(p.exportacion)})
          es mayor o casi igual a la producción ${p.fuente ?? ""} (${fmtT(p.nacional)}): las dos fuentes no cuadran
          (posible sub-registro de producción en invernadero, o diferencias de cobertura de la fracción arancelaria).
-         Se usa el consumo per cápita de referencia y la exportación del modelo se limita al excedente.</div>` : "") + notaConsumo(res);
+         Se usa el consumo per cápita de referencia y la exportación del modelo se limita al excedente.${minimaImplicita(res)}</div>` : "") + notaConsumo(res);
     const fuente = (p.fuente ? `<span class="tag ok">Producción: ${p.fuente}</span> ` : `<span class="tag def">Producción preliminar</span> `) +
       (p.fuenteComercio ? `<span class="tag ok">Comercio: ${p.fuenteComercio}</span> ` : `<span class="tag def">Comercio preliminar</span> `);
     const primero = obj => Object.entries(obj ?? {}).sort((a, b) => b[1] - a[1])[0];
@@ -329,7 +346,7 @@
       <h2>${p.nombre}</h2>
       ${resumenEjecutivo(res)}
       ${window.AlertasPrecio ? AlertasPrecio.productoHTML(res.clave) : ""}
-      <p class="sub">${fuente}${p.consumoOficial ? `<span class="tag ok">Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion}</span> ` : ""}${p.tipo}
+      <p class="sub">${fuente}${p.consumoOficial ? `<span class="tag ok">Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion} (datos ${window.CONSUMO_OFICIAL.anioDatos})</span> ` : ""}${p.tipo}
         · consumo usado: <b>${res.pc.toFixed(1)} kg/persona/año</b>
         ${escenario().consumoPC != null ? "(escenario)" : res.base === "oficial" && p.consumoOficial ? `(oficial, Panorama p. ${p.paginaPanorama})` : res.inconsistente ? "(referencia)" : "(consumo aparente " + (window.POBLACION_CONAPO?.anio ?? "") + ")"}
         · población ${fmtP(n.pobTotal)}${window.POBLACION_CONAPO ? ` (CONAPO ${window.POBLACION_CONAPO.anio})` : " (Censo 2020)"}</p>
@@ -339,7 +356,7 @@
         <div class="kpi"><div class="v">${fmtT(p.exportacion)}</div><div class="l">Exportación ${p.fuenteComercio ? "oficial" : "(preliminar)"}${p.valorExportUSD ? ` · ${usd(p.valorExportUSD)}` : ""}${
           n.exportacion < p.exportacion * 0.99 ? `<br>modelo: ${fmtT(n.exportacion)} (limitada al excedente)` : ""}</div></div>
         <div class="kpi ${n.importacionModelo > n.demanda * 0.05 ? "alerta" : ""}"><div class="v">${fmtT(n.importacionReportada)}</div><div class="l">Importación ${p.fuenteComercio ? "oficial" : "(preliminar)"}${p.valorImportUSD ? ` · ${usd(p.valorImportUSD)}` : ""}<br>${n.importacionModelo > n.importacionReportada * 1.5 + 1000 ? "faltante para cubrir el consumo usado" : "necesaria según modelo"}: ${fmtT(n.importacionModelo)}</div></div>
-        <div class="kpi destacado"><div class="v">${pct(n.autosuficiencia)}</div>
+        <div class="kpi destacado"><div class="v">${n.autosuficiencia >= 2 ? n.autosuficiencia.toFixed(1) + "×" : pct(n.autosuficiencia)}</div>
           <div class="l">Producción entre consumo, antes de exportar. La producción alcanzaría para <b>${fmtP(n.personasProduccion)}</b> de personas
           (población: ${fmtP(n.pobTotal)}); después de exportar alcanza para <b>${fmtP(n.personasTrasExport)}</b>.</div></div>
       </div>
@@ -699,7 +716,7 @@
   function frescura() {
     const F = window.FRESCURA?.fuentes ?? [];
     const hoy = new Date();
-    return F.map(f => { const edad = Math.round((hoy - new Date(f.al + "T12:00:00")) / 864e5); return { ...f, edad, ok: edad <= f.cada + f.retraso + 7 }; });
+    return F.map(f => { const edad = Math.round((hoy - new Date(f.al + "T12:00:00")) / 864e5); return { ...f, edad, ok: !f.nuevo && edad <= f.cada + f.retraso + 7 }; });
   }
   function frescuraHTML() {
     const F = frescura();
@@ -709,7 +726,7 @@
       <div class="desplaza"><table class="compacta">
         <tr><th>Fuente</th><th>Datos hasta</th><th>Se publica</th><th>Estado</th></tr>
         ${F.map(f => `<tr><td>${f.nombre}</td><td>${f.periodo}</td><td>${f.cada <= 1 ? "cada día" : f.cada <= 8 ? "cada semana" : f.cada <= 16 ? "cada quincena" : f.cada <= 31 ? "cada mes" : "cada año"}</td>
-          <td>${f.ok ? '<span class="tag ok">Al día</span>' : '<span class="tag def">Atrasado</span>'}</td></tr>`).join("")}
+          <td>${f.ok ? '<span class="tag ok">Al día</span>' : f.nuevo ? '<span class="tag alerta-tag">Hay edición nueva</span>' : '<span class="tag def">Atrasado</span>'}</td></tr>`).join("")}
       </table></div>
       <p class="sub">"Al día" = la fuente no ha publicado nada más reciente según su calendario habitual (incluido su retraso normal de publicación). Revisado el ${g[2]} ${MES_CORTO[g[1] - 1]} ${g[0]}; los datos semanales se actualizan solos cada martes.</p>`;
   }
@@ -993,7 +1010,7 @@
     aviso.title = `Producción: SIAP ${window.PRODUCCION_SIAP.anio} · ` +
       (window.COMERCIO_OFICIAL ? `Comercio: INEGI/Comtrade ${window.COMERCIO_OFICIAL.anio} · ` : "") +
       (window.PRECIOS_CONSUMIDOR ? `Precios: SNIIM y PROFECO ${window.PRECIOS_CONSUMIDOR.anio} · ` : "") +
-      (window.CONSUMO_OFICIAL ? `Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion} · Población: CONAPO ${window.POBLACION_CONAPO.anio}` : "");
+      (window.CONSUMO_OFICIAL ? `Consumo: Panorama SIAP ${window.CONSUMO_OFICIAL.publicacion} (datos ${window.CONSUMO_OFICIAL.anioDatos}) · Población: CONAPO ${window.POBLACION_CONAPO.anio}` : "");
     if (atrasadas.length) aviso.title += ` · Atrasado: ${atrasadas.map(f => f.nombre).join(", ")}`;
   }
 

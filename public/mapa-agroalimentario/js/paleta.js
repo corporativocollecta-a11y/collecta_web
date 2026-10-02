@@ -15,7 +15,9 @@
     [/\bMorocco\b/g, "Marruecos"], [/\bDominican Republic\b/g, "República Dominicana"], [/\bNew Zealand\b/g, "Nueva Zelanda"],
     [/\bSouth Africa\b/g, "Sudáfrica"], [/\bItaly\b/g, "Italia"], [/\bFrance\b/g, "Francia"], [/\bJapan\b/g, "Japón"], [/\bKorea\b/g, "Corea"],
     [/ And /g, " y "], [/^Asparagus$/i, "espárrago"], [/^Eggplant$/i, "berenjena"], [/^Grapes$/i, "uva"], [/^Strawberries$/i, "fresa"],
-    [/^Broccoli$/i, "brócoli"], [/^Pears$/i, "pera"]
+    [/^Broccoli$/i, "brócoli"], [/^Pears$/i, "pera"], [/^Avocados$/i, "aguacate"], [/^Oranges$/i, "naranja"],
+    [/^Potatoes$/i, "papa"], [/^Onions, Dry$/i, "cebolla"], [/^Cucumbers$/i, "pepino"], [/^Apples$/i, "manzana"], [/^Carrots$/i, "zanahoria"],
+    [/^Grapefruit$/i, "toronja"], [/^Bananas$/i, "plátano"], [/^Mangoes$/i, "mango"]
   ];
   // Productos cuyo precio rural (SIAP) no es comparable con el de mayoreo o consumidor: otra variedad u otra presentación.
   // Ahí "de cada $100, cuánto llega al productor" engañaría, así que no se calcula y se explica.

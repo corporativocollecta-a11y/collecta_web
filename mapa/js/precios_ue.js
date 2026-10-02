@@ -21,7 +21,7 @@
         <tr><th>País</th><th class="num">€/kg</th><th class="num">US$/kg</th>${mx ? '<th class="num">vs. México en frontera</th>' : ""}</tr>
         ${filas.map(([p, [eur, usd, n]]) => `<tr><td>${nombre(p)}</td><td class="num">${eur.toFixed(2)}</td><td class="num">${usd.toFixed(2)}</td>${mx ? `<td class="num">${pct(usd / mx - 1)}</td>` : ""}</tr>`).join("")}
       </table>
-      <p class="sub">Mediana ${U().anio} del precio en empacadora (lo que recibe el productor al empacar), semanal, todas las variedades sin orgánicos (en jitomate incluye cherry); ${U().usdPorEur} US$ por euro (Reserva Federal).${mx ? ` México en la frontera con EE. UU.: US$${mx.toFixed(2)}/kg (USDA, FOB). No incluye flete a Europa, aranceles ni certificaciones.` : ""}</p>`;
+      <p class="sub">Mediana ${U().anio} del precio en empacadora (lo que recibe el productor al empacar), semanal, todas las variedades sin orgánicos (en jitomate incluye cherry); ${U().usdPorEur} US$ por euro (Reserva Federal).${mx ? ` México en la frontera con EE. UU. (promedio de todos los cruces): US$${mx.toFixed(2)}/kg (USDA, FOB). No incluye flete a Europa, aranceles ni certificaciones.` : ""}</p>`;
   }
 
   // Resumen de una línea: país con el precio más alto (o el país de la vista) frente a México en la frontera
@@ -32,7 +32,7 @@
     if (!filas.length) return "";
     const mx = window.PRECIOS_EUA?.productos?.[k]?.frontera?.precio;
     const [p, [, usd]] = filas[0];
-    return `${soloPais ? "Productor en " : "Más alto: "}${nombre(p)}, US$${usd.toFixed(2)} el kg` + (mx ? ` · México en la frontera, US$${mx.toFixed(2)}` : "");
+    return `${soloPais ? "Productor en " : "Más alto: "}${nombre(p)}, US$${usd.toFixed(2)} el kg` + (mx ? ` · México en la frontera (promedio de los cruces), US$${mx.toFixed(2)}` : "");
   }
 
   window.PreciosUE = { html, resumen };

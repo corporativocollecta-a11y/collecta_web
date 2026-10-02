@@ -31,6 +31,18 @@ def leer(nombre):
         return json.JSONDecoder().raw_decode(t[i:])[0]
 
 
+def panorama_nuevo(anio):
+    """¿Ya publicó el SIAP el Panorama Agroalimentario de ese año? (sin red o con error: no se sabe → False)"""
+    import urllib.request
+    try:
+        req = urllib.request.Request(f"https://nube.agricultura.gob.mx/panorama_dgsiap/{anio}.pdf", method="HEAD",
+                                     headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return r.status == 200 and "pdf" in r.headers.get("Content-Type", "pdf")
+    except Exception:
+        return False
+
+
 def fin_mes(a, m):
     return date(a, m, calendar.monthrange(a, m)[1])
 
@@ -89,6 +101,10 @@ def main():
     c = leer("consumo_oficial")
     if c:
         agregar("panorama", "SIAP: Panorama Agroalimentario (consumo)", fin_anio(c["anioDatos"]), f"datos {c['anioDatos']}, publicado en {c['publicacion']}", 365, 270, "procesar_panorama.py")
+        # El Panorama sale una vez al año sin fecha fija (oct–dic): se revisa si ya existe la edición siguiente
+        if panorama_nuevo(c["publicacion"] + 1):
+            F[-1]["nuevo"] = f"Ya está el Panorama {c['publicacion'] + 1}: correr scripts/procesar_panorama.py"
+            print(f"::warning::{F[-1]['nuevo']}")
     g = leer("global")
     if g:
         agregar("faostat", "FAOSTAT (FAO): producción y comercio mundial", fin_anio(g["anio"]), f"año {g['anio']}", 365, 400, "procesar_faostat.py")

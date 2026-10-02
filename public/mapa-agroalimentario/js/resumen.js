@@ -106,7 +106,7 @@
         <span class="etq">Lo que muestran los datos</span>
         ${minP ? `<p class="hallazgo"><span><b>${minP.nombre}</b> es el producto donde menos llega al campo: $${Math.round(minP.alProductor * 100)} de cada $100 que paga el consumidor. En <b>${maxP.nombre}</b> llegan $${Math.round(maxP.alProductor * 100)}.</span></p>` : ""}
         ${topExp ? `<p class="hallazgo"><span><b>${topExp.nombre}</b> es el principal producto de exportación: ${usd(topExp.exportUSD)}, ${pct(topExp.exportUSD / totalUSD)} del total de estos productos.</span></p>` : ""}
-        ${brechas.length ? `<p class="hallazgo"><span>En <b>${brechas.map(x => x.nombre.split(" ")[0].toLowerCase()).join(", ")}</b> la disponibilidad ${anio} quedó por debajo del consumo oficial (hasta ${pct(-brechas[0].brecha)} menos): la cosecha bajó y la exportación se mantuvo.</span></p>` : ""}
+        ${brechas.length ? `<p class="hallazgo"><span>En <b>${brechas.map(x => x.nombre.split(" ")[0].toLowerCase()).join(", ")}</b> la disponibilidad ${anio} quedó por debajo del consumo oficial (datos ${window.CONSUMO_OFICIAL?.anioDatos ?? ""}; hasta ${pct(-brechas[0].brecha)} menos): la cosecha bajó y la exportación se mantuvo.</span></p>` : ""}
         ${deficit.length ? `<p class="hallazgo"><span>México importa una parte relevante de lo que consume en <b>${deficit.map(x => x.nombre.toLowerCase()).join(", ")}</b>.</span></p>` : ""}
       </div>`;
   }

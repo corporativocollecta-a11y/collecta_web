@@ -1483,8 +1483,8 @@ EXTRA.update(variantes({
 # Origen por estado de lo que cruza (js/embarques.js, registro de la SE)
 for _p_es, _p_en in (("", ""), (" (el mes de esta semana aún no se publica)", " (this week's month is not published yet)")):
     for _a_es, _a_en in (("", ""), ("; solo estados autorizados para exportar a @", "; only states authorized to export to the @")):
-        EXTRA["El USDA reporta el cruce, no el estado de origen. Se reparte según lo que la Secretaría de Economía registra que cada estado exportó a @ en @ de #" + _p_es + ", en valor y por domicilio del exportador; cada estado se asigna a los cruces por cercanía" + _a_es + ". Principal ruta de @: @."] = (
-            "The USDA reports the crossing, not the state of origin. It is split according to what Mexico's Ministry of Economy records each state exported to the @ in @ #" + _p_en + ", by value and by the exporter's address; each state is assigned to crossings by proximity" + _a_en + ". Main route for @: @.")
+        EXTRA["El USDA reporta el cruce, no el estado de origen. Se reparte según lo que la Secretaría de Economía registra que cada estado exportó a @ en @ de #" + _p_es + ", en valor y por domicilio del exportador; cada estado se asigna a los cruces por cercanía" + _a_es + ". Principal ruta de @:"] = (
+            "The USDA reports the crossing, not the state of origin. It is split according to what Mexico's Ministry of Economy records each state exported to the @ in @ #" + _p_en + ", by value and by the exporter's address; each state is assigned to crossings by proximity" + _a_en + ". Main route for @:")
 # Ronda 6 (octubre de 2026): neto semanal, pronóstico SNIIM, resumen ejecutivo, frescura, carga diferida, ENIGH, SMN
 EXTRA.update({
     # resumen ejecutivo
@@ -1737,6 +1737,70 @@ EXTRA.update({
         _REF_FOB[1] + " Deducts the @ antidumping duty of #% on the value, paid by the importer.",
     "· # cotizaciones": "· # quotes",
 })
+EXTRA.update({
+    "la disponibilidad # quedó por debajo del consumo oficial (datos #; hasta #% menos): la cosecha bajó y la exportación se mantuvo.":
+        "# availability fell below official consumption (# data; up to #% less): the harvest dropped while exports held steady.",
+    "Consumo: Panorama SIAP # (datos #)": "Consumption: SIAP Panorama # (# data)",
+    "Consumo: Panorama SIAP # (datos #) · Población: CONAPO #": "Consumption: SIAP Panorama # (# data) · Population: CONAPO #",
+    "Hay edición nueva": "New edition out",
+    "exporta # mil t, #% a @: más de lo que el SIAP registra como producción": "exports # thousand t, #% to the @: more than SIAP records as production",
+    "exporta # mil t: más de lo que el SIAP registra como producción": "exports # thousand t: more than SIAP records as production",
+    "exporta # Mt, #% a @: más de lo que el SIAP registra como producción": "exports # Mt, #% to the @: more than SIAP records as production",
+    "Para exportar # mil t y cubrir el consumo nacional (# mil t) se necesitan al menos": "Exporting # thousand t and covering national consumption (# thousand t) requires at least",
+    "Para exportar # mil t y cubrir el consumo nacional (# t) se necesitan al menos": "Exporting # thousand t and covering national consumption (# t) requires at least",
+    ", #% más de lo que registra el SIAP; FAOSTAT # estima # mil t. Lo más probable es que la producción real esté más cerca de esa cifra.":
+        ", #% more than SIAP records; FAOSTAT # estimates # thousand t. Actual production is most likely closer to that figure.",
+    ", #% más de lo que registra el SIAP. Lo más probable es que la producción real esté más cerca de esa cifra.":
+        ", #% more than SIAP records. Actual production is most likely closer to that figure.",
+})
+EXTRA.update({
+    "Referencia:": "Reference:", "(# kg); en la frontera,": "(# kg); at the border,",
+    "Precio en ese cruce $#/kg (US$# × #) menos flete de # km ($#/kg). Es": "Price at that crossing MX$#/kg (US$# × #) minus # km of freight (MX$#/kg). That is",
+    "Precio en ese cruce $#/kg (US$# × #), menos #% de antidumping, menos flete de # km ($#/kg). Es":
+        "Price at that crossing MX$#/kg (US$# × #), minus #% antidumping, minus # km of freight (MX$#/kg). That is",
+    "@ aporta #% de los embarques que registra el USDA en @": "@ supplies #% of the shipments USDA records in the @",
+    "Más alto: @, US$# el kg · @ en la frontera (promedio de los cruces), US$#": "Highest: @, US$# per kg · @ at the border (average of all crossings), US$#",
+    "Productor en @, US$# el kg · @ en la frontera (promedio de los cruces), US$#": "Grower in @, US$# per kg · @ at the border (average of all crossings), US$#",
+    "Mediana # del precio en empacadora (lo que recibe el productor al empacar), semanal, todas las variedades sin orgánicos (en @ incluye cherry); # US$ por euro (Reserva Federal). @ en la frontera con @ (promedio de todos los cruces): US$#/kg (USDA, FOB). No incluye flete a Europa, aranceles ni certificaciones.":
+        "# median packing-house price (what the grower receives at packing), weekly, all varieties excluding organic (for @ it includes cherry); # US$ per euro (Federal Reserve). @ at the border with the @ (average of all crossings): US$#/kg (USDA, FOB). Excludes freight to Europe, tariffs and certifications.",
+})
+_LISTA0 = {1: ("@", "@"), 2: ("@ y @", "@ and @")}
+for _n, (_es, _en) in _LISTA0.items():
+    EXTRA[f"Mejores precios con producto mexicano: {_es} · @ aporta #% de los embarques que registra el USDA en @"] = (
+        f"Best prices with Mexican product: {_en} · @ supplies #% of the shipments USDA records in the @")
+EXTRA["US$/kg. Flete = tarifa mediana # por camión refrigerado del cruce a la ciudad (USDA National Truck Rate Report) ÷ # kg por carga (# lb). Se elige el cruce que deja el producto más barato en cada ciudad. La diferencia cubre descarga, merma, financiamiento y el margen del importador y del mayorista. Referencia:"] = (
+    "US$/kg. Freight = # median rate per refrigerated truck from the crossing to the city (USDA National Truck Rate Report) ÷ # kg per load (# lb). The crossing that lands the product cheapest in each city is chosen. The difference covers unloading, shrink, financing and the importer's and wholesaler's margins. Reference:")
+EXTRA.update({
+    "Comercio: USDA # (cruces registrados; sin fracción arancelaria propia)": "Trade: USDA # (recorded crossings; no tariff line of its own)",
+    "Exportación oficial": "Official exports", "Exportación (preliminar)": "Exports (preliminary)",
+    "Fracciones arancelarias (SA):": "Tariff lines (HS):",
+    "Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente (cosecha del mes según el avance mensual del SIAP # menos su consumo) según su cercanía a cada cruce. Principal ruta de @:":
+        "An estimate, not a record: USDA reports the crossing, not the state of origin. What crossed each week is split among states with a surplus (the month's harvest from the SIAP # monthly progress report minus their consumption) by proximity to each crossing. Main route for @:",
+    "Estimación, no registro: el USDA reporta el cruce, no el estado de origen. Se reparte lo que cruzó cada semana entre los estados con excedente (producción SIAP # menos su consumo) según su cercanía a cada cruce. Principal ruta de @:":
+        "An estimate, not a record: USDA reports the crossing, not the state of origin. What crossed each week is split among states with a surplus (SIAP # production minus their consumption) by proximity to each crossing. Main route for @:",
+    "Mucha menos oferta por venir: producción a la fecha #% contra el promedio #–#": "Much less supply coming: production to date #% vs. the #–# average",
+    "Mucha más oferta por venir: producción a la fecha #% contra el promedio #–#": "Much more supply coming: production to date #% vs. the #–# average",
+    "Superficie por cosechar: # ha, — contra el promedio #–# al mismo corte.": "Area left to harvest: # ha, — vs. the #–# average at the same cutoff.",
+    "pierde en promedio <#% de lo sembrado (SIAP #–#)": "loses on average <#% of the planted area (SIAP #–#)",
+    "Se pierde en promedio <#% de lo sembrado · peor año # (#%)": "On average <#% of the planted area is lost · worst year # (#%)",
+})
+# notas de precios no comparables (js/paleta.js, precioNoComparable)
+for _pre_es, _pre_en in (("No se calcula cuánto llega al productor: ", "The share reaching the producer is not computed: "),
+                         ("Esta cadena compara precios de productos distintos: ", "This chain compares prices of different products: ")):
+    for _n_es, _n_en in (
+            ("El mayoreo (SNIIM) y el consumidor (PROFECO) son de @ D'Anjou, casi toda importada; el precio rural es de @ criolla nacional.",
+             "Wholesale (SNIIM) and consumer (PROFECO) prices are for D'Anjou @, almost all imported; the farm-gate price is for domestic native @."),
+            ("El mayoreo y el consumidor son de @ amarillo de primera; el precio rural mezcla criollo y @ para industria.",
+             "Wholesale and consumer prices are for top-grade yellow @; the farm-gate price mixes native and processing @."),
+            ("El precio al consumidor es de @ pelada en mitades; el rural y el de mayoreo son de @ con cáscara.",
+             "The consumer price is for shelled @ halves; the farm-gate and wholesale prices are for in-shell @.")):
+        EXTRA[_pre_es + _n_es] = _pre_en + _n_en
+for _sep_es, _sep_en in ((", ", ", "), (" y ", " and ")):
+    for _n in (2, 3, 4):
+        _es = _sep_es.join(["@"] * _n) if _sep_es == ", " else ", ".join(["@"] * (_n - 1)) + " y @"
+        _en = ", ".join(["@"] * _n) if _sep_es == ", " else ", ".join(["@"] * (_n - 1)) + " and @"
+        EXTRA[f"No entran al total nacional {_es}: en algún año su avance registra más cosecha o superficie de la que el estado produce en todo el año (probable error de captura del SIAP)."] = (
+            f"Not included in the national total: {_en}. In some year their progress report records more harvest or area than the state produces in a whole year (probable SIAP data-entry error).")
 # Variantes con unidades (Mt, mil t, t) y listas de meses o estados
 _U = [("Mt", "Mt"), ("mil t", "thousand t"), ("t", "t")]
 for _a, _ae in _U:
