@@ -364,6 +364,7 @@
       </div>
       ${nota}
       ${S("precios", Precios.balanceHTML(res), Precios.resumen(res), { abierta: true })}
+      ${window.Graficos?.disponibleMayoreo(res.clave) ? S("mayoreo_diario", Graficos.mayoreoHTML(res.clave), Graficos.mayoreoResumen(res.clave), { abierta: true }) : ""}
       ${window.Granos?.esGrano(res.clave) && Granos.tieneBalanza(res.clave) ? S("granos_balanza", `<h3>Balanza oficial: oferta y demanda <span class="tag ok">SIAP</span></h3>${Granos.balanzaHTML(res.clave)}`, Granos.resumenBalanza(res.clave), { abierta: true }) : ""}
       ${window.Granos?.esGrano(res.clave) && Granos.tienePSD(res.clave) ? S("granos_psd", `<h3>México y el mundo, con proyección <span class="tag ok">USDA</span></h3>${Granos.psdHTML(res.clave)}`, Granos.resumenPSD(res.clave)) : ""}
       ${window.Granos?.esGrano(res.clave) && Granos.tienePrecio(res.clave) ? S("granos_precio", `<h3>Precio internacional contra el nacional <span class="tag ok">Banco Mundial</span></h3>${Granos.precioHTML(res.clave)}`, Granos.resumenPrecio(res.clave)) : ""}
@@ -428,6 +429,7 @@
         `Primer destino: ${destino1[0]}, ${pctFino(destino1[1])} del volumen`, { abierta: true }) : ""}
       ${window.Granos?.esGrano(k) && Granos.importacionHTML(k) ? S("granos_import", `<h3>Importación: de dónde llega <span class="tag ok">FAOSTAT · USDA</span></h3>${Granos.importacionHTML(k)}`,
         Object.entries(p.origenes ?? {}).filter(([o]) => o !== "Otros").slice(0, 2).map(([o, v]) => `${o} ${pctFino(v)}`).join(" · "), { abierta: true }) : ""}
+      ${window.Graficos?.disponible(k) ? S("frontera_diaria", Graficos.fronteraHTML(k), Graficos.fronteraResumen(k), { abierta: true }) : ""}
       ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
       ${window.Embarques && !window.Granos?.esGrano(k) ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
       ${window.Embarques && !window.Granos?.esGrano(k) ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}

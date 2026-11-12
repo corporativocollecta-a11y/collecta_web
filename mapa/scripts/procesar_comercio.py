@@ -56,6 +56,12 @@ FRACCIONES = {
     "berenjena":  ["070930"],
     "esparrago":  ["070920"],
     "arandano":   ["081040"],          # arándanos y demás frutos del género Vaccinium
+    # Hortalizas que cotiza el USDA en la frontera (noviembre 2026)
+    "col_bruselas": ["070420"],        # coles (repollitos) de Bruselas
+    "ejote":      ["070820"],          # frijoles y ejotes (Vigna spp., Phaseolus spp.) frescos
+    "espinaca":   ["070970"],          # espinacas (incluida la de Nueva Zelanda) y armuelles
+    "apio":       ["070940"],          # apio, excepto el apionabo
+    "alcachofa":  ["070991"],          # alcachofas (alcauciles)
     # Nuez pecanera: el SA no tiene subpartida propia (080290 dejó de existir en SA 2017; hoy "las demás"
     # es 080299). México reporta la nuez pecanera sobre todo en 080231/080232 ("nueces de nogal", con y sin
     # cáscara): en 2025, 080299 solo registra ≈670 t. Se suman las tres; incluyen algo de nuez de Castilla (Juglans).
@@ -73,12 +79,16 @@ FRACCIONES = {
     # Sin fracción propia o ya asignada a otro producto (no se duplican):
     #   coliflor → dentro de 070410 (asignada a brócoli); guayaba → dentro de 080450 (asignada a mango);
     #   nopal → dentro de 070999 "las demás hortalizas"
+    #   calabaza → dentro de 070993 (asignada a calabacita); cilantro, elote y perejil → dentro de 070999;
+    #   poro → 070390 "puerros y demás hortalizas aliáceas", que en México es sobre todo cebollín
 }
 
 # Fracciones COMPARTIDAS por varios productos del mapa: volumen y valor se reparten en proporción a la
 # producción nacional SIAP de cada uno (data/produccion_siap.js); destinos y orígenes (%) son los mismos.
 COMPARTIDAS = {
     "081020": {"codigos": ["081020"], "productos": ["frambuesa", "zarzamora"]},  # frambuesas, zarzamoras, moras
+    "070490": {"codigos": ["070490"], "productos": ["col", "kale"]},        # coles, colinabos, kale y similares
+    "070690": {"codigos": ["070690"], "productos": ["rabano", "betabel"]},  # betabel, salsifí, apionabo, rábanos y similares
 }
 
 NOMBRES_PAIS = {
@@ -353,7 +363,7 @@ def main(anio):
 
     # Tomate verde (tomatillo): sin fracción propia (va en 070999); su exportación se estima con lo que el USDA registra
     # que cruzó de México. Sin valor en dólares ni importación.
-    for clave in ("tomate_verde",):
+    for clave in ("tomate_verde", "cilantro", "elote"):   # los tres van en 070999 y el USDA registra sus cruces
         v = (USDA_MX.get(clave) or {}).get("total")
         if clave not in resultado and v:
             resultado[clave] = {"exportacion": round(v), "importacion": 0, "destinos": {"Estados Unidos": 1.0}, "origenes": {},

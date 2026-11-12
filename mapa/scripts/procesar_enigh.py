@@ -41,6 +41,12 @@ CLAVES = {
     "uva": ["011653"], "lechuga": ["011712"], "calabacita": ["011721"],
     "chile": ["011723", "011724", "011725", "011726"], "jitomate": ["011727"], "pepino": ["011728"],
     "tomate_verde": ["011729"], "cebolla": ["011743"], "nopal": ["011746"], "zanahoria": ["011748"], "papa": ["011751"],
+    # Hortalizas añadidas en noviembre de 2026. Claves compartidas (mismo índice regional para todos sus productos):
+    # "Col, repollo y otras coles" (col, col de Bruselas, kale), "Calabaza" (calabacita y calabaza madura) y
+    # "Otras hortalizas de hoja o tallo" (acelga, espinaca, verdolaga, quintonil). Cilantro, perejil, apio, poro y
+    # alcachofa no tienen clave propia en la ENIGH.
+    "col": ["011711"], "col_bruselas": ["011711"], "kale": ["011711"], "ejote": ["011732"], "elote": ["011745"],
+    "rabano": ["011747"], "betabel": ["011752"], "calabaza": ["011721"], "espinaca": ["011713"],
     # "Otras bayas" agrupa zarzamora, frambuesa y arándano: se usa el mismo índice para los tres
     "zarzamora": ["011642"], "frambuesa": ["011642"], "arandano": ["011642"],
     # Granos: lo que compran los hogares de sus productos (el índice compara estados, no convierte a grano).

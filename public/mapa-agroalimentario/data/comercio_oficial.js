@@ -443,6 +443,84 @@ window.COMERCIO_OFICIAL = {
     "081040"
    ]
   },
+  "col_bruselas": {
+   "exportacion": 50990,
+   "importacion": 5228,
+   "valorExportUSD": 68470722,
+   "valorImportUSD": 10279934,
+   "destinos": {
+    "Estados Unidos": 1.0
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070420"
+   ]
+  },
+  "ejote": {
+   "exportacion": 67449,
+   "importacion": 18,
+   "valorExportUSD": 109388638,
+   "valorImportUSD": 45563,
+   "destinos": {
+    "Estados Unidos": 0.9728,
+    "Canadá": 0.0272
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070820"
+   ]
+  },
+  "espinaca": {
+   "exportacion": 28880,
+   "importacion": 17737,
+   "valorExportUSD": 74766055,
+   "valorImportUSD": 36443127,
+   "destinos": {
+    "Estados Unidos": 0.9913,
+    "Canadá": 0.0087
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070970"
+   ]
+  },
+  "apio": {
+   "exportacion": 77127,
+   "importacion": 13706,
+   "valorExportUSD": 73288159,
+   "valorImportUSD": 7888298,
+   "destinos": {
+    "Estados Unidos": 0.9671,
+    "Canadá": 0.0327
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070940"
+   ]
+  },
+  "alcachofa": {
+   "exportacion": 640,
+   "importacion": 80,
+   "valorExportUSD": 793981,
+   "valorImportUSD": 231260,
+   "destinos": {
+    "Estados Unidos": 1.0
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070991"
+   ]
+  },
   "nuez": {
    "exportacion": 46749,
    "importacion": 17533,
@@ -683,8 +761,124 @@ window.COMERCIO_OFICIAL = {
     "proporcion": 0.3842
    }
   },
+  "col": {
+   "exportacion": 124605,
+   "importacion": 11827,
+   "valorExportUSD": 131283953,
+   "valorImportUSD": 6661936,
+   "destinos": {
+    "Estados Unidos": 0.9716,
+    "Canadá": 0.0262,
+    "Otros": 0.0022
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070490"
+   ],
+   "compartida": {
+    "productos": [
+     "col",
+     "kale"
+    ],
+    "proporcion": 0.9926
+   }
+  },
+  "kale": {
+   "exportacion": 935,
+   "importacion": 89,
+   "valorExportUSD": 985120,
+   "valorImportUSD": 49989,
+   "destinos": {
+    "Estados Unidos": 0.9716,
+    "Canadá": 0.0262,
+    "Otros": 0.0022
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070490"
+   ],
+   "compartida": {
+    "productos": [
+     "col",
+     "kale"
+    ],
+    "proporcion": 0.0074
+   }
+  },
+  "rabano": {
+   "exportacion": 48605,
+   "importacion": 9,
+   "valorExportUSD": 23887723,
+   "valorImportUSD": 18801,
+   "destinos": {
+    "Estados Unidos": 0.962,
+    "Canadá": 0.0372,
+    "Otros": 0.0008
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070690"
+   ],
+   "compartida": {
+    "productos": [
+     "rabano",
+     "betabel"
+    ],
+    "proporcion": 0.6834
+   }
+  },
+  "betabel": {
+   "exportacion": 22522,
+   "importacion": 4,
+   "valorExportUSD": 11069066,
+   "valorImportUSD": 8712,
+   "destinos": {
+    "Estados Unidos": 0.962,
+    "Canadá": 0.0372,
+    "Otros": 0.0008
+   },
+   "origenes": {
+    "Estados Unidos": 1.0
+   },
+   "fracciones": [
+    "070690"
+   ],
+   "compartida": {
+    "productos": [
+     "rabano",
+     "betabel"
+    ],
+    "proporcion": 0.3166
+   }
+  },
   "tomate_verde": {
    "exportacion": 73981,
+   "importacion": 0,
+   "destinos": {
+    "Estados Unidos": 1.0
+   },
+   "origenes": {},
+   "fracciones": [],
+   "fuenteComercio": "USDA 2025 (cruces registrados; sin fracción arancelaria propia)"
+  },
+  "cilantro": {
+   "exportacion": 54340,
+   "importacion": 0,
+   "destinos": {
+    "Estados Unidos": 1.0
+   },
+   "origenes": {},
+   "fracciones": [],
+   "fuenteComercio": "USDA 2025 (cruces registrados; sin fracción arancelaria propia)"
+  },
+  "elote": {
+   "exportacion": 33430,
    "importacion": 0,
    "destinos": {
     "Estados Unidos": 1.0

@@ -188,6 +188,55 @@ Opción **Estados Unidos** del selector *Ver país…*: la misma lógica que Mé
   - Mapa (interruptor *Precios USDA*): mercados terminales coloreados por precio frente a la mediana y cruces con México con su precio FOB. Panel *Producto*: precio por ciudad, por origen, por mes y la brecha frontera → mayoreo.
   - Sin precio comparable: coliflor, sandía y piña (sus cajas no traen peso). Sin precio en la frontera: productos que no cruzan por esos puntos o cuya caja no trae peso (aguacate, fresa, mango, berries, espárrago, entre otros).
 
+## Precio en la frontera, estilo trading (noviembre 2026)
+
+Sección *Precio en la frontera* (vista México → Exportar; EE. UU. → Producto) y vista ampliada con el botón *Ampliar*
+(`js/graficos.js`, datos `data/frontera_diaria.js` ← `python scripts/procesar_frontera_diaria.py`, corre en la actualización semanal).
+
+- **Precio**: FOB diario del producto mexicano en los cruces (USDA AMS 2402/2403), un empaque de referencia por producto.
+  Solo distritos que son exclusivamente cruces de México ("Mexico crossings through…"): los mixtos con producción de
+  California o Arizona se excluyen. Línea azul con nodos (día, promedio de la semana o del mes), rango bajo–alto
+  opcional, media móvil, US$/caja o US$/kg (si la caja no trae peso, solo US$/caja).
+- **Volumen**: toneladas de la misma mercancía que cruzaron de México por semana (reporte 1662); algunas mercancías no
+  vienen en ese reporte (chiles serrano, poblano, habanero y anaheim van juntos como "otros chiles").
+- **Demanda**: calificación diaria del reportero del USDA ("demand tone"), escala 1–5 (de baja a muy buena), en una
+  franja de color; y una lectura de precio contra volumen por semana o mes. Termómetro del mercado, no consumo medido.
+- **Variedades** (selector): chile (morrón, jalapeño, serrano, poblano, habanero, anaheim), jitomate (saladette, bola,
+  uva), calabacita (italiana, gris, amarilla), calabaza (kabocha, butternut, spaghetti, bellota) y limón (persa, amarillo).
+- **Cambio de año**: hasta el 31 de marzo, un producto con menos de 20 días hábiles en el año nuevo muestra el año
+  anterior completo, con aviso; después de marzo, sin días suficientes no se muestra.
+- 20 productos con precio puramente mexicano en 2026: jitomate, chile, limón, brócoli, pepino, calabacita, zanahoria,
+  lechuga, uva, sandía, melón, mango, piña, berenjena, elote, col, ejote, cilantro, calabaza y poro.
+
+### Precio de mayoreo en México, mismo diseño (noviembre 2026)
+
+Sección *Precio de mayoreo en México* (vista México → Producto, después de *Precios*) y su vista ampliada: el mismo
+gráfico con el SNIIM (`python scripts/procesar_mayoreo_diario.py` → `data/mayoreo_diario.js`, carga diferida; corre en
+la actualización semanal después del pronóstico del SNIIM, que renueva el año en curso cada 6 días).
+
+- Precio del día = mediana del precio frecuente (calidad primera, MXN/kg) de todas las cotizaciones del día (centrales ×
+  orígenes), con al menos 3; se descartan las que quedan fuera de 1/3–3× la mediana del año. Banda = percentiles 10–90
+  (dispersión entre centrales). Variedades de `VARIEDADES` en `procesar_sniim.py` (selector), la primera es la de omisión.
+- Sin volumen ni demanda (el SNIIM no los publica). Mismo cambio de año que el precio en la frontera.
+
+### Hortalizas añadidas al catálogo (noviembre 2026)
+
+14 hortalizas que cotiza el USDA, con producción SIAP por estado y municipio (57 productos en total): elote, col (repollo),
+ejote, cilantro, calabaza (madura), col de Bruselas, rábano, apio, espinaca, betabel, poro, perejil, kale y alcachofa.
+
+- **Comercio** (Comtrade): col de Bruselas 070420, ejote 070820, espinaca 070970, apio 070940, alcachofa 070991; col y
+  kale reparten 070490 y rábano y betabel 070690 (en proporción a la producción). Cilantro y elote: exportación estimada
+  con los cruces del USDA (van en 070999). Sin comercio: calabaza (070993 es de calabacita), perejil y poro (070390 es
+  sobre todo cebollín).
+- **Consumo de referencia** (sin Panorama): compras de los hogares de la ENIGH 2024 para elote, col, ejote, rábano y
+  betabel; consumo aparente para los demás; apio, cuya exportación supera la producción SIAP, usa lo importado por persona
+  como piso. Índice regional de la ENIGH también para col de Bruselas, kale, calabaza y espinaca (claves compartidas).
+- **Mayoreo SNIIM**: todos menos col de Bruselas, poro, kale y alcachofa (no están en su catálogo). Sin PROFECO.
+- **Sin precio puramente mexicano en la frontera**: col de Bruselas, rábano, betabel, alcachofa, apio, espinaca, perejil y
+  kale (el USDA solo los cotiza en distritos mixtos con producción de California y Arizona).
+- No están en las vistas Latinoamérica, Mundo ni otros países (FAOSTAT no separa la mayoría). Sin traducción al inglés todavía.
+- Fuera por ahora (sin producción en el SIAP): cebollín, col china, bok choy e hinojo.
+
 ## Fase global
 
 Tercera opción del selector: **Mundo**. Misma interfaz que Latinoamérica (mapa por país, Resumen, Producto, País y rutas de comercio) con **231 países** y 27 productos, FAOSTAT 2024.

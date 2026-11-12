@@ -714,3 +714,94 @@ table.compacta td { vertical-align: top; }
 .chip-alerta i { width: 8px; height: 8px; border-radius: 50%; }
 .chip-alerta b { font-family: var(--dato); font-weight: 500; }
 .chip-alerta:hover { border-color: var(--acento); }
+
+/* ---------- Gráficos de precio a lo largo del año (js/graficos.js) ----------
+   Diseño "estilo trading": tarjeta oscura en ambos temas, cifras en Geist Mono, línea azul con brillo.
+   Colores fijos (no del tema) para que la lectura sea la misma con tema claro u oscuro. */
+.gfr { --g-fondo: #101913; --g-tarjeta: #0F1712; --g-borde: #26332A; --g-rejilla: #18231C; --g-tinta: #EEEBE3; --g-suave: #A3AB9F; --g-tenue: #8C978A;
+  background: var(--g-fondo); color: var(--g-tinta); border: 1px solid var(--g-borde); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; font-family: var(--ui); }
+.gfr-cab { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gfr-id { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.gfr-ticker { font: 500 10.5px/1.2 var(--dato); letter-spacing: .05em; color: var(--g-suave); }
+.gfr-ticker b { font-weight: 600; padding: 3px 6px; margin-right: 6px; border-radius: 4px; background: #1A2A1F; color: #9FD36A; }
+.gfr-nombre { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.gfr-nombre > span { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.gfr-nombre small { font-size: 13px; color: var(--g-suave); }
+.gfr-precio { display: flex; align-items: flex-end; gap: 10px; }
+.gfr-precio > b { font: 600 30px/1 var(--dato); letter-spacing: -.02em; }
+.gfr-precio > span { display: flex; flex-direction: column; gap: 4px; padding-bottom: 2px; }
+.gfr-precio i { font: 600 13px/1 var(--dato); font-style: normal; }
+.gfr-precio small { font-size: 11px; color: var(--g-suave); }
+.gfr-controles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.gfr-grupo { display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: var(--g-tarjeta); border: 1px solid var(--g-borde); }
+.gfr-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; min-width: 38px; justify-content: center; padding: 0 9px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--g-suave); font: 500 12px/1 var(--ui); cursor: pointer; }
+.gfr-btn:hover { color: var(--g-tinta); }
+.gfr-btn.on { background: #26332A; color: var(--g-tinta); }
+.gfr-btn[data-suelto] { height: 36px; border: 1px solid var(--g-borde); border-radius: 8px; }
+.gfr-grupo .gfr-btn[data-gfr-accion^="tf"] { font: 600 11.5px/1 var(--dato); }
+.gfr-btn:focus-visible { outline: 2px solid #F2703A; outline-offset: 2px; }
+.gfr-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--g-borde); border-radius: 10px; overflow: hidden; background: var(--g-borde); }
+.gfr-stats.ocho { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.gfr-stats > div { display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; background: var(--g-tarjeta); min-width: 0; }
+.gfr-stats span { font: 500 9.5px/1 var(--dato); letter-spacing: .07em; text-transform: uppercase; color: var(--g-tenue); }
+.gfr-stats b { font: 600 14px/1 var(--dato); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gfr-tarjeta { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--g-borde); border-radius: 12px; background: var(--g-tarjeta); }
+.gfr-lectura { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font: 500 11px/1.2 var(--dato); color: var(--g-suave); }
+.gfr-lectura > b { color: var(--g-tinta); font-weight: 600; }
+.gfr-lectura em { font-style: normal; font-weight: 600; color: var(--g-tinta); }
+.gfr-leyenda { display: flex; gap: 12px; margin-left: auto; }
+.gfr-leyenda > span { display: inline-flex; align-items: center; gap: 5px; }
+.gfr-leyenda i { display: inline-block; }
+.gfr-leyenda .l-precio { width: 7px; height: 7px; border-radius: 50%; border: 2px solid #4CC3FF; box-shadow: 0 0 6px rgba(76, 195, 255, .8); }
+.gfr-leyenda .l-rango { width: 12px; height: 9px; border-radius: 2px; background: rgba(76, 195, 255, .25); }
+.gfr-leyenda .l-ma { width: 13px; height: 2px; background: #E7B653; }
+.gfr-svg { width: 100%; height: auto; display: block; overflow: visible; touch-action: pan-y; font-family: var(--dato); }
+.gfr-svg .g-rejilla { stroke: var(--g-rejilla); }
+.gfr-svg .g-borde { stroke: var(--g-borde); }
+.gfr-svg .g-eje { fill: var(--g-tenue); font-weight: 500; }
+.gfr-svg .g-vol-t { letter-spacing: .06em; font-size: .9em; }
+.gfr-svg .g-mes { fill: var(--g-suave); font-weight: 500; font-size: .95em; }
+.gfr-svg .g-tag { font-weight: 600; }
+.gfr-svg .g-nodo { fill: var(--g-tarjeta); stroke: #4CC3FF; stroke-width: 1.8; }
+.gfr-svg .g-punto { fill: #7FD6FF; stroke: var(--g-tarjeta); stroke-width: 2; }
+.gfr-svg .g-etq rect { fill: rgba(15, 23, 18, .88); stroke: rgba(76, 195, 255, .5); }
+.gfr-svg .g-etq text { fill: #BFE9FF; font-weight: 600; }
+.gfr-svg .g-cursor { stroke: #5E6B61; stroke-dasharray: 3 3; }
+.gfr-svg .g-cursor-h { stroke: #3E4A41; }
+.gfr-svg .gfr-hit { cursor: crosshair; }
+.gfr-nota { margin: 0; font-size: 10.5px; line-height: 1.5; color: var(--g-tenue); }
+.gfr-variedad { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 4px 0 10px; border: 1px solid var(--g-borde); border-radius: 8px; background: var(--g-tarjeta); font-size: 11px; color: var(--g-tenue); }
+.gfr-variedad select { height: 30px; border: 0; border-radius: 6px; padding: 0 6px; background: #26332A; color: var(--g-tinta); font: 500 12px/1 var(--ui); cursor: pointer; }
+.gfr-variedad select:focus-visible { outline: 2px solid #F2703A; outline-offset: 2px; }
+.gfr-aviso { padding: 7px 10px; border-radius: 8px; border: 1px solid rgba(231, 182, 83, .4); background: rgba(231, 182, 83, .08); color: #E7CF9A; font-size: 11.5px; line-height: 1.45; }
+/* Demanda (calificación USDA) y lectura de precio contra volumen */
+.gfr-senal { display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; border: 1px solid var(--g-borde); border-radius: 10px; background: var(--g-tarjeta); font-size: 12px; line-height: 1.45; color: var(--g-suave); }
+.gfr-dem { display: inline-flex; align-items: center; gap: 7px; color: var(--g-suave); }
+.gfr-dem i { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.gfr-dem b { color: var(--g-tinta); font-weight: 600; }
+.gfr-lect { color: var(--g-tinta); }
+.gfr-lect b { font-weight: 600; }
+.gfr-cifras { font: 500 11px/1.4 var(--dato); color: var(--g-tenue); white-space: nowrap; }
+.gfr-escala { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 10.5px; color: var(--g-suave); }
+.gfr-escala > span { display: inline-flex; align-items: center; gap: 4px; }
+.gfr-escala > span:first-child { font: 500 9.5px/1 var(--dato); letter-spacing: .07em; text-transform: uppercase; color: var(--g-tenue); }
+.gfr-escala i { width: 10px; height: 8px; border-radius: 2px; }
+.gfr-modal-caja .gfr-senal { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 18px; font-size: 13px; padding: 10px 14px; }
+/* Vista ampliada: ventana sobre el mapa */
+.gfr-modal { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 24px; background: rgba(5, 9, 6, .72); backdrop-filter: blur(3px); }
+.gfr-modal-caja { position: relative; width: min(1240px, 100%); max-height: calc(100vh - 48px); overflow: auto; border-radius: 16px; box-shadow: 0 24px 80px rgba(0, 0, 0, .5); }
+.gfr-modal-caja > .gfr { padding: 22px 24px; gap: 14px; border-radius: 16px; }
+.gfr-modal-caja .gfr-cab { padding-right: 52px; }
+.gfr-modal-caja .gfr-precio > b { font-size: 44px; }
+.gfr-modal-caja .gfr-stats b { font-size: 16px; }
+.gfr-modal-caja .gfr-stats > div { padding: 11px 14px; }
+.gfr-modal-caja .gfr-tarjeta { padding: 16px; }
+.gfr-modal-caja .gfr-lectura { font-size: 12px; }
+.gfr-modal-caja .gfr-nota { font-size: 11.5px; }
+.gfr-cerrar { position: absolute; top: 14px; right: 14px; z-index: 1; height: 36px; width: 36px; border: 1px solid #26332A; border-radius: 8px; background: #16211A; color: #EEEBE3; font-size: 14px; }
+@media (max-width: 900px) {
+  .gfr-stats.ocho { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .gfr-modal { padding: 8px; }
+  .gfr-modal-caja > .gfr { padding: 14px; }
+}

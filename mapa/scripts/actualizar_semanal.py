@@ -17,11 +17,14 @@ RAIZ = Path(__file__).resolve().parent.parent
 
 def main():
     anio = date.today().year
-    pasos = [["scripts/descargar_historia_ams.py", str(anio)], ["scripts/procesar_embarques.py"], ["scripts/procesar_pronostico.py"],
+    # Desde el año anterior: en enero hay que completar diciembre (su archivo parcial se borra y se vuelve a pedir)
+    pasos = [["scripts/descargar_historia_ams.py", str(anio - 1)], ["scripts/procesar_embarques.py"], ["scripts/procesar_pronostico.py"],
              ["scripts/procesar_alerta_oferta.py"],   # el SIAP publica el avance cada mes; si no hay mes nuevo, no cambia
              ["scripts/procesar_origen_exportacion.py"],   # SE: exportación por estado y mes (~2 meses de retraso)
              ["scripts/procesar_neto_semanal.py"],   # FOB semanal en pesos, tipo de cambio (FRED) y diésel por estado (CNE)
+             ["scripts/procesar_frontera_diaria.py"],   # precio diario en la frontera del año en curso (gráfico)
              ["scripts/procesar_pronostico_sniim.py"],   # mayoreo en México (SNIIM), año en curso
+             ["scripts/procesar_mayoreo_diario.py"],   # precio diario de mayoreo por variedad (gráfico; reusa la descarga anterior)
              ["scripts/actualizar_sequia.py"],   # Monitor de Sequía de la CONAGUA (quincenal)
              ["scripts/procesar_precios_canada.py"],   # mayoreo en Toronto y Montreal (InfoHort, diario)
              ["scripts/procesar_balanzas_siap.py"],   # granos: balanzas disponibilidad-consumo del SIAP (mensual)

@@ -69,6 +69,17 @@ VARIEDADES = {
     "nuez":         [(563, "Cáscara de papel"), (567, "Wichita"), (566, "Western")],  # "Nuez" (565) sin registros 2025
     "zarzamora":    [(891, "Zarzamora")],
     # arándano y frambuesa: el SNIIM no los cotiza en su catálogo de frutas y hortalizas
+    # Hortalizas añadidas en noviembre de 2026 (col de Bruselas, poro, kale y alcachofa no están en su catálogo)
+    "elote":    [(308, "Elote"), (306, "Elote grande"), (307, "Elote mediano")],
+    "col":      [(253, "Col grande"), (257, "Col mediana")],
+    "ejote":    [(302, "Ejote"), (304, "Ejote redondo")],
+    "cilantro": [(208, "Cilantro")],
+    "calabaza": [(169, "Calabaza de castilla")],
+    "rabano":   [(775, "Rábano")],
+    "apio":     [(152, "Apio")],
+    "espinaca": [(316, "Espinaca")],
+    "betabel":  [(160, "Betabel")],
+    "perejil":  [(635, "Perejil")],
 }
 
 # Centrales de abasto que reporta el SNIIM: id → (nombre corto, clave estado, lat, lon)

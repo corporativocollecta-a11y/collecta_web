@@ -1,7 +1,8 @@
 // ============================================================================
 // METADATOS Y VALORES DE RESPALDO POR PRODUCTO
 // ----------------------------------------------------------------------------
-// Nombre, tipo, color y notas de cada producto (43: 13 originales + 21 frutas y hortalizas y 9 granos añadidos con datos 2025).
+// Nombre, tipo, color y notas de cada producto (57: 13 originales + 21 frutas y hortalizas y 9 granos añadidos con datos 2025,
+// y 14 hortalizas que cotiza el USDA en la frontera, añadidas en noviembre de 2026).
 // Las cifras numéricas de este archivo son valores de respaldo (los 13 originales: aproximaciones
 // ref. 2023; los 21 añadidos: tomados de las salidas oficiales 2025) y SOLO se usan si falta el
 // archivo oficial correspondiente; index.html carga después los datos oficiales que las sobrescriben:
@@ -289,6 +290,122 @@ window.PRODUCTOS = {
     precioRural: 33.34, precioConsumidor: 78,
     destinos: {"Estados Unidos": 0.8602, "Alemania": 0.0581, "Países Bajos": 0.0189, "Japón": 0.0174, "España": 0.0151, "Otros": 0.0303},
     estados: { "16": 246000, "14": 22000, "02": 3000, "25": 2000, "06": 2000, "26": 800, "21": 614, "11": 233, "15": 143, "17": 38, "22": 16, "09": 15 }
+  },
+  // ---------------------------------------------------------------------------------------------------------------
+  // Hortalizas que cotiza el USDA en la frontera (añadidas en noviembre de 2026). Respaldo: SIAP cierre 2025,
+  // Comtrade 2025 y ENIGH 2024. Sin Panorama (consumo oficial) ni PROFECO.
+  // ---------------------------------------------------------------------------------------------------------------
+  elote: {
+    nota: "Elote o maíz dulce en fresco (distinto del maíz grano). Sin fracción arancelaria propia (va en 070999, \"las demás hortalizas\"): la exportación se estima con lo que el USDA registra que cruzó de México. Consumo de referencia: compras de los hogares (ENIGH 2024); el consumo aparente es mayor porque incluye elote y esquites fuera del hogar.",
+    nombre: "Elote", tipo: "Hortaliza", color: "#e2c04a",
+    nacional: 1047151, consumoPC: 1.9, exportacion: 33430, importacion: 0,
+    precioRural: 4.34,
+    destinos: {"Estados Unidos":1},
+    estados: { "21": 193000, "17": 152000, "24": 128000, "14": 116000, "25": 80000, "15": 56000, "06": 55000, "26": 49000, "01": 38000, "11": 36000, "23": 29000, "16": 28000 }
+  },
+  col: {
+    nota: "Comercio ESTIMADO: la fracción 070490 agrupa coles, colinabo y kale; se reparte entre col y kale en proporción a la producción SIAP. Consumo de referencia: \"col, repollo y otras coles\" en las compras de los hogares (ENIGH 2024).",
+    nombre: "Col (repollo)", tipo: "Hortaliza", color: "#8fbf6a",
+    nacional: 174180, consumoPC: 0.56, exportacion: 124605, importacion: 11827,
+    precioRural: 4.43,
+    destinos: {"Estados Unidos":0.9716, "Canadá":0.0262, "Otros":0.0022},
+    estados: { "21": 76000, "07": 19000, "19": 15000, "11": 10000, "26": 10000, "16": 9000, "32": 8000, "02": 6000, "24": 4000, "13": 3000, "03": 3000, "14": 3000 }
+  },
+  ejote: {
+    nota: "Comercio: fracción 070820 (frijoles y ejotes frescos). La exportación oficial deja un consumo aparente muy bajo: el balance usa el consumo de los hogares (ENIGH 2024) como referencia.",
+    nombre: "Ejote", tipo: "Hortaliza", color: "#4f9d4a",
+    nacional: 101770, consumoPC: 0.58, exportacion: 67449, importacion: 18,
+    precioRural: 9.72,
+    destinos: {"Estados Unidos":0.9728, "Canadá":0.0272},
+    estados: { "17": 27000, "25": 24000, "21": 15000, "13": 9000, "24": 8000, "10": 6000, "30": 3000, "26": 3000, "02": 2000, "20": 1000, "03": 928, "18": 815 }
+  },
+  cilantro: {
+    nota: "Sin fracción arancelaria propia (va en 070999, \"las demás hortalizas\"): la exportación se estima con lo que el USDA registra que cruzó de México. Sin consumo oficial: se usa el consumo aparente.",
+    nombre: "Cilantro", tipo: "Hortaliza", color: "#3d8b3d",
+    nacional: 100136, consumoPC: 0.343, exportacion: 54340, importacion: 0,
+    precioRural: 6.21,
+    destinos: {"Estados Unidos":1},
+    estados: { "21": 47000, "02": 17000, "01": 9000, "26": 7000, "32": 6000, "11": 3000, "29": 2000, "24": 2000, "13": 1000, "14": 1000, "16": 925, "15": 908 }
+  },
+  calabaza: {
+    nota: "Calabaza madura (de castilla y de invierno: kabocha, butternut, spaghetti, bellota); distinta de la calabacita. Sin comercio propio: la fracción 070993 ya está asignada a calabacita (no se duplica). Sin consumo oficial: se usa el consumo aparente.",
+    nombre: "Calabaza", tipo: "Hortaliza", color: "#d98c2b",
+    nacional: 94743, consumoPC: 0.71, exportacion: 0, importacion: 0,
+    precioRural: 9.28,
+    destinos: {},
+    estados: { "26": 74000, "25": 5000, "12": 3000, "30": 3000, "16": 3000, "18": 2000, "21": 2000, "14": 822, "27": 623, "03": 610, "19": 314, "11": 156 }
+  },
+  col_bruselas: {
+    nota: "Comercio: fracción 070420. Casi toda se exporta: el consumo aparente es casi nulo.",
+    nombre: "Col de Bruselas", tipo: "Hortaliza", color: "#6b8f3a",
+    nacional: 46216, consumoPC: 0.003, exportacion: 50990, importacion: 5228,
+    precioRural: 13.82,
+    destinos: {"Estados Unidos":1},
+    estados: { "02": 29000, "26": 9000, "03": 5000, "15": 2000, "21": 668, "11": 67 }
+  },
+  rabano: {
+    nota: "Comercio ESTIMADO: la fracción 070690 agrupa betabel, rábano, salsifí y apionabo; se reparte entre rábano y betabel en proporción a la producción SIAP. La exportación supera la producción SIAP: el balance usa el consumo de los hogares (ENIGH 2024) como referencia.",
+    nombre: "Rábano", tipo: "Hortaliza", color: "#d1495b",
+    nacional: 37492, consumoPC: 0.16, exportacion: 48605, importacion: 9,
+    precioRural: 5.17,
+    destinos: {"Estados Unidos":0.962, "Canadá":0.0372, "Otros":0.0008},
+    estados: { "21": 21000, "14": 6000, "02": 5000, "30": 1000, "26": 1000, "17": 556, "31": 465, "24": 368, "13": 341, "09": 320, "18": 304, "12": 251 }
+  },
+  apio: {
+    nota: "Comercio: fracción 070940. La exportación oficial supera la producción SIAP, por lo que no hay consumo aparente: como referencia se usa lo que se importa por persona (piso del consumo).",
+    nombre: "Apio", tipo: "Hortaliza", color: "#9ccc65",
+    nacional: 33199, consumoPC: 0.103, exportacion: 77127, importacion: 13706,
+    precioRural: 8.83,
+    destinos: {"Estados Unidos":0.9671, "Canadá":0.0327},
+    estados: { "11": 9000, "26": 9000, "02": 6000, "21": 5000, "14": 2000, "32": 811, "09": 803, "24": 540 }
+  },
+  espinaca: {
+    nota: "Comercio: fracción 070970. Sin consumo oficial propio (la ENIGH la agrupa con acelga, verdolaga y quintonil): se usa el consumo aparente.",
+    nombre: "Espinaca", tipo: "Hortaliza", color: "#2e6b3f",
+    nacional: 29612, consumoPC: 0.138, exportacion: 28880, importacion: 17737,
+    precioRural: 6.58,
+    destinos: {"Estados Unidos":0.9913, "Canadá":0.0087},
+    estados: { "02": 13000, "21": 8000, "11": 4000, "09": 2000, "15": 2000, "01": 680, "29": 649, "24": 233, "26": 215, "13": 100, "30": 53, "16": 43 }
+  },
+  betabel: {
+    nota: "Comercio ESTIMADO: la fracción 070690 agrupa betabel, rábano, salsifí y apionabo; se reparte entre rábano y betabel en proporción a la producción SIAP. La exportación supera la producción SIAP: el balance usa el consumo de los hogares (ENIGH 2024) como referencia.",
+    nombre: "Betabel", tipo: "Hortaliza", color: "#8e2c48",
+    nacional: 17373, consumoPC: 0.11, exportacion: 22522, importacion: 4,
+    precioRural: 5.9,
+    destinos: {"Estados Unidos":0.962, "Canadá":0.0372, "Otros":0.0008},
+    estados: { "21": 12000, "14": 2000, "15": 944, "02": 730, "26": 354, "11": 310, "16": 263, "24": 236, "29": 78, "13": 55, "01": 36, "03": 22 }
+  },
+  poro: {
+    nota: "Sin comercio propio: la fracción 070390 (puerros y demás aliáceas) es sobre todo cebollín. Sin consumo oficial: se usa el consumo aparente (producción).",
+    nombre: "Poro", tipo: "Hortaliza", color: "#a5b86b",
+    nacional: 4832, consumoPC: 0.036, exportacion: 0, importacion: 0,
+    precioRural: 7.81,
+    destinos: {},
+    estados: { "21": 3000, "02": 2000, "26": 82, "11": 54, "15": 16 }
+  },
+  perejil: {
+    nota: "Sin fracción arancelaria propia (va en 070999) ni registro de cruces del USDA: sin comercio exterior. Sin consumo oficial: se usa el consumo aparente (producción).",
+    nombre: "Perejil", tipo: "Hortaliza", color: "#5aa05a",
+    nacional: 4691, consumoPC: 0.035, exportacion: 0, importacion: 0,
+    precioRural: 9.32,
+    destinos: {},
+    estados: { "02": 2000, "21": 1000, "26": 1000, "24": 124, "15": 38, "29": 0 }
+  },
+  kale: {
+    nota: "Comercio ESTIMADO: parte de la fracción 070490 (coles, colinabo y kale), repartida con la col en proporción a la producción SIAP. Sin consumo oficial: se usa el consumo aparente.",
+    nombre: "Kale", tipo: "Hortaliza", color: "#35603a",
+    nacional: 1307, consumoPC: 0.003, exportacion: 935, importacion: 89,
+    precioRural: 9.47,
+    destinos: {"Estados Unidos":0.9716, "Canadá":0.0262, "Otros":0.0022},
+    estados: { "02": 831, "11": 307, "26": 169 }
+  },
+  alcachofa: {
+    nota: "Comercio: fracción 070991. Producción nacional muy pequeña; sin consumo oficial: se usa el consumo aparente.",
+    nombre: "Alcachofa", tipo: "Hortaliza", color: "#7a9a6a",
+    nacional: 827, consumoPC: 0.002, exportacion: 640, importacion: 80,
+    precioRural: 15.65,
+    destinos: {"Estados Unidos":1},
+    estados: { "11": 435, "21": 235, "16": 157 }
   },
   // ---------------------------------------------------------------------------------------------------------------
   // Granos y leguminosas (tipo "Grano"). Respaldo: SIAP cierre 2025, Panorama 2025 y FAOSTAT 2024.

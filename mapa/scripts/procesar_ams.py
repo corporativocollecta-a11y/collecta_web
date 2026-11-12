@@ -41,6 +41,11 @@ PRODUCTOS = {
     "arandano": ["Blueberries"], "esparrago": ["Asparagus"], "sandia": ["Watermelons"],   # sin frambuesa: el empaque más cotizado era el de frambuesa y el arándano quedaba con precio ajeno
     "melon": ["Cantaloupes", "Honeydews"], "platano": ["Bananas"], "mango": ["Mangoes"], "pina": ["Pineapples"],
     "berenjena": ["Eggplant"],
+    # hortalizas que cotiza el USDA en la frontera (noviembre 2026)
+    "elote": ["Corn, Sweet"], "col": ["Cabbage"], "ejote": ["Beans, Round Green Type"], "cilantro": ["Cilantro"],
+    "calabaza": ["Squash, Kabocha", "Squash, Butternut", "Squash, Spaghetti", "Squash, Acorn"],
+    "col_bruselas": ["Brussels Sprouts"], "rabano": ["Radishes"], "apio": ["Celery"], "espinaca": ["Spinach"],
+    "betabel": ["Beets"], "poro": ["Leeks"], "perejil": ["Parsley"], "kale": ["Greens, Kale"], "alcachofa": ["Artichokes"],
 }
 NOMBRE_MERCANCIA = {
     "Tomatoes": "tomate bola", "Tomatoes, Plum Type": "tomate saladette", "Peppers, Bell Type": "pimiento morrón",
@@ -49,6 +54,14 @@ NOMBRE_MERCANCIA = {
     "Lettuce, Iceberg": "lechuga iceberg", "Lettuce, Romaine": "lechuga romana", "Peaches": "durazno",
     "Nectarines": "nectarina", "Blueberries": "arándano", "Raspberries": "frambuesa", "Cantaloupes": "melón chino",
     "Honeydews": "melón gota de miel",
+    "Corn, Sweet": "elote", "Cabbage": "col", "Beans, Round Green Type": "ejote redondo", "Cilantro": "cilantro",
+    "Squash, Kabocha": "calabaza kabocha", "Squash, Butternut": "calabaza butternut", "Squash, Spaghetti": "calabaza spaghetti",
+    "Squash, Acorn": "calabaza bellota", "Brussels Sprouts": "col de Bruselas", "Radishes": "rábano", "Celery": "apio",
+    "Spinach": "espinaca", "Beets": "betabel", "Leeks": "poro", "Parsley": "perejil", "Greens, Kale": "kale",
+    "Artichokes": "alcachofa", "Peppers, Serrano": "chile serrano", "Peppers, Poblano": "chile poblano",
+    "Peppers, Habanero": "chile habanero", "Peppers, Anaheim": "chile anaheim", "Tomatoes, Grape Type": "tomate uva",
+    "Squash, Grey": "calabacita gris", "Pineapples": "piña", "Mangoes": "mango", "Watermelons": "sandía",
+    "Eggplant": "berenjena", "Papaya": "papaya", "Tomatillos": "tomate verde",
 }
 # Peso neto estándar (lb) de cajas que el USDA cotiza por volumen y no por peso
 ESTANDAR = {
@@ -84,6 +97,10 @@ VOLUMEN_MX = {
     "lechuga": ["Lettuce, Iceberg"], "sandia": ["Watermelons"], "melon": ["Cantaloupes", "Honeydews"],
     "papaya": ["Papaya"], "pina": ["Pineapples"], "uva": ["Grapes"], "toronja": ["Grapefruit"], "berenjena": ["Eggplant"],
     "esparrago": ["Asparagus"], "arandano": ["Blueberries"], "frambuesa": ["Raspberries"], "zarzamora": ["Blackberries"],
+    "elote": ["Corn, Sweet"], "col": ["Cabbage"], "ejote": ["Beans, Round Green Type"], "cilantro": ["Cilantro"],
+    "calabaza": ["Squash, Kabocha", "Squash, Butternut", "Squash, Spaghetti", "Squash, Acorn"],
+    "col_bruselas": ["Brussels Sprouts"], "rabano": ["Radishes"], "apio": ["Celery"], "espinaca": ["Spinach"],
+    "betabel": ["Beets"], "poro": ["Leeks"], "perejil": ["Parsley"], "kale": ["Greens, Kale"], "alcachofa": ["Artichokes"],
 }
 ESTADOS_EN = {
     "Alabama": "Alabama", "Alaska": "Alaska", "Arizona": "Arizona", "Arkansas": "Arkansas", "California": "California",

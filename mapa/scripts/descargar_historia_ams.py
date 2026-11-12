@@ -11,6 +11,8 @@ Uso:
 """
 import base64
 import datetime
+import gzip
+import json
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -28,6 +30,14 @@ def main(desde=2019, hasta=None):
     auth = "Basic " + base64.b64encode((clave() + ":").encode()).decode()
     for viejo in DESTINO.glob("*.parcial.json.gz"):   # el mes incompleto de la vez anterior se vuelve a pedir
         viejo.unlink()
+    # Los precios de frontera del año en curso guardados antes de que se descargara la demanda se vuelven a pedir
+    # (una sola vez: el gráfico de precio en la frontera muestra la demanda que califica el reportero del USDA)
+    for slug in (2402, 2403):
+        for f in DESTINO.glob(f"{slug}_{hoy.year}-*.json.gz"):
+            with gzip.open(f, "rt", encoding="utf-8") as fh:
+                filas = json.load(fh)
+            if filas and "demand_tone_comments" not in filas[0]:
+                f.unlink()
     tareas = [(s, a, m) for a in range(desde, hasta + 1) for s in REPORTES for m in range(1, 13)
               if (a, m) <= (hoy.year, hoy.month)]
     errores = 0

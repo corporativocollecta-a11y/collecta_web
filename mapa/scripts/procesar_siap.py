@@ -60,6 +60,21 @@ CULTIVOS = {
     "nopal": ["nopalitos"],            # nopal verdura; excluye "nopal forrajero"
     "nuez": ["nuez"],                  # nuez pecanera (Carya illinoinensis), con cáscara; excluye "viveros de nuez"
     "zarzamora": ["zarzamora"],
+    # hortalizas que cotiza el USDA en la frontera (noviembre 2026)
+    "elote": ["elote"],                # maíz dulce o elote en fresco; distinto de "maiz grano"
+    "col": ["col (repollo)"],
+    "ejote": ["ejote"],
+    "cilantro": ["cilantro"],
+    "calabaza": ["calabaza"],          # calabaza madura (de castilla, de invierno); excluye calabacita y "calabaza semilla o chihua"
+    "col_bruselas": ["col de bruselas"],
+    "rabano": ["rabano"],
+    "apio": ["apio"],
+    "espinaca": ["espinaca"],
+    "betabel": ["betabel"],
+    "poro": ["poro (leek)"],
+    "perejil": ["perejil"],
+    "kale": ["kale"],
+    "alcachofa": ["alcachofa"],
     # granos y leguminosas (excluye forrajeros en verde y "elote")
     "maiz": ["maiz grano"],            # se separa en maiz_blanco y maiz_amarillo (ver separar_maiz)
     "frijol": ["frijol"], "trigo": ["trigo grano"], "sorgo": ["sorgo grano"], "arroz": ["arroz palay"],

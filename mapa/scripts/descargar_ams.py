@@ -41,7 +41,8 @@ FLETES = 2375    # National Truck Rate Report: tarifa por camión de cada distri
 CAMPOS = ("report_date", "commodity", "variety", "package", "pkg", "var", "origin", "district", "organic", "item_size",
           "low_price", "high_price", "mostly_low_price", "mostly_high_price", "market_location_name",
           "report_begin_date", "shipment_type", "shipments_week1", "shipments_week2", "shipments_week3", "category",
-          "report_Date", "destination_city", "truck_availability")
+          "report_Date", "destination_city", "truck_availability",
+          "demand_tone_comments", "market_tone_comments")   # calificación de la demanda y del mercado del reportero USDA
 
 
 def clave():
