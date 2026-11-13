@@ -23,6 +23,11 @@ from descargar_ams import DESTINO, bajar, clave  # noqa: E402
 # 2390/2391 Fresno: también cotiza producto mexicano en la frontera (aguacate por Texas; frambuesa, zarzamora y espárrago
 # "Mexico crossings through Arizona, California and Texas")
 REPORTES = [1662, 2402, 2403, 2306, 2307, 2290, 2291, 2314, 2315, 2390, 2391]
+# Los 11 mercados terminales completos (frutas, hortalizas, cebolla y papa) para el gráfico de mayoreo en EE. UU.
+# (scripts/procesar_mayoreo_eua_diario.py). Solo se piden los años que se le indiquen (la actualización semanal: año
+# anterior y en curso).
+from descargar_ams import TERMINALES  # noqa: E402
+REPORTES += [s for t in TERMINALES.values() for s in t if s not in REPORTES]
 
 
 def main(desde=2019, hasta=None):
@@ -40,8 +45,9 @@ def main(desde=2019, hasta=None):
                 filas = json.load(fh)
             if filas and "demand_tone_comments" not in filas[0]:
                 f.unlink()
+    solo_recientes = {s for t in TERMINALES.values() for s in t} - {2306, 2307, 2290, 2291, 2314, 2315}
     tareas = [(s, a, m) for a in range(desde, hasta + 1) for s in REPORTES for m in range(1, 13)
-              if (a, m) <= (hoy.year, hoy.month)]
+              if (a, m) <= (hoy.year, hoy.month) and (s not in solo_recientes or a >= hoy.year - 1)]
     errores = 0
     with ThreadPoolExecutor(max_workers=6) as ex:
         for slug, a, m, r in ex.map(lambda t: (t[0], t[1], t[2], bajar(t[0], t[1], t[2], auth)[2]), tareas):

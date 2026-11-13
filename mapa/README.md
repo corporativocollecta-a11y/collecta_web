@@ -208,13 +208,27 @@ Sección *Precio en la frontera* (vista México → Exportar; EE. UU. → Produc
 - Reportes: Phoenix 2402/2403 y Fresno 2390/2391 (aguacate por Texas; frambuesa, zarzamora y espárrago por "Arizona,
   California y Texas"). **Selector de cruce** (McAllen, Nogales, Otay Mesa, Calexico) cuando dos o más tienen serie
   propia, con el volumen del 1662 de ese cruce.
-- 54 productos en 2026. Con precio puramente mexicano: jitomate, chile, aguacate, limón, brócoli, fresa, pepino,
+- 40 productos en 2026 (54 series contando cada variedad). Con precio puramente mexicano: jitomate, chile, aguacate, limón, brócoli, fresa, pepino,
   calabacita, zanahoria, lechuga, uva, arándano, espárrago, sandía, melón, mango, piña, berenjena, elote, col, ejote,
   cilantro, calabaza, poro, tomate verde, papaya, frambuesa, zarzamora y cebollín. **Mixtos** (solo los cotiza un
   distrito que junta producción de California/Arizona con cruces de México; el gráfico lo avisa): col de Bruselas,
   rábano, apio, espinaca, betabel, perejil, kale, alcachofa, col china, bok choy e hinojo.
 - **Solo con gráfico** (sin producción SIAP, fuera de los cálculos del mapa): cebollín, col china, bok choy e hinojo, en el
   grupo "Solo precio en la frontera" de la lista de productos; abren su gráfico ampliado.
+
+### Precio de mayoreo en EE. UU., mismo diseño (noviembre 2026)
+
+Sección *Precio de mayoreo en EE. UU.* (vista México → Exportar; EE. UU. → Producto), después del precio en la frontera:
+los 11 mercados terminales del USDA (`python scripts/procesar_mayoreo_eua_diario.py` → un archivo por producto
+`data/mayoreo_eua_<producto>.js`, carga diferida, más `data/mayoreo_eua_indice.js`; corre en la actualización semanal,
+que baja los 11 mercados solo del año anterior y el en curso).
+
+- Serie principal: producto de origen México en todos los mercados, un empaque de referencia; si casi no llega producto
+  mexicano (manzana, pera, papa, durazno…), todos los orígenes, con aviso. Precio del día = mediana de las cotizaciones;
+  banda = percentiles 10–90 (entre mercados).
+- Selectores: **Origen** (México, EE. UU., otros países, todos; mismo empaque, para ver lo que paga el mercado por el
+  origen) y **Ciudad** (cada mercado con al menos 20 días). Variedades como en la frontera. Sin volumen ni demanda.
+- 44 productos en 2026 (41 del catálogo más cebollín, bok choy e hinojo).
 
 ### Precio de mayoreo en México, mismo diseño (noviembre 2026)
 

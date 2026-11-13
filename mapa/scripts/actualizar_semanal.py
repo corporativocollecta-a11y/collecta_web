@@ -23,6 +23,7 @@ def main():
              ["scripts/procesar_origen_exportacion.py"],   # SE: exportación por estado y mes (~2 meses de retraso)
              ["scripts/procesar_neto_semanal.py"],   # FOB semanal en pesos, tipo de cambio (FRED) y diésel por estado (CNE)
              ["scripts/procesar_frontera_diaria.py"],   # precio diario en la frontera del año en curso (gráfico)
+             ["scripts/procesar_mayoreo_eua_diario.py"],   # precio diario en los mercados terminales de EE. UU. (gráfico)
              ["scripts/procesar_pronostico_sniim.py"],   # mayoreo en México (SNIIM), año en curso
              ["scripts/procesar_mayoreo_diario.py"],   # precio diario de mayoreo por variedad (gráfico; reusa la descarga anterior)
              ["scripts/actualizar_sequia.py"],   # Monitor de Sequía de la CONAGUA (quincenal)

@@ -56,8 +56,11 @@ def main():
     # Lo que generan las actualizaciones automáticas en GitHub (clima diario y actualización semanal): si la copia del
     # sitio es más reciente, se trae al proyecto antes de copiar
     traidos = []
-    for nombre in ([] if SIN_TRAER else AUTOMATICOS):
+    por_producto = sorted({f.name for f in (DESTINO / "data").glob("mayoreo_eua_*.js")})   # un archivo por producto
+    for nombre in ([] if SIN_TRAER else [*AUTOMATICOS, *por_producto]):
         sitio, local = DESTINO / "data" / nombre, RAIZ / "data" / nombre
+        if nombre in por_producto and not local.exists():
+            continue   # el producto ya no tiene datos en el proyecto: no se revive desde el sitio
         # en empate (mismo día) gana el sitio: la actualización automática es la fuente principal de estos archivos
         if generado(sitio) and generado(sitio) >= generado(local) and sitio.read_bytes() != local.read_bytes():
             shutil.copy2(sitio, local)

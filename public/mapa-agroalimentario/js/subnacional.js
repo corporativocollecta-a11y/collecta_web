@@ -191,6 +191,7 @@
       ${D().codigo === "US" && window.Embarques ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", R.k, "eua")}`, AUTO, { abierta: true }) : ""}
       ${D().codigo === "US" && window.PreciosEUA ? S("mayoreo", window.PreciosEUA.panelHTML(R.k), window.PreciosEUA.panelResumen(R.k)) : ""}
       ${D().codigo === "US" && window.Graficos?.disponible(R.k) ? S("frontera_diaria", Graficos.fronteraHTML(R.k), Graficos.fronteraResumen(R.k), { abierta: true }) : ""}
+      ${D().codigo === "US" && window.Graficos?.disponibleEua(R.k) ? S("mayoreo_eua", Graficos.euaHTML(R.k), Graficos.euaResumen(R.k), { abierta: true }) : ""}
       ${window.Historia ? S("historia", `<h3>${D().pais} en diez años</h3>${Historia.marca("pais", R.k, { pais: D().m49, titulo: "" })}`, AUTO) : ""}`;
   }
 
