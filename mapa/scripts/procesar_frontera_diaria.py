@@ -17,6 +17,13 @@ Método (el mismo de scripts/procesar_ams.py):
   - Volumen semanal: toneladas de la misma mercancía que cruzaron de México (reporte 1662, National Shipping Point
     Trends, suma de los distritos "Mexico crossings…"). Cada reporte del lunes trae como semana 1 la semana anterior:
     se guarda con el lunes de esa semana.
+  - Reportes: Phoenix 2402 (frutas) y 2403 (hortalizas) y Fresno 2390/2391 (aguacate por Texas; frambuesa, zarzamora y
+    espárrago "Mexico crossings through Arizona, California and Texas").
+  - Distritos MIXTOS ("Imperial, Coachella… y Mexico crossings through Calexico", "South and Central California and
+    Mexico crossings…"): juntan producción de EE. UU. con lo que cruza de México. Solo se usan si el producto no tiene
+    precio puramente mexicano, y el producto queda marcado "mixto" (el gráfico lo avisa).
+  - Por cruce: si dos o más cruces tienen al menos MIN_DIAS_NUEVO días, cada uno lleva su serie (precio, demanda y el
+    volumen del 1662 de ese cruce) en "porCruce".
   - Cambio de año: cada producto muestra el año en curso en cuanto tiene al menos MIN_DIAS_NUEVO días hábiles con
     cotización; antes, y solo hasta el 31 de marzo, muestra el año anterior completo, con su año en "anio" del
     producto. Después de marzo, un producto sin días suficientes en el año en curso no se muestra (no se enseñan datos
@@ -34,13 +41,23 @@ from pathlib import Path
 from statistics import median
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from descargar_ams import FRONTERA  # noqa: E402
 from descargar_ams import VOLUMEN  # noqa: E402
 from procesar_ams import CWT_T, NOMBRE_MERCANCIA, PRODUCTOS, kg_empaque, leer, precio  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent
 MIN_COTIZACIONES = 50   # para elegir el empaque de referencia en un año completo
 MIN_DIAS_NUEVO = 20     # días hábiles con cotización para empezar a mostrar el año en curso (≈ un mes)
+REPORTES_FRONTERA = (2402, 2403, 2390, 2391)   # Phoenix frutas y hortalizas, Fresno frutas y hortalizas
+
+# Productos que el USDA cotiza en la frontera y no están en procesar_ams.PRODUCTOS (tomate verde y papaya sí son productos
+# del mapa; cebollín, col china, bok choy e hinojo son productos solo con gráfico: el SIAP no publica su producción)
+EXTRA = {"tomate_verde": ["Tomatillos"], "papaya": ["Papaya"], "frambuesa": ["Raspberries"], "zarzamora": ["Blackberries"],
+         "cebollin": ["Onions, Green"], "col_china": ["Chinese Cabbage"], "bok_choy": ["Bok Choy"], "hinojo": ["Anise"]}
+NOMBRES = {**NOMBRE_MERCANCIA, "Onions, Green": "cebollín", "Chinese Cabbage": "col china", "Bok Choy": "bok choy",
+           "Anise": "hinojo", "Avocados": "aguacate", "Blackberries": "zarzamora", "Raspberries": "frambuesa",
+           "Asparagus": "espárrago", "Strawberries": "fresa", "Blueberries": "arándano", "Broccoli": "brócoli",
+           "Cucumbers": "pepino", "Carrots": "zanahoria", "Grapes": "uva"}
+VOL_ALIAS = {"Onions, Green": "Onions Green"}   # el reporte de volumen (1662) escribe distinto algunas mercancías
 
 
 # Variedades que el USDA cotiza por separado: el gráfico deja elegirlas. La de omisión es la de la referencia del
@@ -69,14 +86,23 @@ def empaque_referencia(fs, minimo):
 
 
 def cruce_de(distrito):
-    """Cruce del producto mexicano. Solo distritos que son exclusivamente cruces de México ("Mexico crossings through…"):
-    los que empiezan con un distrito de EE. UU. ("South and Central California and Mexico crossings…", "Imperial,
-    Coachella… Mexico crossings through Calexico") mezclan producción estadounidense con la mexicana."""
+    """Cruce del producto mexicano en un distrito que es exclusivamente de cruces de México ("Mexico crossings
+    through…"); None en cualquier otro (incluidos los mixtos, ver distrito_mixto)."""
     d = (distrito or "").lower()
     if not d.startswith("mexico crossings"):
         return None
+    if "arizona, california and texas" in d:
+        return "Varios cruces"
     return ("Otay Mesa" if "otay" in d else "Calexico" if "san luis" in d or "calexico" in d or "southern california" in d
             else "Nogales" if "nogales" in d or "arizona" in d else "McAllen" if "texas" in d else None)
+
+
+def distrito_mixto(distrito):
+    """Región de un distrito que junta producción de EE. UU. con cruces de México (precio no separable), o None."""
+    d = (distrito or "").lower()
+    if "mexico crossings" not in d or d.startswith("mexico crossings"):
+        return None
+    return "Calexico y Valle Imperial (mixto)" if "calexico" in d or "imperial" in d else "Sur de California y San Luis (mixto)"
 
 
 def num(x):
@@ -99,11 +125,13 @@ def nivel_demanda(texto):
 
 
 def cotizaciones(anio, comm_a_prod):
-    """producto → [(comm, empaque, presentación, cruce, fecha ISO, precio medio, bajo, alto, demanda 1–5)]"""
+    """producto → [(comm, empaque, presentación, cruce, fecha ISO, precio medio, bajo, alto, demanda 1–5, mixto)]"""
     filas = defaultdict(list)
-    for r in leer(FRONTERA, anio):
+    for r in leer(REPORTES_FRONTERA, anio):
         k = comm_a_prod.get(r["commodity"])
         cruce = cruce_de(r.get("district"))
+        mixto = distrito_mixto(r.get("district")) if not cruce else None
+        cruce = cruce or mixto
         if not k or not cruce or r.get("organic") == "Y":
             continue
         p = precio(r)
@@ -112,13 +140,14 @@ def cotizaciones(anio, comm_a_prod):
         m, d, a = r["report_date"].split("/")
         lo, hi = num(r.get("low_price")), num(r.get("high_price"))
         filas[k].append((r["commodity"], r.get("pkg") or r.get("package"), r.get("var") or r.get("variety") or "",
-                         cruce, f"{a}-{m}-{d}", p, lo or p, hi or p, nivel_demanda(r.get("demand_tone_comments"))))
+                         cruce, f"{a}-{m}-{d}", p, lo or p, hi or p, nivel_demanda(r.get("demand_tone_comments")), bool(mixto)))
     return filas
 
 
 def volumen_semanal(anio):
-    """mercancía → {lunes ISO de la semana: toneladas que cruzaron de México}"""
+    """mercancía → {lunes ISO de la semana: toneladas que cruzaron de México}; y (mercancía, cruce) → lo mismo por cruce"""
     vol = defaultdict(lambda: defaultdict(float))
+    por_cruce = defaultdict(lambda: defaultdict(float))
     for r in leer([VOLUMEN], anio):
         t = num(r.get("shipments_week1"))
         if t is None or not (r.get("district") or "").upper().startswith("MEXICO CROSSINGS"):
@@ -127,7 +156,10 @@ def volumen_semanal(anio):
         lunes = datetime.date(a, m, d) - datetime.timedelta(days=7)
         lunes -= datetime.timedelta(days=lunes.weekday())
         vol[r["commodity"]][lunes.isoformat()] += t * CWT_T
-    return vol
+        cruce = cruce_de(r.get("district"))
+        if cruce:
+            por_cruce[(r["commodity"], cruce)][lunes.isoformat()] += t * CWT_T
+    return vol, por_cruce
 
 
 def serie(filas, clave):
@@ -145,28 +177,34 @@ def serie(filas, clave):
     return dias
 
 
+def semanas_del_anio(v, a):
+    return {s: round(t) for s, t in sorted(v.items()) if t > 0 and f"{a - 1}-12-25" <= s <= f"{a}-12-31"}
+
+
 def ficha(cotiz, anio, vol, respaldo, filtro=None):
-    """Serie de un producto (o de una variedad, con `filtro` = mercancía): año en curso si ya tiene suficientes días;
-    si no, y solo en enero–marzo, el año anterior completo."""
-    def elegir(a):
-        return [f for f in cotiz[a] if filtro is None or f[0] == filtro]
-    a, fs = anio, elegir(anio)
-    clave = empaque_referencia(fs, MIN_DIAS_NUEVO)
-    dias = serie(fs, clave) if clave else []
-    if len(dias) < MIN_DIAS_NUEVO:
-        if not respaldo:
-            return None
-        a, fs = anio - 1, elegir(anio - 1)
-        clave = empaque_referencia(fs, MIN_COTIZACIONES)
-        if not clave:
-            return None
-        dias = serie(fs, clave)
+    """Serie de un producto (o de una variedad, con `filtro` = mercancía). Orden: precio puramente mexicano del año en
+    curso; distrito mixto del año en curso; y solo en enero–marzo, lo mismo del año anterior."""
+    def elegir(a, mixto):
+        return [f for f in cotiz[a] if (filtro is None or f[0] == filtro) and f[9] == mixto]
+    intentos = [(anio, False, MIN_DIAS_NUEVO), (anio, True, MIN_DIAS_NUEVO)]
+    if respaldo:
+        intentos += [(anio - 1, False, MIN_COTIZACIONES), (anio - 1, True, MIN_COTIZACIONES)]
+    for a, mixto, minimo in intentos:
+        fs = elegir(a, mixto)
+        clave = empaque_referencia(fs, minimo)
+        dias = serie(fs, clave) if clave else []
+        if len(dias) >= MIN_DIAS_NUEVO:
+            break
+    else:
+        return None
     comm, pk, var = clave
     kg = kg_empaque(comm, pk)
+    total, por_cruce_vol = vol
+    cv = VOL_ALIAS.get(comm, comm)
     cruces = Counter(c for d in dias for c in d[4])   # cruce → días con cotización (para decir por dónde cruza)
-    return {
+    out = {
         "anio": a,   # año que muestra (el anterior mientras el año en curso tenga pocos días)
-        "mercancia": NOMBRE_MERCANCIA.get(comm, comm), "empaque": pk, "presentacion": var.lower(),
+        "mercancia": NOMBRES.get(comm, comm), "empaque": pk, "presentacion": var.lower(),
         "kgEmpaque": round(kg, 2) if kg else None,   # None: la caja no trae peso, solo US$ por caja
         "cruces": dict(cruces.most_common()),
         # [MM-DD, precio del día, mínimo, máximo]; el cruce solo se guarda si hay más de uno en el año
@@ -174,27 +212,44 @@ def ficha(cotiz, anio, vol, respaldo, filtro=None):
         # demanda de cada día (1 baja – 5 muy buena), alineada con "dias"; null si el USDA no la calificó
         "demanda": [d[5] for d in dias],
         # lunes de la semana → toneladas que cruzaron de México (misma mercancía); vacío si el 1662 no la trae
-        "volSemana": {s: round(t) for s, t in sorted(vol.get(comm, {}).items())
-                      if t > 0 and f"{a - 1}-12-25" <= s <= f"{a}-12-31"},   # semanas del año mostrado (y la que lo abre)
+        "volSemana": {} if mixto else semanas_del_anio(total.get(cv, {}), a),
         "_comm": comm,
     }
+    if mixto:
+        out["mixto"] = True   # junta producción de EE. UU. con lo que cruza de México
+    # Serie de cada cruce (mismo empaque de referencia), si al menos dos cruces tienen datos suficientes
+    if not mixto:
+        cada = {}
+        for cr in cruces:
+            dc = serie([f for f in fs if f[3] == cr], clave)
+            if len(dc) >= MIN_DIAS_NUEVO:
+                cada[cr] = {"dias": [d[:4] for d in dc], "demanda": [d[5] for d in dc],
+                            "volSemana": semanas_del_anio(por_cruce_vol.get((cv, cr), {}), a)}
+        if len(cada) > 1:
+            out["porCruce"] = dict(sorted(cada.items(), key=lambda x: -len(x[1]["dias"])))
+    return out
 
 
 def main(anio=None):
     anio = anio or datetime.date.today().year
     comm_a_prod = {c: k for k, cs in PRODUCTOS.items() for c in cs}
     comm_a_prod.update({c: k for k, vs in VARIANTES.items() for c, _ in vs})
+    comm_a_prod.update({c: k for k, cs in EXTRA.items() for c in cs})
     cotiz = {a: cotizaciones(a, comm_a_prod) for a in (anio, anio - 1)}
     # Volumen de los dos años juntos: la última semana de diciembre llega en el reporte de enero del año siguiente
-    vol = defaultdict(dict)
+    total, por_cruce = defaultdict(dict), defaultdict(dict)
     for a in (anio - 1, anio):
-        for comm, semanas in volumen_semanal(a).items():
-            vol[comm].update(semanas)
-    salida = {"generado": datetime.date.today().isoformat(), "anio": anio, "fuente": "USDA AMS Market News, punto de embarque de Phoenix (2402, 2403)",
+        t, pc = volumen_semanal(a)
+        for comm, semanas in t.items():
+            total[comm].update(semanas)
+        for clave, semanas in pc.items():
+            por_cruce[clave].update(semanas)
+    vol = (total, por_cruce)
+    salida = {"generado": datetime.date.today().isoformat(), "anio": anio, "fuente": "USDA AMS Market News, puntos de embarque de Phoenix (2402, 2403) y Fresno (2390, 2391)",
               "unidad": "US$ por empaque", "productos": {}}
     ultimo = ""
     respaldo = datetime.date.today() < datetime.date(anio, 4, 1)   # el año anterior solo cubre enero–marzo
-    for k in dict.fromkeys([*PRODUCTOS, *VARIANTES]):
+    for k in dict.fromkeys([*PRODUCTOS, *VARIANTES, *EXTRA]):
         c = {a: cotiz[a].get(k, []) for a in cotiz}
         principal = ficha(c, anio, vol, respaldo)
         if not principal:
@@ -221,7 +276,8 @@ def main(anio=None):
         for v in p.get("variantes") or [p]:
             print(f"  {k:12s} {(v.get('nombre') or '')[:18]:18s} {v['mercancia'][:20]:20s} {v['empaque'][:26]:26s} "
                   f"{'kg ' + str(v['kgEmpaque']) if v['kgEmpaque'] else 'sin peso':9s} {len(v['dias']):3d} días {v['anio']} · "
-                  f"{len(v['volSemana']):2d} sem. vol · {sum(x is not None for x in v['demanda']):3d} días demanda")
+                  f"{len(v['volSemana']):2d} sem. vol · {sum(x is not None for x in v['demanda']):3d} días demanda"
+                  f"{' · MIXTO' if v.get('mixto') else ''}{' · cruces: ' + ', '.join(v['porCruce']) if v.get('porCruce') else ''}")
     print(f"-> {destino} ({destino.stat().st_size / 1024:.0f} kB), último día {ultimo}")
 
 

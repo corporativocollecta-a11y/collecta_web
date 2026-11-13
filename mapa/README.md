@@ -205,8 +205,16 @@ Sección *Precio en la frontera* (vista México → Exportar; EE. UU. → Produc
   uva), calabacita (italiana, gris, amarilla), calabaza (kabocha, butternut, spaghetti, bellota) y limón (persa, amarillo).
 - **Cambio de año**: hasta el 31 de marzo, un producto con menos de 20 días hábiles en el año nuevo muestra el año
   anterior completo, con aviso; después de marzo, sin días suficientes no se muestra.
-- 20 productos con precio puramente mexicano en 2026: jitomate, chile, limón, brócoli, pepino, calabacita, zanahoria,
-  lechuga, uva, sandía, melón, mango, piña, berenjena, elote, col, ejote, cilantro, calabaza y poro.
+- Reportes: Phoenix 2402/2403 y Fresno 2390/2391 (aguacate por Texas; frambuesa, zarzamora y espárrago por "Arizona,
+  California y Texas"). **Selector de cruce** (McAllen, Nogales, Otay Mesa, Calexico) cuando dos o más tienen serie
+  propia, con el volumen del 1662 de ese cruce.
+- 54 productos en 2026. Con precio puramente mexicano: jitomate, chile, aguacate, limón, brócoli, fresa, pepino,
+  calabacita, zanahoria, lechuga, uva, arándano, espárrago, sandía, melón, mango, piña, berenjena, elote, col, ejote,
+  cilantro, calabaza, poro, tomate verde, papaya, frambuesa, zarzamora y cebollín. **Mixtos** (solo los cotiza un
+  distrito que junta producción de California/Arizona con cruces de México; el gráfico lo avisa): col de Bruselas,
+  rábano, apio, espinaca, betabel, perejil, kale, alcachofa, col china, bok choy e hinojo.
+- **Solo con gráfico** (sin producción SIAP, fuera de los cálculos del mapa): cebollín, col china, bok choy e hinojo, en el
+  grupo "Solo precio en la frontera" de la lista de productos; abren su gráfico ampliado.
 
 ### Precio de mayoreo en México, mismo diseño (noviembre 2026)
 
@@ -218,6 +226,30 @@ la actualización semanal después del pronóstico del SNIIM, que renueva el añ
   orígenes), con al menos 3; se descartan las que quedan fuera de 1/3–3× la mediana del año. Banda = percentiles 10–90
   (dispersión entre centrales). Variedades de `VARIEDADES` en `procesar_sniim.py` (selector), la primera es la de omisión.
 - Sin volumen ni demanda (el SNIIM no los publica). Mismo cambio de año que el precio en la frontera.
+
+### Analizar precios: comparativo entre productos (noviembre 2026)
+Modo a pantalla completa para responder "¿se mueven juntos los precios?". No lleva datos propios: usa las mismas series
+diarias de `data/frontera_diaria.js` (USDA) y `data/mayoreo_diario.js` (SNIIM).
+- **Entrada:** botón "Analizar precios" del encabezado y botón "Comparar" de cada gráfico de precio (abre con ese producto
+  y su variedad). `js/analisis_entrada.js` (mínimo, se carga con la página) baja `js/analisis.js` solo al abrir.
+- **Animación:** la ventana crece desde el botón (`clip-path`) y se encoge de vuelta al cerrar; sin animación si el sistema
+  pide movimiento reducido.
+- **Enlace y historial:** `#…&an=<fuente>.<serie>.<serie>…` (serie = producto o `producto~índice de variedad`); `app.js`
+  conserva `an` al reescribir el hash. El modo agrega una entrada al historial: "atrás" lo cierra.
+- **Vista Líneas:** de 2 a 5 series, índice base 100 (cada serie = 100 en su primer dato del periodo) o precio real; semanal
+  (promedio lunes–viernes) o diario; todo el año, 6 o 3 meses. Un solo eje; líneas cortadas tras más de 3 semanas sin dato.
+  Cursor con la lectura de todas las series, nombre al final de cada línea y tabla (primer dato, último, cambio, máximo, mínimo).
+- **Colores:** paleta categórica validada con el validador de dataviz (oscuro sobre #16211A, claro sobre #FFFFFF); el color
+  sigue a la serie mientras esté elegida.
+- **Vista Cuadrantes:** un par de las series elegidas (eje horizontal y vertical, con ⇄ para intercambiar). Cada punto es
+  una semana (o un día): cambio de A contra el periodo anterior en x, de B en y. Cambios menores a ±2% cuentan como
+  "igual" (franja gris). Solo periodos seguidos con dato de los dos (máx. 8 días entre semanas, 5 entre días hábiles).
+  Escala simétrica al percentil 95 de los cambios; los extremos van huecos en el borde. Veredicto con
+  (juntos − contrario) / (juntos + contrario): ≥0.5 "se mueven juntos con frecuencia", ≥0.2 "ligera tendencia", >−0.2
+  "sin relación clara", >−0.5 "tienden a ir en sentido contrario"; con menos de 8 periodos o 5 movimientos, "pocos datos".
+  Frases "cuando bajó/subió A…" y tabla 3×3 con conteos y porcentaje por fila. Enlace: `an=cuadrantes~<fuente>~<i>~<j>.…`
+  (i, j = posición del par en la lista).
+- **Siguiente vista:** Mapa de calor (pestaña marcada "pronto"). Textos aún sin traducción al inglés.
 
 ### Hortalizas añadidas al catálogo (noviembre 2026)
 

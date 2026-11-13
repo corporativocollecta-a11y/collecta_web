@@ -887,7 +887,8 @@
 
   function renderLista() {
     const nav = document.getElementById("productos");
-    nav.innerHTML = Resumen.listaHTML(indicadores, filtro.texto, filtro.tipo, estado.producto);
+    nav.innerHTML = Resumen.listaHTML(indicadores, filtro.texto, filtro.tipo, estado.producto) +
+      (window.Graficos?.listaSoloPrecioHTML(filtro.texto, filtro.tipo) ?? "");   // cebollín, col china…: solo gráfico de frontera
     nav.querySelectorAll(".chip").forEach(c => c.onclick = () => seleccionarProducto(c.dataset.k, true));
     document.getElementById("contadorProductos").textContent = indicadores.length;
   }
@@ -1065,7 +1066,10 @@
     // La comparación abierta también viaja en el enlace (antes de que cargue js/comparar.js se conserva la del enlace recibido)
     const cmp = window.Comparar ? Comparar.actual() : new URLSearchParams(location.hash.slice(1)).get("cmp");
     if (cmp) q.set("cmp", cmp);
-    try { history.replaceState(null, "", "#" + q.toString()); } catch (e) { /* vista previa sin historial */ }
+    // Igual el modo "Analizar precios" (js/analisis_entrada.js)
+    const an = window.AnalisisEntrada ? AnalisisEntrada.actual() : new URLSearchParams(location.hash.slice(1)).get("an");
+    if (an) q.set("an", an);
+    try { history.replaceState(history.state, "", "#" + q.toString()); } catch (e) { /* vista previa sin historial */ }
   }
   function aplicarURL() {
     urlLista = true;

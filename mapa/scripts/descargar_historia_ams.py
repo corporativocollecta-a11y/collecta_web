@@ -20,7 +20,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from descargar_ams import DESTINO, bajar, clave  # noqa: E402
 
-REPORTES = [1662, 2402, 2403, 2306, 2307, 2290, 2291, 2314, 2315]
+# 2390/2391 Fresno: también cotiza producto mexicano en la frontera (aguacate por Texas; frambuesa, zarzamora y espárrago
+# "Mexico crossings through Arizona, California and Texas")
+REPORTES = [1662, 2402, 2403, 2306, 2307, 2290, 2291, 2314, 2315, 2390, 2391]
 
 
 def main(desde=2019, hasta=None):
@@ -32,7 +34,7 @@ def main(desde=2019, hasta=None):
         viejo.unlink()
     # Los precios de frontera del año en curso guardados antes de que se descargara la demanda se vuelven a pedir
     # (una sola vez: el gráfico de precio en la frontera muestra la demanda que califica el reportero del USDA)
-    for slug in (2402, 2403):
+    for slug in (2402, 2403, 2390, 2391):
         for f in DESTINO.glob(f"{slug}_{hoy.year}-*.json.gz"):
             with gzip.open(f, "rt", encoding="utf-8") as fh:
                 filas = json.load(fh)

@@ -28,7 +28,7 @@
   const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const MES_L = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   const UP = "#9FD36A", DN = "#F2703A", AZUL = "#4CC3FF", AZUL2 = "#7FD6FF", AMARILLO = "#E7B653";
-  const NOMBRE_CRUCE = { McAllen: "McAllen, Texas", Nogales: "Nogales, Arizona", "Otay Mesa": "Otay Mesa, California", Calexico: "Calexico y San Luis" };
+  const NOMBRE_CRUCE = { McAllen: "McAllen, Texas", Nogales: "Nogales, Arizona", "Otay Mesa": "Otay Mesa, California", Calexico: "Calexico y San Luis", "Varios cruces": "varios cruces (Arizona, California y Texas)" };
   const PERIODO_MA = { D: 20, S: 4, M: 3 }, TXT_MA = { D: "20 días", S: "4 semanas", M: "3 meses" };
   const VS = { D: "vs día anterior", S: "promedio vs semana anterior", M: "promedio vs mes anterior" };
   // Tamaños del gráfico (unidades del viewBox del SVG, que se escala al ancho disponible)
@@ -36,10 +36,31 @@
     panel: { W: 340, AX: 38, PH: 200, VH: 50, GAP: 10, fs: 9.5, nodo: 2.6, cursor: 4, etiquetas: "clave", nodos: "mes" },
     grande: { W: 1120, AX: 58, PH: 400, VH: 92, GAP: 14, fs: 11, nodo: 3.4, cursor: 5.5, etiquetas: "mes", nodos: "semana" }
   };
-  const op = { tf: "S", rango: false, ma: true, kg: false, variedad: {} };   // se recuerda entre productos y repintados
+  const op = { tf: "S", rango: false, ma: true, kg: false, variedad: {}, cruce: {} };   // se recuerda entre productos y repintados
   let uid = 0;
 
   const disponible = k => !!D()?.productos?.[k]?.dias?.length;
+  // Productos solo con gráfico de frontera: el USDA los cotiza pero el SIAP no publica su producción (no están en el mapa)
+  const SOLO_PRECIO = { cebollin: ["Cebollín", "#7cb342"], col_china: ["Col china", "#a5c882"], bok_choy: ["Bok choy", "#5f9e6e"],
+    hinojo: ["Hinojo", "#c5d6a0"] };
+  const nombreDe = k => window.PRODUCTOS?.[k]?.nombre ?? SOLO_PRECIO[k]?.[0] ?? k;
+  const sinAcentos = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // Grupo al final de la lista de productos; al tocar uno se abre su gráfico ampliado
+  function listaSoloPrecioHTML(texto = "", tipo = "todos") {
+    usar("frontera");
+    if (!D() || (tipo !== "todos" && tipo !== "Hortaliza")) return "";
+    const q = sinAcentos(texto.trim());
+    const items = Object.entries(SOLO_PRECIO).filter(([k, [n]]) => disponible(k) && (!q || sinAcentos(n).includes(q)));
+    if (!items.length) return "";
+    return `<div class="grupo" title="El USDA los cotiza en la frontera, pero el SIAP no publica su producción: solo tienen gráfico de precio">Solo precio en la frontera</div>` +
+      items.map(([k, [n, color]]) => {
+        const p = ficha(k), u = p.dias.at(-1);
+        return `<button class="chip" data-gfr-solo="${k}" type="button">
+          <span class="punto" style="background:${color}"></span><span class="nombre">${n}</span>
+          <span class="meta">US$${n2(u[1])} la caja${p.mixto ? " · mixto" : ""}</span>
+          <span class="indic" title="Sin producción SIAP"><b>—</b></span></button>`;
+      }).join("");
+  }
   const tn = () => window.Acceso?.tn?.() ?? "";
   const fd = md => { const [m, d] = md.split("-").map(Number); return `${d} ${MES[m - 1]}`; };
   const n2 = v => v == null ? "—" : v.toFixed(2);
@@ -48,9 +69,14 @@
   const sp = v => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%";
   // Año que muestra cada producto: el anterior completo mientras el año en curso tenga pocos días
   // Serie que se muestra: la variedad elegida (chile serrano, jitomate bola…) o el producto
-  const ficha = k => {
+  const variedadDe = k => {
     const b = D().productos[k], vs = b?.variantes;
     return vs ? vs[op.variedad[F.id + ":" + k] ?? b.varOmision ?? 0] ?? b : b;
+  };
+  // Y dentro de la variedad, el cruce elegido (McAllen, Nogales…) si tiene serie propia; si no, todos los cruces
+  const ficha = k => {
+    const v = variedadDe(k), cr = op.cruce[F.id + ":" + k], pc = cr && v?.porCruce?.[cr];
+    return pc ? { ...v, ...pc, cruces: { [cr]: pc.dias.length }, cruceSel: cr } : v;
   };
   const usaKg = k => op.kg && !!ficha(k)?.kgEmpaque;   // cajas sin peso escrito: solo US$ por caja
   const sinVolumen = k => !Object.keys(ficha(k)?.volSemana ?? {}).length;   // el reporte 1662 no trae esa mercancía
@@ -234,9 +260,12 @@
     ];
     if (grande) stats.push([`Promedio ${A}`, n2(prom)], [`Rango ${A}`, `${n2(Math.min(...todos))}–${n2(Math.max(...todos))}`]);
     const base = D().productos[k], variantes = base.variantes;
-    const nombre = (window.PRODUCTOS?.[k]?.nombre ?? k) + (variantes ? ` · ${p.nombre}` : "");
+    const nombre = nombreDe(k) + (variantes ? ` · ${p.nombre}` : "");
     const selVariedad = variantes ? `<label class="gfr-variedad"><span>Variedad</span><select data-gfr-variedad="${k}">${variantes.map((x, j) =>
-      `<option value="${j}"${x === p ? " selected" : ""}>${x.nombre}</option>`).join("")}</select></label>` : "";
+      `<option value="${j}"${x.nombre === p.nombre ? " selected" : ""}>${x.nombre}</option>`).join("")}</select></label>` : "";
+    const pcs = variedadDe(k)?.porCruce;
+    const selCruce = pcs ? `<label class="gfr-variedad"><span>Cruce</span><select data-gfr-cruce="${k}"><option value="">Todos</option>${Object.keys(pcs).map(c =>
+      `<option value="${c}"${c === p.cruceSel ? " selected" : ""}>${c}</option>`).join("")}</select></label>` : "";
     const kgTxt = mayoreo ? "" : p.kgEmpaque ? ` (${p.kgEmpaque} kg)` : " (la caja no trae peso: solo US$ por caja)";
     // Demanda del día o promedio del periodo, y lectura de precio contra volumen (en la vista diaria, de su semana)
     const dn = nivel(h.dem), sem = S.semanas;
@@ -247,6 +276,7 @@
       <div class="gfr-cab">
         <div class="gfr-id">
           <span class="gfr-ticker">${mayoreo ? `<b>${ticker(k)} · MAYOREO MX</b> ${p.centrales} CENTRALES DE ABASTO · SNIIM`
+            : p.mixto ? `<b>${ticker(k)} · MIXTO</b> ${Object.keys(p.cruces)[0].replace(" (mixto)", "").toUpperCase()} · MÉXICO Y EE. UU.`
             : `<b>${ticker(k)} · MX→US</b> FOB ${(cruces.length === 1 ? cruces[0] : cruces.join(" · ")).toUpperCase()}`}</span>
           ${grande ? `<div class="gfr-nombre"><span>${nombre}</span><small>${mayoreo ? "Precio frecuente por kg · calidad primera · SNIIM, Secretaría de Economía"
             : `<span${tn()}>${window.Paleta.usdaES(p.empaque)}</span>${kgTxt} · convencional · USDA AMS`}</small></div>` : ""}
@@ -259,11 +289,13 @@
       <div class="gfr-controles">
         <div class="gfr-grupo" role="group" aria-label="Periodo">${[["D", "1D", "Diario"], ["S", "1S", "Semanal"], ["M", "1M", "Mensual"]].map(([t, l, ti]) => btn("tf:" + t, op.tf === t, l, ` title="${ti}"`)).join("")}</div>
         ${btn("rango", op.rango, `<svg width="15" height="9" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 3 L6 1 L10 4 L15 2 L15 8 L10 9 L6 7 L1 8 Z" fill="${AZUL}" fill-opacity=".4"/></svg>Rango`, ' data-suelto="1"')}
-        ${selVariedad}
+        ${selVariedad}${selCruce}
         ${p.kgEmpaque ? `<div class="gfr-grupo" role="group" aria-label="Unidad">${btn("unidad:caja", !usaKg(k), grande ? "US$/caja" : "Caja")}${btn("unidad:kg", usaKg(k), grande ? "US$/kg" : "Kg")}</div>` : ""}
         ${btn("ma", op.ma, `<svg width="15" height="9" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 8 C5 8 6 2 9 3 S13 6 15 2" fill="none" stroke="${AMARILLO}" stroke-width="1.8" stroke-linecap="round"/></svg>Media`, ' data-suelto="1"')}
+        ${btn("comparar", false, `<svg width="14" height="12" viewBox="0 0 24 20" aria-hidden="true"><path d="M2 15l6-6 4 3 5-7 5 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11l6 1.5 4-3.5 5 2.5 5-3" fill="none" stroke="${DN}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Comparar`, ' data-suelto="1" aria-label="Comparar con otros productos" title="Comparar con otros productos (Analizar precios)"')}
         ${grande ? "" : btn("ampliar", false, `<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Ampliar`, ' data-suelto="1" aria-label="Ampliar el gráfico"')}
       </div>
+      ${p.mixto ? `<div class="gfr-aviso"><b>Precio mixto:</b> el USDA cotiza este producto solo en la región de ${Object.keys(p.cruces)[0].replace(" (mixto)", "")}, donde junta en un mismo precio producto que cruza de México y producción de California y Arizona. Sirve como referencia de cuánto vale, pero no es solo el precio del producto mexicano.</div>` : ""}
       ${A < D().anio ? `<div class="gfr-aviso">Todavía hay pocos días de ${D().anio} para este producto: se muestra ${A} completo hasta que el año nuevo junte al menos un mes de cotizaciones.</div>` : ""}
       <div class="gfr-stats${grande ? " ocho" : ""}">${stats.map(([t, val, col]) => `<div><span>${t}</span><b${col ? ` style="color:${col}"` : ""}>${val}</b></div>`).join("")}</div>
       ${F.demanda ? `<div class="gfr-senal">
@@ -286,7 +318,7 @@
       ${mayoreo ? `<p class="gfr-nota">Precio de mayoreo (precio frecuente) de ${p.nombre ? "la variedad " + p.nombre : "este producto"}, calidad primera, por kg, en ${p.centrales} centrales de abasto que reporta el SNIIM, un dato por día hábil del 1 de enero al ${fd(S.dias.at(-1).md)} de ${A}.
         Línea: mediana de las cotizaciones del día (todas las centrales y orígenes) o promedio de la semana o del mes; etiquetas en el más alto, el más bajo y el último.
         Rango entre centrales: percentiles 10 y 90 de las cotizaciones del día (qué tan distinto se vende en cada central). Se descartan cotizaciones fuera de 1/3–3× la mediana del año.
-        El SNIIM no publica volumen ni demanda. Media móvil de ${TXT_MA[op.tf]}. Fuente: SNIIM, Secretaría de Economía.</p>` : `<p class="gfr-nota">Precio FOB del producto mexicano al cruzar por ${cruces.join(", ")}: <span${tn()}>${window.Paleta.usdaES(p.mercancia)}${p.presentacion && p.presentacion !== "n/a" ? ", " + p.presentacion : ""}, ${window.Paleta.usdaES(p.empaque)}</span>${kgTxt}, sin orgánicos, un dato por día hábil del 1 de enero al ${fd(S.dias.at(-1).md)} de ${A}.
+        El SNIIM no publica volumen ni demanda. Media móvil de ${TXT_MA[op.tf]}. Fuente: SNIIM, Secretaría de Economía.</p>` : `<p class="gfr-nota">${p.mixto ? `Precio FOB de la región de ${cruces[0].replace(" (mixto)", "")} (el USDA junta producto de México y de California y Arizona; no se puede separar el mexicano):` : `Precio FOB del producto mexicano al cruzar por ${cruces.join(", ")}${p.cruceSel ? " (solo este cruce)" : ""}:`} <span${tn()}>${window.Paleta.usdaES(p.mercancia)}${p.presentacion && p.presentacion !== "n/a" ? ", " + p.presentacion : ""}, ${window.Paleta.usdaES(p.empaque)}</span>${kgTxt}, sin orgánicos, un dato por día hábil del 1 de enero al ${fd(S.dias.at(-1).md)} de ${A}.
         Línea: precio de cada día (1D) o promedio de los días hábiles de la semana o del mes (1S, 1M); etiquetas en el más alto, el más bajo y el último. Rango: bajo–alto que reportó el USDA.
         Volumen: toneladas de esta mercancía que cruzaron de México cada semana (USDA, reporte 1662); verde si el precio subió contra el periodo anterior, naranja si bajó. Media móvil de ${TXT_MA[op.tf]}.
         Demanda: la calificación que da cada día el reportero del USDA a la actividad de los compradores en el cruce (de baja a muy buena), promediada en la semana o el mes; es un termómetro del mercado, no consumo medido.
@@ -308,7 +340,7 @@
     if (!disponible(k)) return "";
     const p = ficha(k), f = usaKg(k) ? 1 / p.kgEmpaque : 1, c = p.dias.map(d => d[1] * f), M = F.moneda;
     const u = F.id === "mayoreo" ? "el kg" : usaKg(k) ? "el kg" : "la caja";
-    return `${p.nombre ? p.nombre + ": " : ""}Último ${M}${n2(c.at(-1))} ${u} · promedio ${anioDe(k)} ${M}${n2(c.reduce((a, b) => a + b, 0) / c.length)} · de ${M}${n2(Math.min(...c))} a ${M}${n2(Math.max(...c))}`;
+    return `${p.mixto ? "Precio mixto (México y EE. UU.) · " : ""}${p.nombre ? p.nombre + ": " : ""}Último ${M}${n2(c.at(-1))} ${u} · promedio ${anioDe(k)} ${M}${n2(c.reduce((a, b) => a + b, 0) / c.length)} · de ${M}${n2(Math.min(...c))} a ${M}${n2(Math.max(...c))}`;
   }
   const fronteraHTML = k => html("frontera", k), fronteraResumen = k => resumen("frontera", k);
   const mayoreoHTML = k => html("mayoreo", k), mayoreoResumen = k => resumen("mayoreo", k);
@@ -364,6 +396,12 @@
     const [a, val] = b.dataset.gfrAccion.split(":"), caja = b.closest(".gfr");
     if (a === "cerrar") return cerrar();
     if (a === "ampliar") return abrir(caja.dataset.gfrK, caja.dataset.gfrFuente);
+    if (a === "comparar") {   // modo "Analizar precios" con este producto (y su variedad elegida) ya en la lista
+      const fuente = caja.dataset.gfrFuente ?? "frontera", k = caja.dataset.gfrK, base = FUENTES[fuente].datos()?.productos?.[k];
+      const j = op.variedad[fuente + ":" + k];
+      const items = base?.variantes && j != null ? [k + "~" + j] : null;
+      return window.AnalisisEntrada?.abrir(items ? { fuente, k, semilla: items[0] } : { fuente, k }, b);
+    }
     if (a === "tf") { op.tf = val; document.querySelectorAll(".gfr[data-i]").forEach(e => delete e.dataset.i); }
     else if (a === "rango") op.rango = !op.rango;
     else if (a === "ma") op.ma = !op.ma;
@@ -379,6 +417,15 @@
     document.querySelectorAll(".gfr[data-i]").forEach(e => delete e.dataset.i);
     todos();
     document.querySelector(`.gfr[data-gfr-modo="${modo}"] select[data-gfr-variedad]`)?.focus();
+  });
+  document.addEventListener("change", ev => {
+    const s = ev.target.closest?.("select[data-gfr-cruce]");
+    if (!s) return;
+    const caja = s.closest(".gfr"), modo = caja.dataset.gfrModo;   // antes de repintar
+    op.cruce[(caja.dataset.gfrFuente ?? "frontera") + ":" + s.dataset.gfrCruce] = s.value;
+    document.querySelectorAll(".gfr[data-i]").forEach(e => delete e.dataset.i);
+    todos();
+    document.querySelector(`.gfr[data-gfr-modo="${modo}"] select[data-gfr-cruce]`)?.focus();
   });
   document.addEventListener("keydown", ev => { if (ev.key === "Escape" && document.querySelector(".gfr-modal")) cerrar(); });
 
@@ -405,6 +452,10 @@
   document.addEventListener("pointerdown", mover);
   document.addEventListener("pointerout", salir);
 
-  window.Graficos = { disponible: k => (usar("frontera"), disponible(k)), fronteraHTML, fronteraResumen,
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest?.("[data-gfr-solo]");
+    if (b) abrir(b.dataset.gfrSolo, "frontera");
+  });
+  window.Graficos = { disponible: k => (usar("frontera"), disponible(k)), fronteraHTML, fronteraResumen, listaSoloPrecioHTML,
     disponibleMayoreo, mayoreoHTML, mayoreoResumen, abrir };
 })();
