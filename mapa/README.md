@@ -174,7 +174,13 @@ Se muestran sin comercio: el balance supone que lo producido se consume en el pa
 Opción **Estados Unidos** del selector *Ver país…*: la misma lógica que México, por estado.
 
 - **Producción por estado**: USDA NASS Quick Stats 2025, series de mercado fresco (`python scripts/filtrar_nass.py data/fuentes/usda/qs.crops_AAAAMMDD.txt.gz` y luego `python scripts/procesar_usda.py`). NASS solo encuesta estados principales y reserva ("(D)") muchas cifras estatales de mercado fresco: el resto del total nacional se reparte según la superficie del **Censo Agropecuario 2022** (`qs.census2022.txt.gz`, filtrado a `censo2022_frutas_hortalizas.tsv`). Cada estado queda marcado como publicado o estimado.
-- Sandía, melón y berenjena (sin encuesta anual de NASS) usan la producción nacional de FAOSTAT repartida con el censo; plátano, mango y piña, solo total nacional.
+- Berenjena (sin encuesta anual de NASS) usa la producción nacional de FAOSTAT repartida con el censo; plátano, mango y piña, solo total nacional. Sandía y melón ya tienen producción NASS por estado (noviembre 2026).
+- **37 productos** (noviembre 2026): se suman elote, col, ejote, espinaca, apio, calabaza, alcachofa, betabel y kale con
+  producción NASS de mercado fresco por estado (apio y kale: producción total, la de mercado fresco es confidencial).
+  Su comercio sale de UN Comtrade con EE. UU. como reportante (anual; valores en miles de US$, como FAOSTAT): col y kale
+  reparten la 070490 según su producción; betabel lleva la 070690 completa (incluye rábano). Elote y calabaza sin
+  comercio (070999 y 070993). Sin encuesta de NASS (fuera de la vista EE. UU.): cilantro, rábano, perejil, poro, col de
+  Bruselas, tomate verde, nopal, guayaba y zarzamora; la frambuesa sigue dentro del grupo de berries con el arándano.
 - **Población 2025**: Census Bureau (`NST-EST2025-ALLDATA.csv`).
 - **Consumo aparente** = producción + importación − exportación (FAOSTAT); demanda por estado = población × consumo por persona.
 - **Abasto desde México**: exportación de México a EE. UU. (matriz de FAOSTAT). Si México reporta más de lo que EE. UU. registra como importación, se usa la cifra mayor (caso brócoli). En el mapa, la exportación mexicana se reparte entre los estados según su déficit (estimación).

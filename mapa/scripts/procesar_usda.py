@@ -21,6 +21,10 @@ Método:
     estados según su superficie de mercado fresco (o en producción) del Censo Agropecuario 2022; cada estado queda
     marcado como publicado o estimado.
   - Productos sin encuesta estatal de NASS: producción nacional de FAOSTAT, sin desglose por estado.
+  - Comercio: FAOSTAT para los productos que la FAO separa; para los añadidos en noviembre de 2026 (col, kale, ejote,
+    espinaca, apio, alcachofa, betabel), UN Comtrade con EE. UU. como reportante (anual, API pública). Col y kale
+    reparten la subpartida 070490 en proporción a su producción NASS; betabel lleva toda la 070690 (incluye rábano).
+    Elote y calabaza no tienen subpartida propia (070999 y 070993, esta asignada a calabacita): sin comercio.
   - Consumo aparente = producción + importación − exportación (FAOSTAT); por persona con la población del Census.
   - Abasto desde México: exportación de México a EE. UU. (matriz bilateral de FAOSTAT, reportada por México).
 Solo usa la biblioteca estándar de Python.
@@ -70,8 +74,26 @@ SERIES = {
                   "RASPBERRIES, FRESH MARKET - PRODUCTION, MEASURED IN LB"], "BLUEBERRIES"),
     "esparrago": (["ASPARAGUS, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "ASPARAGUS"),
     "nuez": (["PECANS, UTILIZED, IN SHELL - PRODUCTION, MEASURED IN LB"], "PECANS"),
+    # NASS ya publica sandía y melón por estado (antes solo FAOSTAT nacional)
+    "sandia": (["MELONS, WATERMELON, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "MELONS, WATERMELON"),
+    "melon": (["MELONS, CANTALOUP, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT",
+               "MELONS, HONEYDEW, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "MELONS, CANTALOUP"),
+    # Hortalizas añadidas al mapa en noviembre de 2026 (las que NASS encuesta por estado)
+    "elote": (["SWEET CORN, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "SWEET CORN"),
+    "col": (["CABBAGE, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "CABBAGE"),
+    "ejote": (["BEANS, SNAP, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "BEANS"),
+    "espinaca": (["SPINACH, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "SPINACH"),
+    "apio": (["CELERY, UTILIZED - PRODUCTION, MEASURED IN CWT"], "CELERY"),   # el de mercado fresco es confidencial (D)
+    "calabaza": (["PUMPKINS, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "PUMPKINS"),
+    "alcachofa": (["ARTICHOKES, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "ARTICHOKES"),
+    "betabel": (["BEETS, FRESH MARKET, UTILIZED - PRODUCTION, MEASURED IN CWT"], "BEETS"),
+    "kale": (["GREENS, KALE, UTILIZED - PRODUCTION, MEASURED IN CWT"], "GREENS"),   # el de mercado fresco es confidencial (D)
 }
-SOLO_FAO = ["sandia", "melon", "platano", "mango", "pina", "berenjena"]  # sin encuesta estatal de NASS
+SOLO_FAO = ["platano", "mango", "pina", "berenjena"]  # sin encuesta estatal de NASS
+# Comercio de UN Comtrade (EE. UU. reportante) para productos que FAOSTAT no separa
+COMTRADE_EUA = {"col": ["070490"], "kale": ["070490"], "ejote": ["070820"], "espinaca": ["070970"], "apio": ["070940"],
+                "alcachofa": ["070991"], "betabel": ["070690"]}
+COMPARTIDAS_EUA = {"070490": ["col", "kale"]}   # se reparte en proporción a la producción NASS
 NOMBRES = {"arandano": "Berries (arándano y frambuesa)"}
 # Superficie del Censo Agropecuario 2022 usada como llave de reparto por estado
 CENSO = {
@@ -90,6 +112,11 @@ CENSO = {
     "sandia": ["MELONS, WATERMELON, FRESH MARKET - ACRES HARVESTED"],
     "melon": ["MELONS, CANTALOUP, FRESH MARKET - ACRES HARVESTED", "MELONS, HONEYDEW, FRESH MARKET - ACRES HARVESTED"],
     "berenjena": ["EGGPLANT, FRESH MARKET - ACRES HARVESTED"],
+    "elote": ["SWEET CORN, FRESH MARKET - ACRES HARVESTED"], "col": ["CABBAGE, HEAD, FRESH MARKET - ACRES HARVESTED"],
+    "ejote": ["BEANS, SNAP, FRESH MARKET - ACRES HARVESTED"], "espinaca": ["SPINACH, FRESH MARKET - ACRES HARVESTED"],
+    "apio": ["CELERY, FRESH MARKET - ACRES HARVESTED"], "calabaza": ["PUMPKINS, FRESH MARKET - ACRES HARVESTED"],
+    "alcachofa": ["ARTICHOKES, FRESH MARKET - ACRES HARVESTED"], "betabel": ["BEETS, FRESH MARKET - ACRES HARVESTED"],
+    "kale": ["GREENS, KALE, FRESH MARKET - ACRES HARVESTED"],
     # piña: sin llave estatal (la superficie de Hawái es confidencial en el censo y el reparto quedaría sesgado)
 }
 
@@ -133,6 +160,17 @@ NOTAS = {
     "nuez": "Nuez pecanera con cáscara; el comercio de la FAO para nuez no está en este mapa.",
     "naranja": "Solo naranja para consumo en fresco; la mayor parte de la naranja de Florida va a jugo.",
     "manzana": "Solo manzana para consumo en fresco.",
+    "elote": "Elote (maíz dulce) de mercado fresco. Sin comercio: el SA lo agrupa en 070999 ('las demás hortalizas'); el consumo aparente es solo la producción.",
+    "calabaza": "Calabaza madura (pumpkins) de mercado fresco. Sin comercio propio: la subpartida 070993 está asignada a calabacita.",
+    "col": "Comercio estimado: la subpartida 070490 (coles, colinabo, kale) se reparte entre col y kale según la producción NASS (UN Comtrade, reporte de EE. UU.).",
+    "kale": "Producción total (fresco y proceso): NASS reserva la de mercado fresco. Comercio estimado: parte de la subpartida 070490, repartida con la col según la producción NASS (UN Comtrade).",
+    "betabel": "Comercio de la subpartida 070690, que incluye rábano, salsifí y apionabo (UN Comtrade, reporte de EE. UU.).",
+    "ejote": "Ejote (snap beans) de mercado fresco. Comercio: subpartida 070820 (UN Comtrade, reporte de EE. UU.).",
+    "espinaca": "Comercio: subpartida 070970 (UN Comtrade, reporte de EE. UU.).",
+    "apio": "Producción total (fresco y proceso): NASS reserva la de mercado fresco. Comercio: subpartida 070940 (UN Comtrade, reporte de EE. UU.).",
+    "alcachofa": "Comercio: subpartida 070991 (UN Comtrade, reporte de EE. UU.).",
+    "sandia": "Producción de mercado fresco por estado de USDA NASS.",
+    "melon": "Melón chino y gota de miel de mercado fresco (USDA NASS).",
 }
 
 # Estados: clave → (nombre en español, lat, lon del centro de población aproximado)
@@ -169,6 +207,60 @@ def num(v):
         return float(v)
     except ValueError:
         return None  # (D) confidencial, (NA), (Z)…
+
+
+def comtrade_eua(anio, codigos, flujo):
+    """Respuesta anual de UN Comtrade (EE. UU. reportante) para unas subpartidas, con caché."""
+    import time
+    import urllib.request
+    cache = RAIZ / "data" / "fuentes" / "comtrade" / f"eua_A_{anio}_{'_'.join(codigos)}_{flujo}.json"
+    if cache.exists():
+        return json.loads(cache.read_text(encoding="utf-8"))
+    url = (f"https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period={anio}&cmdCode={','.join(codigos)}"
+           f"&flowCode={flujo}&partner2Code=0&customsCode=C00&motCode=0")
+    for intento in range(5):
+        try:
+            d = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=120))
+            if d.get("error"):
+                raise RuntimeError(d["error"])
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(d), encoding="utf-8")
+            time.sleep(2)
+            return d
+        except Exception as e:   # límite de frecuencia de la API pública
+            print(f"  Comtrade {codigos} {flujo}: {e}; reintento")
+            time.sleep(15 * (intento + 1))
+    raise SystemExit(f"No se pudo descargar Comtrade {codigos} {flujo}")
+
+
+def comercio_eua(anio, codigos, f=1.0):
+    """Comercio de EE. UU. en el formato de subnacional_comun.comercio (toneladas y US$, socios principales)."""
+    paises = leer_js("global.js", "GLOBAL")["paises"]
+    iso = lambda c: paises.get(c, {}).get("iso") or c
+
+    def socios(flujo):
+        tot, por = [0.0, 0.0], {}
+        for r in comtrade_eua(anio, codigos, flujo).get("data", []):
+            t = (r.get("netWgt") or (r.get("qty") if (r.get("qtyUnitAbbr") or "").lower() == "kg" else 0) or 0) / 1000 * f
+            usd = (r.get("primaryValue") or 0) / 1000 * f   # miles de US$, como los valores de FAOSTAT
+            c = str(r["partnerCode"]).zfill(3)
+            if c == "000":
+                tot = [tot[0] + t, tot[1] + usd]
+            else:
+                x = por.setdefault(c, [0.0, 0.0])
+                x[0] += t
+                x[1] += usd
+        if not tot[0]:
+            tot = [sum(v[0] for v in por.values()), sum(v[1] for v in por.values())]
+        return tot, sorted(por.items(), key=lambda x: -x[1][0])
+    (imp, iusd), llegan = socios("M")
+    (exp, eusd), salen = socios("X")
+    mx_in, mx_out = dict(llegan).get("484", [0, 0]), dict(salen).get("484", [0, 0])
+    return {"exp": round(exp), "imp": round(imp), "expUSD": round(eusd), "impUSD": round(iusd),
+            "origenes": [[c, iso(c), round(v[0]), round(v[1])] for c, v in llegan[:6]],
+            "destinos": [[c, iso(c), round(v[0]), round(v[1])] for c, v in salen[:6]],
+            "desdeMX": [round(mx_in[0]), round(mx_in[1])], "haciaMX": [round(mx_out[0]), round(mx_out[1])],
+            "fuente": "UN Comtrade (reporte de EE. UU.)"}
 
 
 def leer_js(nombre, variable):
@@ -248,7 +340,18 @@ def main(anio=2025):
             "nacional": round(nacional), "ha": round(ha),
             "regiones": repartir(nacional, publicados, ha_censo.get(clave, {})),
         }
-    destino = escribir_pais(datos, sin_comercio=("coliflor", "nuez"))
+    # Comercio de Comtrade para los productos que FAOSTAT no separa (año del comercio de FAOSTAT, para comparar)
+    anio_c = anio
+    for clave, codigos in COMTRADE_EUA.items():
+        if clave not in datos["productos"]:
+            continue
+        compartida = next((g for g, ks in COMPARTIDAS_EUA.items() if g in codigos), None)
+        f = 1.0
+        if compartida:
+            base = {k: datos["productos"].get(k, {}).get("nacional", 0) for k in COMPARTIDAS_EUA[compartida]}
+            f = base[clave] / (sum(base.values()) or 1)
+        datos["productos"][clave]["comercio"] = comercio_eua(anio_c, codigos, f)
+    destino = escribir_pais(datos, sin_comercio=("coliflor", "nuez", "elote", "calabaza"))
     print(f"→ {destino.name} ({destino.stat().st_size / 1e3:.0f} kB) · población {pob_ref}: {pob_nac:,}")
     resumen(datos)
 
