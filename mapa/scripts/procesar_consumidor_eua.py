@@ -217,7 +217,8 @@ def ficha(fs, anio, nombre=None):
             cada[es] = {"dias": dr, "demanda": [], "volSemana": {}}
     comm, var, size = ref
     kg = kg_de(size)
-    out = {"anio": anio, "mercancia": comm, "presentacion": variedad_es(var), "empaque": size,
+    out = {"anio": anio, "mercancia": comm, "presentacion": variedad_es(var),
+           "presentacionEn": "" if var in (None, "", "N/A") else var.lower(), "empaque": size,
            "kgEmpaque": round(kg, 4) if kg else None, "cruces": {"Nacional": len(dias)}, "dias": dias, "demanda": [],
            "volSemana": {}, "tiendas": [nac[md]["store_count"] or 0 for md in sorted(nac)],
            **({"porCruce": cada} if len(cada) > 1 else {})}

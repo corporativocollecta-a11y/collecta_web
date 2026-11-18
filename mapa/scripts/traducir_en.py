@@ -2045,6 +2045,44 @@ _B = ("@ (US$#/kg, fuera de la temporada de @)", "@ (US$#/kg, outside @ season)"
 for _n in range(1, 5):
     for _comb in _it.product((_A, _B), repeat=_n):
         EXTRA[" · ".join(c[0] for c in _comb) + ". Precio mediano del año: US$#/kg."] = " · ".join(c[1] for c in _comb) + ". Median price of the year: US$#/kg."
+# Noviembre de 2026: botón de Analizar precios, etiqueta de fuente y lista de productos solo con gráfico (si se pintaron en español
+# antes de cambiar a inglés; los gráficos mismos se escriben en inglés en js/graficos.js)
+EXTRA.update({"Analizar precios": "Analyze prices", "USDA AMS": "USDA AMS", "Solo precio en la frontera": "Border price only",
+              "US$# la caja": "US$# per box", "US$# la caja · mixto": "US$# per box · mixed", "Sin producción SIAP": "No SIAP production",
+              "<#% con lluvia fuerte": "<#% with heavy rain"})
+# Noviembre de 2026: notas de datos de las 14 hortalizas que cotiza el USDA (balance, exportar y vista EE. UU.)
+EXTRA.update({'Comercio: fracción # Producción nacional muy pequeña; sin consumo oficial: se usa el consumo aparente.': 'Trade: tariff line # National production is very small; no official consumption: apparent consumption is used.',
+    'Logística (# t movidas entre entidades e importación)': 'Logistics (# t moved between states and imported)',
+    '(referencia) · población # M (CONAPO #)': '(reference) · population # M (CONAPO #)',
+    'Comercio ESTIMADO: la fracción # agrupa @, @, salsifí y apionabo; se reparte entre @ y @ en proporción a la producción SIAP. La exportación supera la producción SIAP: el balance usa el consumo de los hogares (ENIGH #) como referencia.': 'ESTIMATED trade: tariff line # groups @, @, salsify and celeriac; it is split between @ and @ in proportion to SIAP production. Exports exceed SIAP production: the balance uses household consumption (ENIGH #) as the reference.',
+    '@ madura (de castilla y de invierno: kabocha, butternut, spaghetti, bellota); distinta de la @. Sin comercio propio: la fracción # ya está asignada a @ (no se duplica). Sin consumo oficial: se usa el consumo aparente.': 'Mature @ (pumpkin and winter squash: kabocha, butternut, spaghetti, acorn); different from @. No trade of its own: tariff line # is already assigned to @ (not double-counted). No official consumption: apparent consumption is used.',
+    'Embarques semanales que el USDA registra en los cruces con @ (reporte National Shipping Point Trends, # cwt = # t). No cubre todos los pasos.': 'Weekly shipments the USDA records at the crossings with @ (National Shipping Point Trends report, # cwt = # t). It does not cover every crossing.',
+    'Sin fracción arancelaria propia (va en # "las demás @"): la exportación se estima con lo que el USDA registra que cruzó de @. Sin consumo oficial: se usa el consumo aparente.': 'No tariff line of its own (it falls under # "other @"): exports are estimated from what the USDA records crossing from @. No official consumption: apparent consumption is used.',
+    'Comercio ESTIMADO: la fracción # agrupa coles, colinabo y @; se reparte entre col y @ en proporción a la producción SIAP. Consumo de referencia: "col, repollo y otras coles" en las compras de los hogares (ENIGH #).': 'ESTIMATED trade: tariff line # groups cabbages, kohlrabi and @; it is split between cabbage and @ in proportion to SIAP production. Reference consumption: "cabbage and other brassicas" in household purchases (ENIGH #).',
+    'Col mediana': 'Medium cabbage',
+    'Col grande': 'Large cabbage',
+    'Comercio: fracción # Casi toda se exporta: el consumo aparente es casi nulo.': 'Trade: tariff line # Almost all of it is exported: apparent consumption is close to zero.',
+    '@ o @ dulce en fresco (distinto del @). Sin fracción arancelaria propia (va en # "las demás @"): la exportación se estima con lo que el USDA registra que cruzó de @. Consumo de referencia: compras de los hogares (ENIGH #); el consumo aparente es mayor porque incluye @ y esquites fuera del hogar.': 'Fresh @ or sweet @ (different from @). No tariff line of its own (it falls under # "other @"): exports are estimated from what the USDA records crossing from @. Reference consumption: household purchases (ENIGH #); apparent consumption is higher because it includes @ and esquites eaten away from home.',
+    '@ grande': 'Large @',
+    '@ mediano': 'Medium @',
+    '@ redondo': 'Round @',
+    'Comercio: fracción # Sin consumo oficial propio (la ENIGH la agrupa con acelga, verdolaga y quintonil): se usa el consumo aparente.': 'Trade: tariff line # No official consumption of its own (ENIGH groups it with chard, purslane and amaranth greens): apparent consumption is used.',
+    'Comercio ESTIMADO: parte de la fracción # (coles, colinabo y @), repartida con la col en proporción a la producción SIAP. Sin consumo oficial: se usa el consumo aparente.': 'ESTIMATED trade: part of tariff line # (cabbages, kohlrabi and @), split with cabbage in proportion to SIAP production. No official consumption: apparent consumption is used.',
+    'Sin fracción arancelaria propia (va en #) ni registro de cruces del USDA: sin comercio exterior. Sin consumo oficial: se usa el consumo aparente (producción).': 'No tariff line of its own (it falls under #) and no USDA crossing records: no foreign trade. No official consumption: apparent consumption (production) is used.',
+    'Sin comercio propio: la fracción # (puerros y demás aliáceas) es sobre todo @. Sin consumo oficial: se usa el consumo aparente (producción).': 'No trade of its own: tariff line # (leeks and other alliums) is mostly @. No official consumption: apparent consumption (production) is used.',
+    'Comercio: fracción # (frijoles y ejotes frescos). La exportación oficial deja un consumo aparente muy bajo: el balance usa el consumo de los hogares (ENIGH #) como referencia.': 'Trade: tariff line # (fresh beans and green beans). Official exports leave a very low apparent consumption: the balance uses household consumption (ENIGH #) as the reference.',
+    'Comercio: fracción # La exportación oficial supera la producción SIAP, por lo que no hay consumo aparente: como referencia se usa lo que se importa por persona (piso del consumo).': 'Trade: tariff line # Official exports exceed SIAP production, so there is no apparent consumption: imports per person are used as the reference (consumption floor).',
+    '@, @, @, @, @, @, @, @, @, berries, @, @, @, @, @, @, @': '@, @, @, @, @, @, @, @, @, berries, @, @, @, @, @, @, @',
+    'Comercio: subpartida # (UN Comtrade, reporte de @).': 'Trade: subheading # (UN Comtrade, as reported by @).',
+    'Comercio de la subpartida # que incluye @, salsifí y apionabo (UN Comtrade, reporte de @).': 'Trade of subheading #, which includes @, salsify and celeriac (UN Comtrade, as reported by @).',
+    '@ madura (pumpkins) de mercado fresco. Sin comercio propio: la subpartida # está asignada a @.': 'Fresh-market mature @ (pumpkins). No trade of its own: subheading # is assigned to @.',
+    'Comercio estimado: la subpartida # (coles, colinabo, @) se reparte entre col y @ según la producción NASS (UN Comtrade, reporte de @).': 'Estimated trade: subheading # (cabbages, kohlrabi, @) is split between cabbage and @ according to NASS production (UN Comtrade, as reported by @).',
+    'Precio FOB en la frontera (McAllen US$#). En los mercados terminales el producto mexicano se vende #% más barato que en la frontera: flete, merma y margen del mayorista.': "FOB price at the border (McAllen US$#). In terminal markets Mexican product sells #% cheaper than at the border: freight, shrink and the wholesaler's margin.",
+    "@ (@ dulce) de mercado fresco. Sin comercio: el SA lo agrupa en # ('las demás @'); el consumo aparente es solo la producción.": "Fresh-market @ (sweet @). No trade: the HS groups it under # ('other @'); apparent consumption is production only.",
+    'Producción total (fresco y proceso): NASS reserva la de mercado fresco. Comercio estimado: parte de la subpartida # repartida con la col según la producción NASS (UN Comtrade).': 'Total production (fresh and processing): NASS withholds the fresh-market figure. Estimated trade: part of subheading # split with cabbage according to NASS production (UN Comtrade).',
+    '@ (snap beans) de mercado fresco. Comercio: subpartida # (UN Comtrade, reporte de @).': 'Fresh-market @ (snap beans). Trade: subheading # (UN Comtrade, as reported by @).',
+    'Precio FOB en la frontera (Nogales US$#).': 'FOB price at the border (Nogales US$#).',
+    'Producción total (fresco y proceso): NASS reserva la de mercado fresco. Comercio: subpartida # (UN Comtrade, reporte de @).': 'Total production (fresh and processing): NASS withholds the fresh-market figure. Trade: subheading # (UN Comtrade, as reported by @).'})
 # RONDA5-FIN
 for _k, _v in list(EXTRA.items()):
     assert fichas(_k) == fichas(_v), (_k, _v)

@@ -32,6 +32,8 @@
     "Ciruela": "Plum", "Coco": "Coconut", "Ajo": "Garlic", "Ejote": "Green bean", "Chile seco": "Dried chili",
     "Café": "Coffee", "Cacao": "Cocoa", "Café verde (oro)": "Green coffee", "Cacao en grano": "Cocoa beans",
     "Mandarina y clementina": "Mandarin and clementine",
+    // hortalizas que cotiza el USDA (noviembre de 2026)
+    "Alcachofa": "Artichoke", "Apio": "Celery", "Betabel": "Beet", "Calabaza": "Squash", "Cilantro": "Cilantro", "Col (repollo)": "Cabbage", "Col de Bruselas": "Brussels sprouts", "Elote": "Sweet corn", "Espinaca": "Spinach", "Kale": "Kale", "Perejil": "Parsley", "Poro": "Leek", "Rábano": "Radish", "Cebollín": "Green onion", "Col china": "Napa cabbage", "Bok choy": "Bok choy", "Hinojo": "Fennel",
   };
   const MESES_EN = {
     enero: "January", febrero: "February", marzo: "March", abril: "April", mayo: "May", junio: "June", julio: "July",
@@ -123,12 +125,21 @@
   }
   // Una sola reescritura por nodo: se evita el ciclo observador → cambio → observador
   // En una pestaña oculta el navegador no ejecuta requestAnimationFrame: ahí se usa un temporizador
-  const siguienteCuadro = f => document.hidden ? setTimeout(f, 16) : requestAnimationFrame(f);
+  // (algunos navegadores incrustados dicen estar visibles y aun así no dan cuadros: el temporizador corre de respaldo)
+  const siguienteCuadro = f => {
+    let hecho = false;
+    const una = () => { if (!hecho) { hecho = true; f(); } };
+    if (!document.hidden) requestAnimationFrame(una);
+    setTimeout(una, document.hidden ? 16 : 100);
+  };
   let pendiente = new Set(), programado = false;
   const obs = new MutationObserver(ms => {
     if (!activo) return;
     ms.forEach(m => { if (m.type === "characterData") pendiente.add(m.target); m.addedNodes.forEach(n => pendiente.add(n)); });
-    if (!programado) { programado = true; siguienteCuadro(() => { programado = false; const p = pendiente; pendiente = new Set(); obs.disconnect(); p.forEach(traducirNodo); conectar(); }); }
+    if (!programado) { programado = true; siguienteCuadro(() => { programado = false; const p = pendiente; pendiente = new Set(); obs.disconnect();
+      // un nodo que falle no debe dejar el observador desconectado (todo lo que se pinte después quedaría en español)
+      p.forEach(n => { try { traducirNodo(n); } catch (e) { console.warn("Idioma: no se pudo traducir un nodo", e); } });
+      conectar(); }); }
   });
   const conectar = () => obs.observe(document.body, { childList: true, subtree: true, characterData: true });
 

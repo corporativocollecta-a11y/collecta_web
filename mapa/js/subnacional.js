@@ -194,7 +194,7 @@
       ${D().codigo === "US" && window.Graficos?.disponibleOrigen(R.k) ? S("origen_eua", Graficos.origenHTML(R.k), Graficos.origenResumen(R.k), { abierta: true }) : ""}
       ${D().codigo === "US" && window.Graficos?.disponibleEua(R.k) ? S("mayoreo_eua", Graficos.euaHTML(R.k), Graficos.euaResumen(R.k), { abierta: true }) : ""}
       ${D().codigo === "US" && window.Graficos?.disponibleConsumidor(R.k) ? S("consumidor_eua", Graficos.consumidorHTML(R.k), Graficos.consumidorResumen(R.k), { abierta: true }) : ""}
-      ${D().codigo === "US" && window.Graficos?.cadenaHTML(R.k) ? S("cadena_eua", Graficos.cadenaHTML(R.k), "Precio por kg en cada eslabón", { abierta: true }) : ""}
+      ${D().codigo === "US" && window.Graficos?.cadenaHTML(R.k) ? S("cadena_eua", Graficos.cadenaHTML(R.k), Graficos.resumenCadena(), { abierta: true }) : ""}
       ${window.Historia ? S("historia", `<h3>${D().pais} en diez años</h3>${Historia.marca("pais", R.k, { pais: D().m49, titulo: "" })}`, AUTO) : ""}`;
   }
 

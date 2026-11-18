@@ -30,6 +30,10 @@ const VISTAS = [
   "v=latam&p=aguacate", "v=global&p=arandano", "v=global&p=jitomate&t=exportar&mc=124",
   // granos: balanza, USDA, precio internacional e importación; maíz grano en la vista mundial
   "v=mx&p=maiz_amarillo&t=balance", "v=mx&p=maiz_blanco&t=exportar", "v=mx&p=frijol&s=32&t=entidad", "v=global&p=maiz", "v=latam&p=frijol",
+  // gráficos de precio (frontera, mayoreo MX y EE. UU., origen EE. UU., supermercado) y la cadena de precios; apio: frontera mixta
+  "v=us&p=brocoli&t=producto", "v=us&p=jitomate&t=producto", "v=mx&p=apio&t=exportar", "v=us&p=papa&t=producto", "v=mx&p=brocoli&t=producto",
+  // hortalizas de noviembre de 2026: notas de datos propias en balance, entidad y vista EE. UU.
+  "v=mx&p=elote&t=balance", "v=mx&p=col&t=entidad", "v=us&p=calabaza&t=producto",
   ...(RAPIDO ? [] : ["v=us&p=jitomate", "v=br&p=naranja", "v=es&p=jitomate", "v=ca&p=papa", "v=global&p=uva&t=exportar&mc=276"])
 ];
 

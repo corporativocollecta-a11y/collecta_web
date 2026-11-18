@@ -112,13 +112,29 @@ def distrito_eua(d):
     return u
 
 
+REGION_EN = {}   # nombre en español -> nombre del distrito en inglés (para la versión en inglés del mapa)
+
+
 def nombre_region(d):
     if d in REGIONES_ES:
-        return REGIONES_ES[d]
-    t = d.title()
-    for en, es in ESTADOS_ES.items():
-        t = t.replace(en.title(), es)
-    return t.replace(" And ", " y ")
+        es = REGIONES_ES[d]
+    else:
+        es = d.title()
+        for en, nom in ESTADOS_ES.items():
+            es = es.replace(en.title(), nom)
+        es = es.replace(" And ", " y ")
+    REGION_EN.setdefault(es, titulo_en(d))
+    return es
+
+
+def titulo_en(d):
+    t = d.title().replace(" And ", " and ").replace("(Md Pa Va Wv)", "(MD, PA, VA, WV)")
+    for st in sorted(ESTADOS_ES, key=len, reverse=True):   # "Salinas Watsonville California" -> "..., California"
+        cola = " " + st.title()
+        if t.endswith(cola) and len(t) > len(cola) and not t[:-len(cola)].endswith((" and", " Of"))                 and t[:-len(cola)] not in ("Central", "Southern", "Northern", "Eastern", "Western", "South", "North", "East", "West",
+                                           "Southeast", "Southwest", "Northeast", "Northwest", "Upper", "Lower"):
+            return t[:-len(cola)] + "," + cola
+    return t
 
 
 def cotizaciones(anio, comm_a_prod):
@@ -173,7 +189,8 @@ def ficha(cotiz, anio, vol, respaldo, filtro=None, nombre=None):
     out = {"anio": a, "mercancia": NOMBRES.get(comm, comm), "empaque": pk, "presentacion": var.lower(),
            "kgEmpaque": round(kg, 2) if kg else None, "cruces": dict(regiones.most_common()),
            "dias": [d[:4] for d in dias], "demanda": [d[5] for d in dias],
-           "volSemana": semanas_del_anio(total.get(cv, {}), a)}
+           "volSemana": semanas_del_anio(total.get(cv, {}), a),
+           "regionesEn": {rg: REGION_EN.get(rg, rg) for rg in regiones}}
     if nombre:
         out["nombre"] = nombre
     cada = {}
