@@ -430,7 +430,10 @@
       ${window.Granos?.esGrano(k) && Granos.importacionHTML(k) ? S("granos_import", `<h3>Importación: de dónde llega <span class="tag ok">FAOSTAT · USDA</span></h3>${Granos.importacionHTML(k)}`,
         Object.entries(p.origenes ?? {}).filter(([o]) => o !== "Otros").slice(0, 2).map(([o, v]) => `${o} ${pctFino(v)}`).join(" · "), { abierta: true }) : ""}
       ${window.Graficos?.disponible(k) ? S("frontera_diaria", Graficos.fronteraHTML(k), Graficos.fronteraResumen(k), { abierta: true }) : ""}
+      ${window.Graficos?.disponibleOrigen(k) ? S("origen_eua", Graficos.origenHTML(k), Graficos.origenResumen(k)) : ""}
       ${window.Graficos?.disponibleEua(k) ? S("mayoreo_eua", Graficos.euaHTML(k), Graficos.euaResumen(k), { abierta: true }) : ""}
+      ${window.Graficos?.disponibleConsumidor(k) ? S("consumidor_eua", Graficos.consumidorHTML(k), Graficos.consumidorResumen(k)) : ""}
+      ${window.Graficos?.cadenaHTML(k) ? S("cadena_eua", Graficos.cadenaHTML(k), "Precio por kg en cada eslabón", { abierta: true }) : ""}
       ${secUSA.map(([id, h, r]) => S(id, h, r)).join("")}
       ${window.Embarques && !window.Granos?.esGrano(k) ? S("embarques", `<h3>Quién abastece a EE. UU. cada semana <span class="tag ok">USDA</span></h3>${Embarques.marca("oferta", k, "mx")}`, AUTO) : ""}
       ${window.Embarques && !window.Granos?.esGrano(k) ? S("pronostico", `<h3>Pronóstico de 8 semanas en EE. UU. <span class="tag ok">USDA</span></h3>${Embarques.marca("pronostico", k, "mx")}`, AUTO) : ""}

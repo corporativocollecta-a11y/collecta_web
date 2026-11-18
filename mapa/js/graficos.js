@@ -24,7 +24,15 @@
     // Mercados terminales de EE. UU.: un archivo por producto (data/mayoreo_eua_<producto>.js), con series por ciudad y origen
     eua: { id: "eua", datos: () => window.MAYOREO_EUA, moneda: "US$", titulo: "Precio de mayoreo en EE. UU.", tag: "USDA AMS",
       volumen: false, demanda: false, alto: "Alto (mercados)", bajo: "Bajo (mercados)", rango: "Rango entre mercados",
-      archivo: k => `data/mayoreo_eua_${k}.js`, porProducto: true }
+      archivo: k => `data/mayoreo_eua_${k}.js`, porProducto: true },
+    // Precio en origen del producto de EE. UU. (punto de embarque): un archivo por producto, con regiones, volumen y demanda
+    origen: { id: "origen", datos: () => window.ORIGEN_EUA, moneda: "US$", titulo: "Precio en origen de EE. UU.", tag: "USDA AMS",
+      volumen: true, demanda: true, alto: "Máximo", bajo: "Mínimo", rango: "Rango", archivo: k => `data/origen_eua_${k}.js`,
+      porProducto: true, etqVol: "VOLUMEN EMBARCADO · t/semana", verboVol: "que se embarca en EE. UU." },
+    // Precio de oferta en supermercados de EE. UU. (semanal, por región)
+    consumidor: { id: "consumidor", datos: () => window.CONSUMIDOR_EUA, moneda: "US$", titulo: "Precio al consumidor en EE. UU.",
+      tag: "USDA AMS", volumen: false, demanda: false, alto: "Alto (regiones)", bajo: "Bajo (regiones)", rango: "Rango entre regiones",
+      archivo: "data/consumidor_eua.js", semanal: true }
   };
   let F = FUENTES.frontera;   // fuente del bloque que se está pintando
   const usar = fuente => { F = FUENTES[fuente] ?? FUENTES.frontera; };
@@ -67,6 +75,8 @@
       }).join("");
   }
   const tn = () => window.Acceso?.tn?.() ?? "";
+  const presentacionES = t => String(t ?? "").replace(/^per lb$/i, "por libra").replace(/^each$/i, "por pieza").replace(/^per bunch$/i, "por manojo")
+    .replace(/(\d) count/i, "$1 piezas").replace(/ lb bag/i, " lb, bolsa").replace(/ package/i, " paquete").replace(/ bag/i, " bolsa");
   const fd = md => { const [m, d] = md.split("-").map(Number); return `${d} ${MES[m - 1]}`; };
   const n2 = v => v == null ? "—" : v.toFixed(2);
   const ton = v => v == null ? "—" : Math.round(v).toLocaleString("es-MX") + " t";
@@ -111,7 +121,7 @@
     const semI = new Map(semanas.map((s, j) => [s.sem, j]));
     let out;
     if (op.tf === "D") {
-      out = conPrev(dias.map(d => ({ ...d, titulo: "Día " + fd(d.md), u: d.c, vol: vol[d.sem] ?? null, semI: semI.get(d.sem) })));
+      out = conPrev(dias.map(d => ({ ...d, titulo: (F.semanal ? "Semana al " : "Día ") + fd(d.md), u: d.c, vol: vol[d.sem] ?? null, semI: semI.get(d.sem) })));
     } else if (op.tf === "S") {
       out = semanas;
     } else {
@@ -139,7 +149,7 @@
     const dp = a.c / b.c - 1, P = Math.abs(dp) < 0.02 ? 0 : Math.sign(dp);
     if (a.volProm == null || b.volProm == null)
       return `Precio ${P > 0 ? "al alza" : P < 0 ? "a la baja" : "estable"} (${sp(dp)} vs ${cual}); ${sinVol
-        ? "el USDA no reporta el volumen que cruza de México de esta mercancía, así que no hay lectura de precio contra volumen."
+        ? `el USDA no reporta el volumen ${F.verboVol ?? "que cruza de México"} de esta mercancía, así que no hay lectura de precio contra volumen.`
         : "el volumen de este periodo aún no se publica."}`;
     const dv = a.volProm / b.volProm - 1, V = Math.abs(dv) < 0.05 ? 0 : Math.sign(dv);
     const txt = {
@@ -235,8 +245,8 @@
         ${ma ? `<polyline points="${ma}" fill="none" stroke="${AMARILLO}" stroke-width="${modo === "grande" ? 1.6 : 1.3}" stroke-linejoin="round"/>` : ""}
         ${nodos}${etiquetas}
         ${F.volumen ? `<line x1="0" x2="${PW}" y1="${V0}" y2="${V0}" class="g-borde"/>
-        <text x="0" y="${V0 + T.fs + 3}" class="g-eje g-vol-t">VOLUMEN QUE CRUZA · t/semana</text>
-        ${sinVolumen(k) ? `<text x="${PW / 2}" y="${V0 + T.VH / 2 + T.fs}" text-anchor="middle" class="g-eje">El USDA no reporta el volumen que cruza de México de esta mercancía</text>` : ""}
+        <text x="0" y="${V0 + T.fs + 3}" class="g-eje g-vol-t">${F.etqVol ?? "VOLUMEN QUE CRUZA · t/semana"}</text>
+        ${sinVolumen(k) ? `<text x="${PW / 2}" y="${V0 + T.VH / 2 + T.fs}" text-anchor="middle" class="g-eje">El USDA no reporta el volumen ${F.verboVol ?? "que cruza de México"} de esta mercancía</text>` : ""}
         ${modo === "grande" ? `<text x="${PW + 6}" y="${V0 + T.fs + 3}" class="g-eje">${ton(vmax === 1 ? null : vmax)}</text>` : ""}
         ${vol}` : ""}
         ${F.demanda ? `<text x="0" y="${D0 - 4}" class="g-eje g-vol-t">DEMANDA · CALIFICACIÓN USDA</text>
@@ -253,17 +263,19 @@
 
   // ---------- Bloque completo ----------
   function vista(k, modo, iSel) {
+    if (F.semanal && op.tf === "D") op.tf = "S";   // supermercado: semanal (si otro gráfico quedó en diario)
     const S = serie(k), { p, v } = S, N = v.length, i = iSel != null && iSel < N ? iSel : N - 1, h = v[i], L = v[N - 1];
     const grande = modo === "grande", A = anioDe(k);
     const todos = S.dias.map(d => d.c), prom = todos.reduce((a, b) => a + b, 0) / todos.length;
-    const mayoreo = F.id === "mayoreo", eua = F.id === "eua";
-    const unidad = mayoreo ? "$/kg" : usaKg(k) ? "US$/kg" : "US$/caja";
+    const mayoreo = F.id === "mayoreo", eua = F.id === "eua", origenEU = F.id === "origen", cons = F.id === "consumidor";
+    const unidad = mayoreo ? "$/kg" : usaKg(k) ? "US$/kg" : cons ? "US$ " + presentacionES(p.empaque) : "US$/caja";
     const cruces = Object.keys(p.cruces ?? {}).map(c => NOMBRE_CRUCE[c] ?? c);
     const btn = (accion, on, txt, extra = "") => `<button type="button" class="gfr-btn${on ? " on" : ""}" data-gfr-accion="${accion}" aria-pressed="${on}"${extra}>${txt}</button>`;
     const stats = [
-      [op.tf === "D" ? "Precio del día" : "Precio promedio", n2(h.c)], [F.alto, n2(h.h)], [F.bajo, n2(h.l)], ["Último día", n2(h.u)],
+      [op.tf === "D" ? "Precio del día" : "Precio promedio", n2(h.c)], [F.alto, n2(h.h)], [F.bajo, n2(h.l)], [F.semanal ? "Última semana" : "Último día", n2(h.u)],
       ["Cambio", h.prev != null ? sp(h.c / h.prev - 1) : "—", h.prev != null ? (sube(h) ? UP : DN) : null],
       mayoreo ? ["Centrales", String(p.centrales ?? "—")] : eua ? ["Mercados", String(Object.keys(p.cruces ?? {}).length)]
+        : cons ? ["Tiendas con oferta", p.tiendas?.at(-1)?.toLocaleString("es-MX") ?? "—"]
         : [op.tf === "M" ? "Volumen mes" : "Volumen semana", ton(h.vol)]
     ];
     if (grande) stats.push([`Promedio ${A}`, n2(prom)], [`Rango ${A}`, `${n2(Math.min(...todos))}–${n2(Math.max(...todos))}`]);
@@ -274,9 +286,9 @@
     const pcs = !p.origenSel && variedadDe(k)?.porCruce, pos = variedadDe(k)?.porOrigen, origen = p.origenSel ?? p.origenBase;
     const selOrigen = eua && pos ? `<label class="gfr-variedad"><span>Origen</span><select data-gfr-origen="${k}"><option value="">${variedadDe(k).origenBase}</option>${Object.keys(pos).map(o =>
       `<option value="${o}"${o === p.origenSel ? " selected" : ""}>${o}</option>`).join("")}</select></label>` : "";
-    const selCruce = pcs ? `<label class="gfr-variedad"><span>${eua ? "Ciudad" : "Cruce"}</span><select data-gfr-cruce="${k}"><option value="">Todos</option>${Object.keys(pcs).map(c =>
+    const selCruce = pcs ? `<label class="gfr-variedad"><span>${eua ? "Ciudad" : origenEU || cons ? "Región" : "Cruce"}</span><select data-gfr-cruce="${k}"><option value="">Todos</option>${Object.keys(pcs).map(c =>
       `<option value="${c}"${c === p.cruceSel ? " selected" : ""}>${c}</option>`).join("")}</select></label>` : "";
-    const kgTxt = mayoreo ? "" : p.kgEmpaque ? ` (${p.kgEmpaque} kg)` : " (la caja no trae peso: solo US$ por caja)";
+    const kgTxt = mayoreo || cons ? "" : p.kgEmpaque ? ` (${p.kgEmpaque} kg)` : " (la caja no trae peso: solo US$ por caja)";
     // Demanda del día o promedio del periodo, y lectura de precio contra volumen (en la vista diaria, de su semana)
     const dn = nivel(h.dem), sem = S.semanas;
     const lect = op.tf === "D"
@@ -286,11 +298,15 @@
       <div class="gfr-cab">
         <div class="gfr-id">
           <span class="gfr-ticker">${mayoreo ? `<b>${ticker(k)} · MAYOREO MX</b> ${p.centrales} CENTRALES DE ABASTO · SNIIM`
+            : origenEU ? `<b>${ticker(k)} · ORIGEN EE. UU.</b> FOB ${(p.cruceSel ?? (Object.keys(p.cruces ?? {}).length + " REGIONES PRODUCTORAS")).toUpperCase()}`
+            : cons ? `<b>${ticker(k)} · SUPERMERCADO EE. UU.</b> ${(p.cruceSel ?? "Nacional").toUpperCase()} · PRECIO DE OFERTA`
             : eua ? `<b>${ticker(k)} · MAYOREO EE. UU.</b> ORIGEN ${origen.toUpperCase()} · ${p.cruceSel ? p.cruceSel.toUpperCase() : Object.keys(p.cruces ?? {}).length + " MERCADOS TERMINALES"}`
             : p.mixto ? `<b>${ticker(k)} · MIXTO</b> ${Object.keys(p.cruces)[0].replace(" (mixto)", "").toUpperCase()} · MÉXICO Y EE. UU.`
             : `<b>${ticker(k)} · MX→US</b> FOB ${(cruces.length === 1 ? cruces[0] : cruces.join(" · ")).toUpperCase()}`}</span>
           ${grande ? `<div class="gfr-nombre"><span>${nombre}</span><small>${mayoreo ? "Precio frecuente por kg · calidad primera · SNIIM, Secretaría de Economía"
             : eua ? `<span${tn()}>${window.Paleta.usdaES(p.empaque)}</span>${kgTxt} · origen ${origen} · USDA AMS, mercados terminales`
+            : origenEU ? `<span${tn()}>${window.Paleta.usdaES(p.empaque)}</span>${kgTxt} · producto de EE. UU. · USDA AMS, punto de embarque`
+            : cons ? `${presentacionES(p.empaque)}${p.presentacion ? " · " + p.presentacion : ""} · ofertas de supermercado · USDA AMS`
             : `<span${tn()}>${window.Paleta.usdaES(p.empaque)}</span>${kgTxt} · convencional · USDA AMS`}</small></div>` : ""}
         </div>
         <div class="gfr-precio">
@@ -299,10 +315,10 @@
         </div>
       </div>
       <div class="gfr-controles">
-        <div class="gfr-grupo" role="group" aria-label="Periodo">${[["D", "1D", "Diario"], ["S", "1S", "Semanal"], ["M", "1M", "Mensual"]].map(([t, l, ti]) => btn("tf:" + t, op.tf === t, l, ` title="${ti}"`)).join("")}</div>
+        <div class="gfr-grupo" role="group" aria-label="Periodo">${[["D", "1D", "Diario"], ["S", "1S", "Semanal"], ["M", "1M", "Mensual"]].filter(([t]) => !(F.semanal && t === "D")).map(([t, l, ti]) => btn("tf:" + t, op.tf === t, l, ` title="${ti}"`)).join("")}</div>
         ${btn("rango", op.rango, `<svg width="15" height="9" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 3 L6 1 L10 4 L15 2 L15 8 L10 9 L6 7 L1 8 Z" fill="${AZUL}" fill-opacity=".4"/></svg>Rango`, ' data-suelto="1"')}
         ${selVariedad}${selOrigen}${selCruce}
-        ${p.kgEmpaque ? `<div class="gfr-grupo" role="group" aria-label="Unidad">${btn("unidad:caja", !usaKg(k), grande ? "US$/caja" : "Caja")}${btn("unidad:kg", usaKg(k), grande ? "US$/kg" : "Kg")}</div>` : ""}
+        ${p.kgEmpaque ? `<div class="gfr-grupo" role="group" aria-label="Unidad">${btn("unidad:caja", !usaKg(k), cons ? presentacionES(p.empaque) : grande ? "US$/caja" : "Caja")}${btn("unidad:kg", usaKg(k), grande ? "US$/kg" : "Kg")}</div>` : ""}
         ${btn("ma", op.ma, `<svg width="15" height="9" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 8 C5 8 6 2 9 3 S13 6 15 2" fill="none" stroke="${AMARILLO}" stroke-width="1.8" stroke-linecap="round"/></svg>Media`, ' data-suelto="1"')}
         ${btn("comparar", false, `<svg width="14" height="12" viewBox="0 0 24 20" aria-hidden="true"><path d="M2 15l6-6 4 3 5-7 5 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11l6 1.5 4-3.5 5 2.5 5-3" fill="none" stroke="${DN}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Comparar`, ' data-suelto="1" aria-label="Comparar con otros productos" title="Comparar con otros productos (Analizar precios)"')}
         ${grande ? "" : btn("ampliar", false, `<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Ampliar`, ' data-suelto="1" aria-label="Ampliar el gráfico"')}
@@ -332,6 +348,11 @@
         Línea: mediana de las cotizaciones del día (todas las centrales y orígenes) o promedio de la semana o del mes; etiquetas en el más alto, el más bajo y el último.
         Rango entre centrales: percentiles 10 y 90 de las cotizaciones del día (qué tan distinto se vende en cada central). Se descartan cotizaciones fuera de 1/3–3× la mediana del año.
         El SNIIM no publica volumen ni demanda. Media móvil de ${TXT_MA[op.tf]}. Fuente: SNIIM, Secretaría de Economía.</p>`
+      : origenEU ? `<p class="gfr-nota">Precio FOB en el punto de embarque del producto de EE. UU. (${p.cruceSel ?? Object.keys(p.cruces ?? {}).slice(0, 4).join(", ")}): <span${tn()}>${window.Paleta.usdaES(p.mercancia)}, ${window.Paleta.usdaES(p.empaque)}</span>${kgTxt}, sin orgánicos, del 1 de enero al ${fd(S.dias.at(-1).md)} de ${A}. Es la competencia directa del producto mexicano al mismo nivel que el precio en la frontera.
+        Línea: mediana de las cotizaciones del día de todas las regiones (o de la elegida) o promedio de la semana o del mes. Rango: bajo–alto del USDA. Volumen: toneladas embarcadas por semana de las regiones de EE. UU. (reporte 1662); verde si el precio subió, naranja si bajó.
+        Demanda: la calificación del reportero del USDA en el punto de embarque. Se excluyen los cruces de México y Canadá y los puertos de importación. Media móvil de ${TXT_MA[op.tf]}. Fuente: USDA AMS Market News.</p>`
+      : cons ? `<p class="gfr-nota">Precio promedio de los anuncios de oferta de la semana en supermercados de EE. UU. (${p.cruceSel ?? "nacional"}), ponderado por número de tiendas: ${presentacionES(p.empaque)}${p.presentacion ? ", " + p.presentacion : ""}, convencional, hasta la semana al ${fd(S.dias.at(-1).md)} de ${A}.
+        Es el precio de promoción, no el de anaquel de todos los días: sirve para seguir el nivel y las ofertas. Rango: precio más bajo y más alto entre las seis regiones. ${p.kgEmpaque ? "US$/kg con el peso de la presentación." : "Se vende por pieza o manojo: sin equivalente en kg."} Media móvil de ${TXT_MA[op.tf]}. Fuente: USDA AMS, Weekly Grocery Store Specialty Crops Feature Activity.</p>`
       : eua ? `<p class="gfr-nota">Precio de mayoreo en los mercados terminales de EE. UU. (${p.cruceSel ?? Object.keys(p.cruces ?? {}).join(", ")}), origen ${origen}: <span${tn()}>${window.Paleta.usdaES(p.mercancia)}, ${window.Paleta.usdaES(p.empaque)}</span>${kgTxt}, sin orgánicos, del 1 de enero al ${fd(S.dias.at(-1).md)} de ${A}.
         Línea: mediana de las cotizaciones del día (mercados, tamaños y variedades del mismo empaque) o promedio de la semana o del mes. Rango entre mercados: percentiles 10 y 90 de las cotizaciones del día.
         Con el selector de origen se ve el mismo empaque de EE. UU., de otros países o de todos los orígenes: la diferencia con el mexicano es lo que paga el mercado por el origen. Los mercados terminales no publican volumen ni demanda por cotización. Media móvil de ${TXT_MA[op.tf]}. Fuente: USDA AMS Market News.</p>`
@@ -356,13 +377,98 @@
     if (!cargado(k)) return "Cargando la serie diaria…";
     if (!disponible(k)) return "";
     const p = ficha(k), f = usaKg(k) ? 1 / p.kgEmpaque : 1, c = p.dias.map(d => d[1] * f), M = F.moneda;
-    const u = F.id === "mayoreo" ? "el kg" : usaKg(k) ? "el kg" : "la caja";
+    const u = F.id === "mayoreo" ? "el kg" : usaKg(k) ? "el kg" : F.id === "consumidor" ? presentacionES(p.empaque) : "la caja";
     const pre = F.id === "eua" ? `Origen ${p.origenSel ?? p.origenBase}${p.cruceSel ? " · " + p.cruceSel : ""} · ` : "";
     return `${pre}${p.mixto ? "Precio mixto (México y EE. UU.) · " : ""}${p.nombre ? p.nombre + ": " : ""}Último ${M}${n2(c.at(-1))} ${u} · promedio ${anioDe(k)} ${M}${n2(c.reduce((a, b) => a + b, 0) / c.length)} · de ${M}${n2(Math.min(...c))} a ${M}${n2(Math.max(...c))}`;
   }
   const fronteraHTML = k => html("frontera", k), fronteraResumen = k => resumen("frontera", k);
   const mayoreoHTML = k => html("mayoreo", k), mayoreoResumen = k => resumen("mayoreo", k);
   const euaHTML = k => html("eua", k), euaResumen = k => resumen("eua", k);
+  const origenHTML = k => html("origen", k), origenResumen = k => resumen("origen", k);
+  const consumidorHTML = k => html("consumidor", k), consumidorResumen = k => resumen("consumidor", k);
+  const disponibleOrigen = k => window.ORIGEN_EUA?.productos?.[k] ? disponible_(FUENTES.origen, k) : !!window.ORIGEN_EUA_INDICE?.productos?.includes(k);
+  // El consumidor es un solo archivo diferido: antes de bajarlo, la lista de productos del índice que viene en el panel de la cadena
+  const disponibleConsumidor = k => window.CONSUMIDOR_EUA ? disponible_(FUENTES.consumidor, k) : !!window.CONSUMIDOR_EUA_PRODUCTOS?.includes(k);
+
+  // ---------- De la granja al supermercado en EE. UU. (US$/kg) ----------
+  // Promedio de las últimas 8 semanas de cada eslabón diario, en US$/kg (solo si el empaque trae peso); productor: NASS anual
+  function promedioKg(base, semanas = 8) {
+    if (!base?.dias?.length || !base.kgEmpaque) return null;
+    const t = md => { const [m, d] = md.split("-").map(Number); return Date.UTC(base.anio, m - 1, d); };
+    const corte = t(base.dias.at(-1)[0]) - semanas * 7 * 864e5;
+    const v = base.dias.filter(x => t(x[0]) > corte).map(x => x[1] / base.kgEmpaque);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }
+  // Variedad de cada eslabón: la misma que la de la frontera cuando el eslabón la cotiza (si no, la principal del eslabón)
+  function principalDe(datos, k, nombre) {
+    const p = datos?.productos?.[k];
+    if (!p) return null;
+    return (nombre && p.variantes?.find(v => v.nombre === nombre)) ?? p.variantes?.[p.varOmision ?? 0] ?? p;
+  }
+  // Variedades del USDA que llegan en inglés en los reportes de embarque y mercados
+  const VAR_ES = { yellow: "amarilla", red: "roja", white: "blanca", green: "verde", "crown cut": "corona", "mature greens": "verde maduro",
+    roma: "saladette (roma)", "round green type": "redonda verde", "flat type": "hoja lisa", seedless: "sin semilla" };
+  const etqVar = b => b ? (b.nombre ?? (b.presentacion && b.presentacion !== "n/a" ? (VAR_ES[b.presentacion] ?? b.presentacion) : "")) : "";
+  function cadenaDatos(k) {
+    const pr = window.PRODUCTOR_EUA?.productos?.[k];
+    const fr = principalDe(window.FRONTERA_DIARIA, k), nom = fr?.nombre;
+    const og = principalDe(window.ORIGEN_EUA, k, nom), my = principalDe(window.MAYOREO_EUA, k, nom), cs = principalDe(window.CONSUMIDOR_EUA, k, nom);
+    const v = b => etqVar(b) ? etqVar(b) + ", " : "";
+    const mixto = !!window.FRONTERA_DIARIA?.productos?.[k]?.mixto;
+    const myMx = !my || my.origenBase === "México";
+    const eslabones = [
+      ["Agricultor de EE. UU.", pr ? pr.precio : null, pr ? `precio recibido, NASS ${pr.anio} (año comercial)` : "NASS no lo publica", "#6FA3CF"],
+      ["Origen EE. UU. (FOB)", promedioKg(og), v(og) + "punto de embarque, últimas 8 semanas", "#4CC3FF"],
+      mixto ? ["Frontera (precio mixto)", promedioKg(fr), v(fr) + "el USDA lo cotiza junto con producción de EE. UU., últimas 8 semanas", UP]
+        : ["Frontera México (FOB)", promedioKg(fr), v(fr) + "producto mexicano al cruzar, últimas 8 semanas", UP],
+      ["Mayoreo EE. UU.", promedioKg(my), v(my) + (myMx ? "producto mexicano" : "todos los orígenes (llega poco producto mexicano)") + " en mercados terminales, últimas 8 semanas", AMARILLO],
+      ["Supermercado (oferta)", promedioKg(cs), v(cs) + "precio de oferta, últimas 8 semanas", DN]
+    ];
+    eslabones.mixto = mixto;
+    return eslabones;
+  }
+  function cadenaHTML(k) {
+    if (!window.PRODUCTOR_EUA?.productos?.[k] && !window.ORIGEN_EUA_INDICE?.productos?.includes(k) && !window.FRONTERA_DIARIA?.productos?.[k]) return "";
+    return `<h3>De la granja al supermercado en EE. UU. <span class="tag ok">USDA</span></h3><div class="gfr-cadena" data-cadena="${k}"><p class="gfr-nota">Cargando los precios…</p></div>`;
+  }
+  function pintarCadena(el) {
+    const k = el.dataset.cadena, e = cadenaDatos(k), max = Math.max(...e.map(x => x[1] ?? 0));
+    const sup = e[4][1], fr = e.mixto ? null : e[2][1];
+    const filas = e.map(([n, v, nota, col]) => `<div class="gfr-cad-fila"><span class="n">${n}<small>${nota}</small></span>
+      <span class="b">${v != null ? `<i style="width:${(v / max * 100).toFixed(1)}%;background:${col}"></i>` : ""}</span>
+      <span class="x">${v != null ? "US$" + v.toFixed(2) : "—"}</span></div>`).join("");
+    const caroMayoreo = sup && Math.max(fr ?? 0, e[3][1] ?? 0) >= sup * 0.9;   // con frontera mixta solo cuenta el mayoreo
+    const lectura = caroMayoreo ? `<div class="nota">En estas semanas el precio de oferta del supermercado (US$${sup.toFixed(2)}/kg) está por debajo o casi al nivel del precio ${(fr ?? 0) >= sup * 0.9 ? "en la frontera" : "de mayoreo"}: son promociones con margen mínimo o con pérdida (el supermercado las usa para atraer clientes), así que no reflejan el precio de anaquel de todos los días. Compara los precios por kg con cautela.</div>`
+      : sup && fr ? `<div class="nota">El producto mexicano en la frontera vale <b>${Math.round(fr / sup * 100)}%</b> del precio de oferta en el supermercado: de cada dólar que paga el consumidor estadounidense, ${Math.round(fr / sup * 100)} centavos corresponden al precio FOB en el cruce (que incluye empaque y flete hasta la frontera); el resto es flete en EE. UU., mayoreo, merma y margen del supermercado.</div>`
+      : e.mixto ? `<div class="nota">El USDA cotiza este producto en la frontera junto con producción de EE. UU. (distritos mixtos), así que no se puede separar el precio del producto mexicano ni calcular qué parte del precio al consumidor le corresponde.</div>`
+      : `<div class="nota">Sin el precio en kg de todos los eslabones no se puede calcular cuánto del precio al consumidor llega a la frontera${e[4][1] == null && window.CONSUMIDOR_EUA?.productos?.[k] ? " (en el supermercado se vende por pieza o manojo)" : ""}.</div>`;
+    const conPrecio = e.filter(x => x[1] != null).length;
+    if (conPrecio < 2) {   // sin dos eslabones en kg no hay cadena que comparar (empaques sin peso, sin cotización)
+      el.innerHTML = `<p class="gfr-nota">No hay suficientes precios por kg para comparar la cadena de este producto: en la mayoría de los eslabones se vende por pieza o manojo, en cajas sin peso declarado, o el USDA no lo cotiza.</p>`;
+      const r0 = el.closest("details.seccion")?.querySelector("summary .sec-resumen");
+      if (r0) r0.textContent = "Sin suficientes precios por kg";
+      return;
+    }
+    el.innerHTML = `<div class="gfr-cad">${filas}</div>${lectura}
+      <p class="sub">US$/kg. Agricultor: precio recibido promedio nacional de mercado fresco (USDA NASS). Origen EE. UU., frontera y mayoreo: promedio de las últimas 8 semanas del empaque de referencia, misma variedad que en la frontera cuando se cotiza (USDA AMS). Supermercado: promedio de las ofertas de las últimas 8 semanas (USDA AMS). Los empaques que no traen peso no se convierten a kg.</p>`;
+    const r = el.closest("details.seccion")?.querySelector("summary .sec-resumen");
+    if (r) r.textContent = caroMayoreo ? "Las ofertas del supermercado están al nivel del mayoreo" : e.mixto ? "Precio por kg en cada eslabón (frontera mixta)" : sup && fr ? `En la frontera vale ${Math.round(fr / sup * 100)}% del precio al consumidor` : "Precio por kg en cada eslabón";
+  }
+  function llenarCadena(el) {
+    if (el.dataset.esperando) return;
+    el.dataset.esperando = "1";
+    const k = el.dataset.cadena, cargas = [];
+    if (window.ORIGEN_EUA_INDICE?.productos?.includes(k)) cargas.push(window.Paleta.cargar(FUENTES.origen.archivo(k), () => !!window.ORIGEN_EUA?.productos?.[k]).catch(() => {}));
+    if (window.MAYOREO_EUA_INDICE?.productos?.includes(k)) cargas.push(window.Paleta.cargar(FUENTES.eua.archivo(k), () => !!window.MAYOREO_EUA?.productos?.[k]).catch(() => {}));
+    cargas.push(window.Paleta.cargar(FUENTES.consumidor.archivo, () => !!window.CONSUMIDOR_EUA).catch(() => {}));
+    const bajar = () => Promise.all(cargas).then(() => pintarCadena(el));
+    window.Seccion ? window.Seccion.alAbrir(el, bajar) : bajar();
+  }
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+    if (n.nodeType !== 1) return;
+    if (n.matches?.("[data-cadena]")) llenarCadena(n);
+    n.querySelectorAll?.("[data-cadena]").forEach(llenarCadena);
+  }))).observe(document.body, { childList: true, subtree: true });
   // Antes de bajar el archivo del producto se sabe si el USDA lo cotiza en los mercados por data/precios_eua.js (2025)
   const disponibleEua = k => window.MAYOREO_EUA?.productos?.[k] ? disponible_(FUENTES.eua, k) : !!window.MAYOREO_EUA_INDICE?.productos?.includes(k);
   const disponible_ = (f, k) => !!f.datos()?.productos?.[k]?.dias?.length;
@@ -492,5 +598,6 @@
     if (b) abrir(b.dataset.gfrSolo, "frontera");
   });
   window.Graficos = { disponible: k => (usar("frontera"), disponible(k)), fronteraHTML, fronteraResumen, listaSoloPrecioHTML,
-    disponibleMayoreo, mayoreoHTML, mayoreoResumen, disponibleEua, euaHTML, euaResumen, abrir };
+    disponibleMayoreo, mayoreoHTML, mayoreoResumen, disponibleEua, euaHTML, euaResumen,
+    disponibleOrigen, origenHTML, origenResumen, disponibleConsumidor, consumidorHTML, consumidorResumen, cadenaHTML, abrir };
 })();

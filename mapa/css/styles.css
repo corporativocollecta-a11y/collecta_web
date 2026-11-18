@@ -1001,3 +1001,12 @@ body.analizando { overflow: hidden; }
 .an-h-ley-ok { background: var(--an-1); }
 .an-h-ley-tenue { background: color-mix(in oklab, var(--an-1) 30%, var(--an-neutro)); }
 .an-h-ley-vacia { border: 1px dashed var(--linea); }
+
+/* De la granja al supermercado en EE. UU. (js/graficos.js, cadenaHTML) */
+.gfr-cad { display: grid; gap: 8px; margin: 6px 0 10px; }
+.gfr-cad-fila { display: grid; grid-template-columns: minmax(130px, 38%) 1fr 64px; align-items: center; gap: 10px; font-size: 13px; }
+.gfr-cad-fila .n { display: flex; flex-direction: column; line-height: 1.25; }
+.gfr-cad-fila .n small { color: var(--texto-2, #8a8f98); font-size: 11px; }
+.gfr-cad-fila .b { height: 12px; background: color-mix(in srgb, currentColor 8%, transparent); border-radius: 6px; overflow: hidden; }
+.gfr-cad-fila .b i { display: block; height: 100%; border-radius: 6px; }
+.gfr-cad-fila .x { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }

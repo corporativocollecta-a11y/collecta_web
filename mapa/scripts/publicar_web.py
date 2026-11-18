@@ -33,7 +33,8 @@ NOINDEX = '<meta name="robots" content="noindex, nofollow">'
 # actualizacion-semanal.yml de collecta_web); todos llevan "generado"
 AUTOMATICOS = ("clima_smn.js", "embarques.js", "pronostico.js", "alerta_oferta.js", "origen_exportacion.js",
                "neto_semanal.js", "pronostico_sniim.js", "alertas_precio.js", "sequia.js", "precios_canada.js",
-               "balanzas_siap.js", "psd_granos.js", "precios_granos.js", "sniim_granos_historia.js", "frontera_diaria.js", "mayoreo_diario.js")
+               "balanzas_siap.js", "psd_granos.js", "precios_granos.js", "sniim_granos_historia.js", "frontera_diaria.js", "mayoreo_diario.js",
+               "origen_eua_indice.js", "consumidor_eua.js", "consumidor_eua_indice.js")
 # Copia del proyecto en el sitio (collecta_web/mapa/) para que GitHub Actions corra la actualización semanal; sin
 # data/fuentes (descargas crudas, van en la caché de Actions) ni .env (la clave del USDA va como secreto)
 ESPEJO = SITIO / "mapa"
@@ -56,7 +57,7 @@ def main():
     # Lo que generan las actualizaciones automáticas en GitHub (clima diario y actualización semanal): si la copia del
     # sitio es más reciente, se trae al proyecto antes de copiar
     traidos = []
-    por_producto = sorted({f.name for f in (DESTINO / "data").glob("mayoreo_eua_*.js")})   # un archivo por producto
+    por_producto = sorted({f.name for f in (DESTINO / "data").glob("mayoreo_eua_*.js")} | {f.name for f in (DESTINO / "data").glob("origen_eua_*.js")})   # un archivo por producto
     for nombre in ([] if SIN_TRAER else [*AUTOMATICOS, *por_producto]):
         sitio, local = DESTINO / "data" / nombre, RAIZ / "data" / nombre
         if nombre in por_producto and not local.exists():

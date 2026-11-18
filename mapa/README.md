@@ -236,6 +236,31 @@ que baja los 11 mercados solo del año anterior y el en curso).
   origen) y **Ciudad** (cada mercado con al menos 20 días). Variedades como en la frontera. Sin volumen ni demanda.
 - 44 productos en 2026 (41 del catálogo más cebollín, bok choy e hinojo).
 
+### Cadena de precios dentro de EE. UU. (noviembre 2026)
+
+Tres secciones nuevas (vista México → Exportar; EE. UU. → Producto), con el mismo diseño de gráfico:
+
+- **Precio en origen de EE. UU.** (`python scripts/procesar_origen_eua_diario.py` → `data/origen_eua_<producto>.js`,
+  diferido, más `data/origen_eua_indice.js`): FOB en el punto de embarque del producto estadounidense, la competencia
+  al mismo nivel que la frontera. Phoenix, Fresno y los puntos de embarque de EE. UU. (`EMBARQUE_EUA` en
+  `descargar_historia_ams.py`); se excluyen cruces de México y Canadá y puertos de importación. Selector **Región**,
+  volumen embarcado (1662, distritos de EE. UU.) y demanda. 40 productos.
+- **Precio al consumidor en EE. UU.** (`python scripts/procesar_consumidor_eua.py` → `data/consumidor_eua.js`, diferido,
+  más `data/consumidor_eua_indice.js`): precio promedio de oferta en supermercados (USDA AMS, reporte 3324), semanal,
+  nacional y por región; la presentación con más tiendas (o una con peso si tiene al menos la mitad de tiendas). Las
+  filas de invernadero y campo abierto de la misma semana se juntan ponderadas por tiendas. Variedades como en la
+  frontera (jitomate, calabacita, calabaza, limón). De enero a marzo, respaldo con el año anterior. Son precios de
+  promoción, no de anaquel. 47 productos.
+- **De la granja al supermercado en EE. UU.** (US$/kg): agricultor (NASS, precio recibido de mercado fresco, año
+  comercial; `python scripts/procesar_productor_eua.py` → `data/productor_eua.js`, anual, no corre en la semanal porque
+  necesita el TSV de NASS), origen EE. UU., frontera México, mayoreo (producto mexicano) y supermercado, promedio de las
+  últimas 8 semanas. Cada eslabón usa la variedad de la frontera si la cotiza. Los empaques sin peso (pieza, manojo) no
+  se convierten. Si la oferta del supermercado queda al nivel del mayoreo o la frontera, se avisa en vez de calcular
+  "de cada dólar…".
+  Frontera mixta (apio, espinaca, kale…) y mayoreo de todos los orígenes (manzana, papa…) se etiquetan así y la
+  frontera mixta no entra al cálculo. Origen EE. UU.: "Southern New Mexico" sí cuenta (es un estado de EE. UU.); los
+  distritos se normalizan para cruzar precios con el volumen del 1662 y se nombran en español.
+
 ### Precio de mayoreo en México, mismo diseño (noviembre 2026)
 
 Sección *Precio de mayoreo en México* (vista México → Producto, después de *Precios*) y su vista ampliada: el mismo

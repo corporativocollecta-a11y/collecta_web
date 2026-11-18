@@ -28,6 +28,10 @@ REPORTES = [1662, 2402, 2403, 2306, 2307, 2290, 2291, 2314, 2315, 2390, 2391]
 # anterior y en curso).
 from descargar_ams import TERMINALES  # noqa: E402
 REPORTES += [s for t in TERMINALES.values() for s in t if s not in REPORTES]
+# Puntos de embarque de EE. UU. (precio en origen del producto estadounidense, scripts/procesar_origen_eua_diario.py):
+# Benton Harbor, Columbia, Idaho Falls, Inwood, Miami, Orlando, Raleigh, Thomasville y Yakima (frutas y hortalizas)
+EMBARQUE_EUA = [2386, 2387, 2389, 2392, 2393, 2394, 2395, 2396, 2399, 2400, 2404, 2405, 2410, 2411, 2412, 2413]
+REPORTES += EMBARQUE_EUA
 
 
 def main(desde=2019, hasta=None):
@@ -45,7 +49,7 @@ def main(desde=2019, hasta=None):
                 filas = json.load(fh)
             if filas and "demand_tone_comments" not in filas[0]:
                 f.unlink()
-    solo_recientes = {s for t in TERMINALES.values() for s in t} - {2306, 2307, 2290, 2291, 2314, 2315}
+    solo_recientes = ({s for t in TERMINALES.values() for s in t} - {2306, 2307, 2290, 2291, 2314, 2315}) | set(EMBARQUE_EUA)
     tareas = [(s, a, m) for a in range(desde, hasta + 1) for s in REPORTES for m in range(1, 13)
               if (a, m) <= (hoy.year, hoy.month) and (s not in solo_recientes or a >= hoy.year - 1)]
     errores = 0
