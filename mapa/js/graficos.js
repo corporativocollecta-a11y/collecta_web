@@ -520,6 +520,14 @@
     const v = base.dias.filter(x => t(x[0]) > corte).map(x => x[1] / base.kgEmpaque);
     return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
   }
+  // Promedio en US$/kg de los meses dados ("AAAA-MM"): para comparar con el anaquel del BLS en el mismo periodo
+  function promedioKgMeses(base, meses) {
+    if (!base?.dias?.length || !base.kgEmpaque) return null;
+    const v = base.dias.filter(x => meses.includes(`${base.anio}-${x[0].slice(0, 2)}`));
+    // cada mes del periodo con al menos 5 cotizaciones: si no, el promedio no sería del periodo que dice la etiqueta
+    if (meses.some(m => v.filter(x => `${base.anio}-${x[0].slice(0, 2)}` === m).length < 5)) return null;
+    return v.reduce((a, x) => a + x[1] / base.kgEmpaque, 0) / v.length;
+  }
   // Variedad de cada eslabón: la misma que la de la frontera cuando el eslabón la cotiza (si no, la principal del eslabón)
   function principalDe(datos, k, nombre) {
     const p = datos?.productos?.[k];
@@ -535,6 +543,14 @@
     const pr = en() ? (b.presentacionEn ?? b.presentacion) : b.presentacion;
     return pr && pr !== "n/a" ? (en() ? pr : VAR_ES[pr] ?? pr) : "";
   };
+  // Precio de anaquel (BLS): artículo y periodo del promedio (últimos 3 meses publicados)
+  const ARTICULO_ES = { jitomate: "jitomate de campo", papa: "papa blanca", lechuga: "lechuga iceberg", fresa: "fresa (caja de 12 oz)",
+    naranja: "naranja Navel", toronja: "toronja", platano: "plátano" };
+  function periodoAnaquel(an) {
+    const m = an.meses.slice(-3).map(x => x[0]), M = en() ? MES_EN : MES;
+    const [a1, m1] = m[0].split("-").map(Number), [a2, m2] = m.at(-1).split("-").map(Number);
+    return `${M[m1 - 1]}${a1 !== a2 ? " " + a1 : ""}–${M[m2 - 1]} ${a2}`;
+  }
   function cadenaDatos(k) {
     const pr = window.PRODUCTOR_EUA?.productos?.[k];
     const fr = principalDe(window.FRONTERA_DIARIA, k), nom = fr?.nombre;
@@ -551,26 +567,46 @@
       [tx("Mayoreo EE. UU.", "U.S. wholesale"), promedioKg(my), v(my) + (myMx ? tx("producto mexicano en mercados terminales", "Mexican product in terminal markets") : tx("todos los orígenes (llega poco producto mexicano) en mercados terminales", "all origins (little Mexican product arrives) in terminal markets")) + ", " + ult8, AMARILLO],
       [tx("Supermercado (oferta)", "Supermarket (ad price)"), promedioKg(cs), v(cs) + tx("precio de oferta", "advertised price") + ", " + ult8, DN]
     ];
+    const an = window.ANAQUEL_EUA?.productos?.[k];
+    if (an) eslabones.push([tx("Supermercado (anaquel)", "Supermarket (shelf price)"), an.precioKg,
+      `${tx(ARTICULO_ES[k] ?? an.articulo, an.articulo)}, ${tx("precio de todos los días, BLS", "everyday price, BLS")}, ${periodoAnaquel(an)}`, "#E86A92"]);
     eslabones.mixto = mixto;
+    if (an && !mixto) eslabones.fronteraAnaquel = { precio: promedioKgMeses(fr, an.meses.slice(-3).map(x => x[0])), periodo: periodoAnaquel(an), variedad: etqVar(fr) };
     return eslabones;
   }
   function cadenaHTML(k) {
     if (!window.PRODUCTOR_EUA?.productos?.[k] && !window.ORIGEN_EUA_INDICE?.productos?.includes(k) && !window.FRONTERA_DIARIA?.productos?.[k]) return "";
-    return `<h3><span${tno()}>${tx("De la granja al supermercado en EE. UU.", "From farm to supermarket in the U.S.")}</span> <span class="tag ok">USDA</span></h3><div class="gfr-cadena" data-cadena="${k}"${tno()}><p class="gfr-nota">${tx("Cargando los precios…", "Loading prices…")}</p></div>`;
+    return `<h3><span${tno()}>${tx("De la granja al supermercado en EE. UU.", "From farm to supermarket in the U.S.")}</span> <span class="tag ok">USDA${window.ANAQUEL_EUA?.productos?.[k] ? " · BLS" : ""}</span></h3><div class="gfr-cadena" data-cadena="${k}"${tno()}><p class="gfr-nota">${tx("Cargando los precios…", "Loading prices…")}</p></div>`;
   }
   const resumenCadena = () => envolverRes(tx("Precio por kg en cada eslabón", "Price per kg at each link"));
   function pintarCadena(el) {
     const k = el.dataset.cadena, e = cadenaDatos(k), max = Math.max(...e.map(x => x[1] ?? 0));
     if (en()) el.setAttribute("translate", "no");
-    const sup = e[4][1], fr = e.mixto ? null : e[2][1];
+    const sup = e[4][1], fr = e.mixto ? null : e[2][1], anq = e[5]?.[1] ?? null;
     const filas = e.map(([n, v, nota, col]) => `<div class="gfr-cad-fila"><span class="n">${n}<small>${nota}</small></span>
       <span class="b">${v != null ? `<i style="width:${(v / max * 100).toFixed(1)}%;background:${col}"></i>` : ""}</span>
       <span class="x">${v != null ? "US$" + v.toFixed(2) : "—"}</span></div>`).join("");
-    const caroMayoreo = sup && Math.max(fr ?? 0, e[3][1] ?? 0) >= sup * 0.9;   // con frontera mixta solo cuenta el mayoreo
+    const ofertaBaja = sup && Math.max(fr ?? 0, e[3][1] ?? 0) >= sup * 0.9;   // con frontera mixta solo cuenta el mayoreo
     const enFrontera = (fr ?? 0) >= sup * 0.9, pct = sup && fr ? Math.round(fr / sup * 100) : null;
-    const lectura = caroMayoreo ? `<div class="nota">${en()
+    const fa = e.fronteraAnaquel, frA = fa?.precio ?? null;   // frontera en los mismos meses que el anaquel
+    const pctA = anq && frA ? Math.round(frA / anq * 100) : null;
+    const caroMayoreo = ofertaBaja && pctA == null;   // sin anaquel comparable, la advertencia de ofertas es la lectura
+    const sinFronteraAnq = !(anq != null && fa && frA == null) ? ""
+      : fr == null ? tx(` El precio de anaquel del BLS (${fa.periodo}) no se compara con la frontera porque el USDA no cotiza el producto mexicano al cruzar.`,
+        ` The BLS shelf price (${fa.periodo}) is not compared with the border because the USDA does not quote Mexican product at the crossing.`)
+      : tx(` El precio de anaquel del BLS (${fa.periodo}) no se compara con la frontera porque en esos meses casi no cruza producto mexicano.`,
+        ` The BLS shelf price (${fa.periodo}) is not compared with the border because almost no Mexican product crossed in those months.`);
+    const notaOferta = ofertaBaja ? (en()
+      ? ` The supermarket <i>ads</i> (US$${sup.toFixed(2)}/kg) are close to the ${enFrontera ? "border" : "wholesale"} price: they are promotions with minimal margin or at a loss.`
+      : ` Las <i>ofertas</i> del supermercado (US$${sup.toFixed(2)}/kg) están casi al nivel del precio ${enFrontera ? "en la frontera" : "de mayoreo"}: son promociones con margen mínimo o con pérdida.`) : "";
+    const lectura = pctA != null && pctA < 90 ? `<div class="nota">${en()
+        ? `In ${fa.periodo} Mexican product at the border${fa.variedad ? ` (${fa.variedad})` : ""} averaged US$${frA.toFixed(2)}/kg, <b>${pctA}%</b> of the everyday supermarket shelf price (US$${anq.toFixed(2)}/kg): of every dollar the U.S. shopper pays, ${pctA} cents go to the FOB price at the crossing (which includes packing and freight to the border); the rest is U.S. freight, wholesale, shrink and the supermarket's margin.`
+        : `En ${fa.periodo} el producto mexicano en la frontera${fa.variedad ? ` (${fa.variedad})` : ""} promedió US$${frA.toFixed(2)}/kg, <b>${pctA}%</b> del precio de anaquel de todos los días en el supermercado (US$${anq.toFixed(2)}/kg): de cada dólar que paga el consumidor estadounidense, ${pctA} centavos corresponden al precio FOB en el cruce (que incluye empaque y flete hasta la frontera); el resto es flete en EE. UU., mayoreo, merma y margen del supermercado.`}${notaOferta}</div>`
+      : pctA != null ? `<div class="nota">${tx(`En ${fa.periodo} el precio en la frontera (US$${frA.toFixed(2)}/kg) quedó casi al nivel del precio de anaquel (US$${anq.toFixed(2)}/kg): el empaque de referencia de la frontera no es el que mide el BLS en la tienda, así que no se calcula qué parte del precio al consumidor llega a la frontera.`,
+        `In ${fa.periodo} the border price (US$${frA.toFixed(2)}/kg) was almost at the shelf price level (US$${anq.toFixed(2)}/kg): the border reference package is not the one BLS measures in stores, so the share of the retail price reaching the border is not calculated.`)}</div>`
+      : caroMayoreo ? `<div class="nota">${en()
         ? `In these weeks the supermarket ad price (US$${sup.toFixed(2)}/kg) is below or close to the ${enFrontera ? "border" : "wholesale"} price: these are promotions with minimal margin or at a loss (supermarkets use them to draw shoppers), so they do not reflect the everyday shelf price. Compare per-kg prices with caution.`
-        : `En estas semanas el precio de oferta del supermercado (US$${sup.toFixed(2)}/kg) está por debajo o casi al nivel del precio ${enFrontera ? "en la frontera" : "de mayoreo"}: son promociones con margen mínimo o con pérdida (el supermercado las usa para atraer clientes), así que no reflejan el precio de anaquel de todos los días. Compara los precios por kg con cautela.`}</div>`
+        : `En estas semanas el precio de oferta del supermercado (US$${sup.toFixed(2)}/kg) está por debajo o casi al nivel del precio ${enFrontera ? "en la frontera" : "de mayoreo"}: son promociones con margen mínimo o con pérdida (el supermercado las usa para atraer clientes), así que no reflejan el precio de anaquel de todos los días. Compara los precios por kg con cautela.`}${sinFronteraAnq}</div>`
       : pct != null ? `<div class="nota">${en()
         ? `Mexican product at the border is worth <b>${pct}%</b> of the supermarket ad price: of every dollar the U.S. shopper pays, ${pct} cents go to the FOB price at the crossing (which includes packing and freight to the border); the rest is U.S. freight, wholesale, shrink and the supermarket's margin.`
         : `El producto mexicano en la frontera vale <b>${pct}%</b> del precio de oferta en el supermercado: de cada dólar que paga el consumidor estadounidense, ${pct} centavos corresponden al precio FOB en el cruce (que incluye empaque y flete hasta la frontera); el resto es flete en EE. UU., mayoreo, merma y margen del supermercado.`}</div>`
@@ -585,10 +621,14 @@
       return;
     }
     el.innerHTML = `<div class="gfr-cad">${filas}</div>${lectura}
-      <p class="sub">${tx("US$/kg. Agricultor: precio recibido promedio nacional de mercado fresco (USDA NASS). Origen EE. UU., frontera y mayoreo: promedio de las últimas 8 semanas del empaque de referencia, misma variedad que en la frontera cuando se cotiza (USDA AMS). Supermercado: promedio de las ofertas de las últimas 8 semanas (USDA AMS). Los empaques que no traen peso no se convierten a kg.",
-        "US$/kg. Grower: national average fresh-market price received (USDA NASS). U.S. shipping point, border and wholesale: average of the last 8 weeks for the reference package, same variety as at the border when quoted (USDA AMS). Supermarket: average of the last 8 weeks of ads (USDA AMS). Packages with no stated weight are not converted to kg.")}</p>`;
-    ponerResumen(el, caroMayoreo ? tx("Las ofertas del supermercado están al nivel del mayoreo", "Supermarket ads are at wholesale level")
+      <p class="sub">${tx("US$/kg. Agricultor: precio recibido promedio nacional de mercado fresco (USDA NASS). Origen EE. UU., frontera y mayoreo: promedio de las últimas 8 semanas del empaque de referencia, misma variedad que en la frontera cuando se cotiza (USDA AMS). Supermercado (oferta): promedio de las ofertas de las últimas 8 semanas (USDA AMS). Los empaques que no traen peso no se convierten a kg.",
+        "US$/kg. Grower: national average fresh-market price received (USDA NASS). U.S. shipping point, border and wholesale: average of the last 8 weeks for the reference package, same variety as at the border when quoted (USDA AMS). Supermarket (ad price): average of the last 8 weeks of ads (USDA AMS). Packages with no stated weight are not converted to kg.")}${anq != null ? tx(" Supermercado (anaquel): precio promedio que pagan los consumidores en tiendas urbanas de todo el país, promedio de los últimos 3 meses publicados (BLS, Average Price Data); el BLS solo lo publica para unos cuantos productos frescos.",
+        " Supermarket (shelf price): average price paid by consumers in urban stores nationwide, average of the last 3 published months (BLS, Average Price Data); BLS publishes it for only a few fresh products.") : ""}</p>`;
+    ponerResumen(el, caroMayoreo ? (enFrontera ? tx("Las ofertas del supermercado están al nivel de la frontera", "Supermarket ads are at border-price level")
+        : tx("Las ofertas del supermercado están al nivel del mayoreo", "Supermarket ads are at wholesale level"))
       : e.mixto ? tx("Precio por kg en cada eslabón (frontera mixta)", "Price per kg at each link (mixed border)")
+      : pctA != null && pctA < 90 ? tx(`En la frontera vale ${pctA}% del precio de anaquel`, `At the border it is worth ${pctA}% of the shelf price`)
+      : pctA != null ? tx("Precio por kg en cada eslabón", "Price per kg at each link")
       : pct != null ? tx(`En la frontera vale ${pct}% del precio al consumidor`, `At the border it is worth ${pct}% of the retail price`) : tx("Precio por kg en cada eslabón", "Price per kg at each link"));
   }
   function llenarCadena(el) {

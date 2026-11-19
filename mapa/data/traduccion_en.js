@@ -2143,6 +2143,8 @@ window.TRADUCCION_EN = {
 "US$# la caja · mixto": "US$# per box · mixed",
 "Sin producción SIAP": "No SIAP production",
 "<#% con lluvia fuerte": "<#% with heavy rain",
+"USDA · BLS": "USDA · BLS",
+"BLS: precio de anaquel en @": "BLS: supermarket shelf price in @",
 "Comercio: fracción # Producción nacional muy pequeña; sin consumo oficial: se usa el consumo aparente.": "Trade: tariff line # National production is very small; no official consumption: apparent consumption is used.",
 "Logística (# t movidas entre entidades e importación)": "Logistics (# t moved between states and imported)",
 "(referencia) · población # M (CONAPO #)": "(reference) · population # M (CONAPO #)",

@@ -260,6 +260,18 @@ Tres secciones nuevas (vista México → Exportar; EE. UU. → Producto), con el
   Frontera mixta (apio, espinaca, kale…) y mayoreo de todos los orígenes (manzana, papa…) se etiquetan así y la
   frontera mixta no entra al cálculo. Origen EE. UU.: "Southern New Mexico" sí cuenta (es un estado de EE. UU.); los
   distritos se normalizan para cruzar precios con el volumen del 1662 y se nombran en español.
+  **Precio de anaquel** (último eslabón, noviembre de 2026): precio promedio mensual de todos los días en tiendas urbanas
+  (BLS, Average Price Data, U.S. city average; `python scripts/procesar_anaquel_eua.py` → `data/anaquel_eua.js`, corre en
+  la actualización semanal). Fuente: API pública del BLS v1 (sin clave, 25 consultas al día) con respaldo en FRED; si
+  ninguna responde usa `data/fuentes/bls/anaquel.json`. El BLS ya solo publica jitomate, papa, lechuga, fresa (caja de
+  12 oz), naranja, toronja y plátano (pimiento y brócoli terminan en 2020, uva en 2021; el resto de hortalizas no tiene
+  serie; los limones no son el limón mexicano). Con anaquel, "de cada dólar…" compara la frontera **de los mismos tres
+  meses** que el promedio del BLS (el BLS va ~1 mes atrás y la frontera de las últimas 8 semanas daría cocientes falsos,
+  p. ej. fresa en noviembre), con al menos 5 cotizaciones en cada uno de los tres meses y nombrando la variedad de la
+  frontera (en jitomate es saladette; el BLS mide todo el jitomate de campo); si en esos meses no cruza producto
+  mexicano, el USDA no lo cotiza, o la frontera queda ≥ 90% del anaquel, no se calcula. Si BLS o FRED devuelven solo
+  parte de las series, lo que falta se completa con la descarga anterior. La advertencia de ofertas queda como nota aparte. El servidor de descargas del BLS bloquea scripts: el
+  catálogo de artículos (`ap.item`) se consultó en el navegador.
 
 ### Precio de mayoreo en México, mismo diseño (noviembre 2026)
 

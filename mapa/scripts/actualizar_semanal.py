@@ -26,6 +26,7 @@ def main():
              ["scripts/procesar_mayoreo_eua_diario.py"],   # precio diario en los mercados terminales de EE. UU. (gráfico)
              ["scripts/procesar_origen_eua_diario.py"],   # precio en origen del producto de EE. UU. (punto de embarque)
              ["scripts/procesar_consumidor_eua.py"],   # precio de oferta en supermercados de EE. UU. (reporte 3324)
+             ["scripts/procesar_anaquel_eua.py"],   # precio de anaquel en EE. UU. (BLS, mensual; si no responde usa la última descarga)
              ["scripts/procesar_pronostico_sniim.py"],   # mayoreo en México (SNIIM), año en curso
              ["scripts/procesar_mayoreo_diario.py"],   # precio diario de mayoreo por variedad (gráfico; reusa la descarga anterior)
              ["scripts/actualizar_sequia.py"],   # Monitor de Sequía de la CONAGUA (quincenal)

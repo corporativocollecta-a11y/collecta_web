@@ -101,6 +101,10 @@ def main():
     if ca:
         h = date.fromisoformat(ca["hasta"])
         agregar("canada_mayoreo", "InfoHort (Canadá): mayoreo en Toronto y Montreal", h, f"al {h.day} de {MESES[h.month - 1]}", 7, 10, "procesar_precios_canada.py")
+    an = leer("anaquel_eua")
+    if an:
+        a, m = map(int, an["mes"].split("-"))
+        agregar("bls_anaquel", "BLS: precio de anaquel en EE. UU.", fin_mes(a, m), f"{MESES[m - 1]} de {a}", 31, 45, "procesar_anaquel_eua.py")
     cl = leer("clima_smn")
     if cl:
         f = date.fromisoformat(cl["generado"])

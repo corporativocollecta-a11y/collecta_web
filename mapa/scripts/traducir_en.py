@@ -2049,7 +2049,9 @@ for _n in range(1, 5):
 # antes de cambiar a inglés; los gráficos mismos se escriben en inglés en js/graficos.js)
 EXTRA.update({"Analizar precios": "Analyze prices", "USDA AMS": "USDA AMS", "Solo precio en la frontera": "Border price only",
               "US$# la caja": "US$# per box", "US$# la caja · mixto": "US$# per box · mixed", "Sin producción SIAP": "No SIAP production",
-              "<#% con lluvia fuerte": "<#% with heavy rain"})
+              "<#% con lluvia fuerte": "<#% with heavy rain",
+              # precio de anaquel (BLS) en la cadena de precios y en la tabla de fuentes
+              "USDA · BLS": "USDA · BLS", "BLS: precio de anaquel en @": "BLS: supermarket shelf price in @"})
 # Noviembre de 2026: notas de datos de las 14 hortalizas que cotiza el USDA (balance, exportar y vista EE. UU.)
 EXTRA.update({'Comercio: fracción # Producción nacional muy pequeña; sin consumo oficial: se usa el consumo aparente.': 'Trade: tariff line # National production is very small; no official consumption: apparent consumption is used.',
     'Logística (# t movidas entre entidades e importación)': 'Logistics (# t moved between states and imported)',
